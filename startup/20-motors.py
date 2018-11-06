@@ -198,7 +198,11 @@ class FoilWheel(Device):
 
 foil_wheel = FoilWheel('XF:08IDB-OP{FoilWheel', name='foil_wheel')
 
+class GonioMeter(Device):
+    th1 = Cpt(EpicsMotor, ':1}Mtr')
+    th2 = Cpt(EpicsMotor, ':2}Mtr')
 
+gonio_meter = GonioMeter('XF:08IDB-OP{Gon:Th', name='gonio_meter')
 
 
 

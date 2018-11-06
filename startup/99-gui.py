@@ -57,7 +57,9 @@ motors_dictionary = {'slits_v_gap': {'name': slits.v_gap.name, 'description':'B1
                'six_axes_stage_z': {'name': six_axes_stage.z.name, 'description':'Six Axes Stage Z', 'object': six_axes_stage.z},
                'six_axes_stage_pitch': {'name': six_axes_stage.pitch.name, 'description':'Six Axes Stage Pitch', 'object': six_axes_stage.pitch},
                'six_axes_stage_yaw': {'name': six_axes_stage.yaw.name, 'description':'Six Axes Stage Yaw', 'object': six_axes_stage.yaw},
-               'six_axes_stage_roll': {'name': six_axes_stage.roll.name, 'description':'Six Axes Stage Roll', 'object': six_axes_stage.roll}
+               'six_axes_stage_roll': {'name': six_axes_stage.roll.name, 'description':'Six Axes Stage Roll', 'object': six_axes_stage.roll},
+               'gonio_meter_th1': {'name': gonio_meter.th1.name, 'description':'Gonio Meter Theta1', 'object': gonio_meter.th1},
+               'gonio_meter_th2': {'name': gonio_meter.th2.name, 'description':'Gonio Meter Theta2', 'object': gonio_meter.th2}
               }
 
 sample_stages = [{'x': giantxy.x.name, 'y': giantxy.y.name},
