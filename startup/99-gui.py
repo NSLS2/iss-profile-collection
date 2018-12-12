@@ -16,6 +16,7 @@ detector_dictionary = {bpm_fm.name: {'obj': bpm_fm, 'elements': ['bpm_fm_stats1_
             bpm_bt1.name: {'obj': bpm_bt1, 'elements': ['bpm_bt1_stats1_total','bpm_bt1_stats2_total']},
             bpm_bt2.name: {'obj': bpm_bt2, 'elements':['bpm_bt2_stats1_total','bpm_bt2_stats2_total']},
             bpm_es.name: {'obj': bpm_es, 'elements':['bpm_es_stats1_total','bpm_es_stats2_total']},
+            bpm_sp3.name: {'obj': bpm_sp3, 'elements':['bpm_sp3_stats1_total','bpm_sp3_stats2_total']},
             pb9.enc1.name: {'obj': pb9.enc1, 'elements': ['pb9_enc1_pos_I']},
             it.name: {'obj': it, 'elements': ['pba1_adc1_volt']},
             iff.name: {'obj': iff, 'elements': ['pba1_adc6_volt']},
@@ -59,7 +60,10 @@ motors_dictionary = {'slits_v_gap': {'name': slits.v_gap.name, 'description':'B1
                'six_axes_stage_yaw': {'name': six_axes_stage.yaw.name, 'description':'Six Axes Stage Yaw', 'object': six_axes_stage.yaw},
                'six_axes_stage_roll': {'name': six_axes_stage.roll.name, 'description':'Six Axes Stage Roll', 'object': six_axes_stage.roll},
                'gonio_meter_th1': {'name': gonio_meter.th1.name, 'description':'Gonio Meter Theta1', 'object': gonio_meter.th1},
-               'gonio_meter_th2': {'name': gonio_meter.th2.name, 'description':'Gonio Meter Theta2', 'object': gonio_meter.th2}
+               'gonio_meter_th2': {'name': gonio_meter.th2.name, 'description':'Gonio Meter Theta2', 'object': gonio_meter.th2},
+               'smedley_cathode_zeta': {'name': cathode_zeta.smedley_zeta.name, 'description':'Cathode Chamber Zeta', 'object': cathode_zeta.smedley_zeta},
+               'smedley_cathode_trans_x': {'name': cathode_trans.smedley_x.name, 'description':'Cathode Chamber Trans X', 'object': cathode_trans.smedley_x},
+               'smedley_cathode_trans_y': {'name': cathode_trans.smedley_y.name, 'description':'Cathode Chamber Trans Y', 'object': cathode_trans.smedley_y}
               }
 
 sample_stages = [{'x': giantxy.x.name, 'y': giantxy.y.name},

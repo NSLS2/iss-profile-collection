@@ -45,7 +45,8 @@ def tscan(name:str, comment:str, n_cycles:int=1, delay:float=0, **kwargs):
         yield uid
         #hhm.prepare_trajectory.put('1')
         #uids.append(uid)
-        time.sleep(float(delay))
+        print(f'Waiting for {delay} s ')
+        RE(bps.sleep(float(delay)))
     print('Scan is complete!')
     #return uids
     

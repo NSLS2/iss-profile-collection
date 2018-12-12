@@ -10,8 +10,6 @@ from ophyd import (ProsilicaDetector, SingleTrigger, Component as Cpt, Device,
 from ophyd import DeviceStatus, set_and_wait
 from bluesky.examples import NullStatus
 
-from datetime import datetime
-
 from databroker.assets.handlers_base import HandlerBase
 
 
@@ -56,25 +54,18 @@ class CAMERA(SingleTrigger, ProsilicaDetector):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        self.stage_sigs['cam.image_mode'] = 'Single'
         #self.stage_sigs.clear()  # default stage sigs do not apply
-
-    def stage(self, acquire_time, image_mode, *args, **kwargs):
-        self.stage_sigs['cam.acquire_time'] =  acquire_time
-        self.stage_sigs['cam.image_mode'] = image_mode
-        super().stage(*args, **kwargs)
-
 
 bpm_fm = BPM('XF:08IDA-BI{BPM:FM}', name='bpm_fm')
 bpm_cm = BPM('XF:08IDA-BI{BPM:CM}', name='bpm_cm')
 bpm_bt1 = BPM('XF:08IDA-BI{BPM:1-BT}', name='bpm_bt1')
 bpm_bt2 = BPM('XF:08IDA-BI{BPM:2-BT}', name='bpm_bt2')
 bpm_es = BPM('XF:08IDB-BI{BPM:ES}', name='bpm_es')
-bpm_sp1 = BPM('XF:08IDB-BI{BPM:SP-1}', name='bpm_sp1')
-bpm_sp3 = BPM('XF:08IDB-BI{BPM:SP-3}', name='bpm_sp3')
-#bpm_ms1 = CAMERA('XF:08IDB-BI{BPM:MS-1}', name='bpm_ms1')
+bpm_sp1 = CAMERA('XF:08IDB-BI{BPM:SP-1}', name='bpm_sp1')
+bpm_ms1 = CAMERA('XF:08IDB-BI{BPM:MS-1}', name='bpm_ms1')
 
-for bpm in [bpm_fm, bpm_cm, bpm_bt1, bpm_bt2, bpm_es, bpm_sp1, bpm_sp3]:
+for bpm in [bpm_fm, bpm_cm, bpm_bt1, bpm_bt2, bpm_es, bpm_sp1]:
     bpm.read_attrs = ['stats1', 'stats2']
     bpm.image.read_attrs = ['array_data']
     bpm.stats1.read_attrs = ['total', 'centroid']
@@ -116,17 +107,6 @@ class Encoder(Device):
             # self.filter_dt.put(10000)
 
 
-def make_filename(filename):
-    '''
-        Makes a rootpath, filepath pair
-    '''
-    # RAW_FILEPATH is a global defined in 00-startup.py
-    write_path_template = os.path.join(RAW_FILEPATH, '%Y/%m/%d')
-    # path without the root
-    filepath = os.path.join(datetime.now().strftime(write_path_template), filename)
-    return filepath
-
-
 class EncoderFS(Encoder):
     "Encoder Device, when read, returns references to data in filestore."
     chunk_size = 1024
@@ -136,15 +116,17 @@ class EncoderFS(Encoder):
 
         if(self.connected):
             print('Staging of {} starting'.format(self.name))
-
-            filename = 'en_' + str(uuid.uuid4())[:8]
-
-            # without the root, but with data path + date folders
-            full_path = make_filename(filename)
-            # with the root
-            self._full_path = os.path.join(ROOT_PATH, full_path)  # stash for future reference
-
-
+            DIRECTORY = '/GPFS/xf08id/'
+            rpath = 'pizza_box_data'
+            filename = 'en_' + str(uuid.uuid4())[:6]
+            full_path = os.path.join(rpath, filename)
+            self._full_path = os.path.join(DIRECTORY, full_path)  # stash for future reference
+            if len(self._full_path) > 40:
+                raise RuntimeError("Stupidly, EPICS limits the file path to 80 characters. "
+                               "Choose a different DIRECTORY with a shorter path. (I know....)")
+            self._full_path = os.path.join(DIRECTORY, full_path)  # stash for future reference
+            # print(self._full_path)
+            #
             # FIXME: Quick TEMPORARY fix for beamline disaster
             # we are writing the file to a temp directory in the ioc and
             # then moving it to the GPFS system.
@@ -158,7 +140,7 @@ class EncoderFS(Encoder):
 
             self.resource_uid = self._reg.register_resource(
                 'PIZZABOX_ENC_FILE_TXT',
-                ROOT_PATH, full_path,
+                DIRECTORY, full_path,
                 {'chunk_size': self.chunk_size})
 
             super().stage()
@@ -289,12 +271,17 @@ class DIFS(DigitalInput):
         "Set the filename and record it in a 'resource' document in the filestore database."
 
         print('Staging of {} starting'.format(self.name))
+        DIRECTORY = '/GPFS/xf08id/'
+        rpath = 'pizza_box_data'
+        filename = 'di_' + str(uuid.uuid4())[:6]
+        full_path = os.path.join(rpath, filename)
+        self._full_path = os.path.join(DIRECTORY, full_path)  # stash for future reference
+        if len(self._full_path) > 40:
+            raise RuntimeError("EPICS filepath is limited to 80 characters. "
+                           "Choose a DIRECTORY with a shorter path")
+        self._full_path = os.path.join(DIRECTORY, full_path)  # stash for future reference
 
-        filename = 'di_' + str(uuid.uuid4())[:8]
-
-        full_path = make_filename(filename)
-        self._full_path = os.path.join(ROOT_PATH, full_path)
-
+        #
         # FIXME: Quick TEMPORARY fix for beamline disaster
         # we are writing the file to a temp directory in the ioc and
         # then moving it to the GPFS system.
@@ -308,7 +295,7 @@ class DIFS(DigitalInput):
 
         self.resource_uid = self._reg.register_resource(
             'PIZZABOX_DI_FILE_TXT',
-            ROOT_PATH, full_path,
+            DIRECTORY, full_path,
             {'chunk_size': self.chunk_size})
 
         super().stage()
@@ -353,7 +340,7 @@ class DIFS(DigitalInput):
         now = ttime.time()
         ttime.sleep(1)  # wait for file to be written by pizza box
 
-        workstation_file_root = '/mnt/xf08ida-ioc1/'
+        workstation_file_root = '/mnt/xf08idb-ioc1/'
         workstation_full_path = os.path.join(workstation_file_root, self._filename)
 
 
@@ -484,7 +471,6 @@ class Adc(Device):
 class AdcFS(Adc):
     "Adc Device, when read, returns references to data in filestore."
     chunk_size = 1024
-    write_path_template = os.path.join(ROOT_PATH, RAW_FILEPATH, '/%Y/%m/%d')
 
     def __init__(self, *args, reg, **kwargs):
         self._reg = reg
@@ -493,13 +479,21 @@ class AdcFS(Adc):
 
     def stage(self):
         "Set the filename and record it in a 'resource' document in the filestore database."
+
+
         if(self.connected):
             print( 'Staging of {} starting'.format(self.name))
-
-            filename = 'an_' + str(uuid.uuid4())[:8]
-            full_path = make_filename(filename)
-            self._full_path = os.path.join(ROOT_PATH, full_path)
-
+            DIRECTORY = '/GPFS/xf08id/'
+            rpath = 'pizza_box_data'
+            filename = 'an_' + str(uuid.uuid4())[:6]
+            full_path = os.path.join(rpath, filename)
+            self._full_path = os.path.join(DIRECTORY, full_path)  # stash for future reference
+            if len(self._full_path) > 40:
+                raise RuntimeError("EPICS filepath is limited to 80 characters. "
+                                   "Choose a DIRECTORY with a shorter path")
+            self._full_path = os.path.join(DIRECTORY, full_path)  # stash for future reference
+            #print(self._full_path) Eli 2018-01-30
+            #
             # FIXME: Quick TEMPORARY fix for beamline disaster
             # we are writing the file to a temp directory in the ioc and
             # then moving it to the GPFS system.
@@ -515,7 +509,7 @@ class AdcFS(Adc):
 
             self.resource_uid = self._reg.register_resource(
                 'PIZZABOX_AN_FILE_TXT',
-                ROOT_PATH, full_path,
+                DIRECTORY, full_path,
                 {'chunk_size': self.chunk_size})
             print('Staging of {} complete'.format(self.name))
             super().stage()
@@ -528,15 +522,11 @@ class AdcFS(Adc):
     def kickoff(self):
         print('kickoff', self.name)
         self._ready_to_collect = True
-    
         "Start writing data into the file."
-        # set_and_wait(self.enable_sel, 0)
-        st = self.enable_sel.set(0)
-
+        set_and_wait(self.enable_sel, 0)
         # Return a 'status object' that immediately reports we are 'done' ---
         # ready to collect at any time.
-        # return NullStatus()
-        return st
+        return NullStatus()
 
     def complete(self):
         print('storing', self.name, 'in', self._full_path)

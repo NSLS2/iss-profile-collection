@@ -204,5 +204,15 @@ class GonioMeter(Device):
 
 gonio_meter = GonioMeter('XF:08IDB-OP{Gon:Th', name='gonio_meter')
 
+class CathodeChamberZeta(Device):
+    smedley_zeta = Cpt(EpicsMotor, ':Rot}Mtr')
+
+cathode_zeta = CathodeChamberZeta('XF:08IDB-OP{JS-Stg-Ax', name='cathode_zeta')
+
+class CathodeChamberTrans(Device):
+    smedley_x = Cpt(EpicsMotor, ':X}Mtr')
+    smedley_y = Cpt(EpicsMotor, ':Y}Mtr')
+
+cathode_trans = CathodeChamberTrans('XF:08IDB-OP{PPMAC:StageJS-Ax', name='cathode_trans')
 
 

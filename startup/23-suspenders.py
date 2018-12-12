@@ -1,4 +1,4 @@
-print(__file__)
+
 from bluesky.suspenders import (SuspendBoolHigh,
                                 SuspendBoolLow,
                                 SuspendFloor,

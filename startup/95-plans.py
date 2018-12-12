@@ -5,6 +5,7 @@ from subprocess import call
 import os
 from isstools.conversions import xray
 import signal
+import sys
 
 from ophyd.device import Kind
 
@@ -77,11 +78,6 @@ def energy_multiple_scans(start, stop, repeats, name='', **metadata):
 
 
 def get_offsets_plan(detectors, num = 1, name = '', **metadata):
-    """
-    Example
-    -------
-    >>> RE(get_offset([pba1.adc1, pba1.adc6, pba1.adc7, pba2.adc6]))
-    """
 
     flyers = detectors 
 
@@ -730,7 +726,11 @@ def wait_filter_in_place(status_pv):
             yield from bps.sleep(.1)
 
 
-def prepare_bl_plan(energy: int = -1, print_messages=True, debug=False):
+
+
+def prepare_bl_plan(energy: int = -1, print_messages=True, debug=False,**kwargs):
+    sys.stdout = kwargs.pop('stdout', sys.stdout)
+    print('hello')
     if debug:
         print('[Prepare BL] Running Prepare Beamline in Debug Mode! (Not moving anything)')
 
@@ -744,24 +744,32 @@ def prepare_bl_plan(energy: int = -1, print_messages=True, debug=False):
     if print_messages:
         print('[Prepare BL] Setting up the beamline to {} eV'.format(curr_energy))
 
+
+
     curr_range = [ran for ran in prepare_bl_def[0] if
                   ran['energy_end'] > curr_energy >= ran['energy_start']]
     if not len(curr_range):
         print('Current energy is not valid. :( Aborted.')
         return
 
+
     curr_range = curr_range[0]
     pv_he = curr_range['pvs']['IC Gas He']['object']
+    print(pv_he.tolerance)
+
     if print_messages:
         print('[Prepare BL] Setting HE to {}'.format(curr_range['pvs']['IC Gas He']['value']))
+
     if not debug:
         yield from bps.mv(pv_he, curr_range['pvs']['IC Gas He']['value'])
+
 
     pv_n2 = curr_range['pvs']['IC Gas N2']['object']
     if print_messages:
         print('[Prepare BL] Setting N2 to {}'.format(curr_range['pvs']['IC Gas N2']['value']))
     if not debug:
         yield from bps.mv(pv_n2, curr_range['pvs']['IC Gas N2']['value'])
+
 
     # If you go from less than 1000 V to more than 1400 V, you need a delay. 2 minutes
     # For now if you increase the voltage (any values), we will have the delay. 2 minutes
@@ -976,14 +984,6 @@ def prepare_bl_plan(energy: int = -1, print_messages=True, debug=False):
     if print_messages:
         print('[Prepare BL] Beamline preparation complete!')
 
-#    yield from bps.mv(hhm.energy, E)
-#    yield from bps.mv(other_thing, f(E))
-#    yield from bps.mv(t1, v1, t2, v2)
-#    yield from bps.abs_set(motor, val, group='A')
-#    yield from bps.abs_set(motor2, val2, group='A')
-#    yield from bps.wait(group='A')
-
-
 def sleep_plan(sleep_time, **metadata):
     return (yield from bps.sleep(float(sleep_time)))
 
@@ -1065,13 +1065,6 @@ lut_offsets = {
 
 
 def set_gains_and_offsets_plan(*args):
-    """
-    Parameters
-    ----------
-    Groups of three parameters: amplifier, gain, hs
-
-    Example: set_gains_and_offsets(i0_amp, 5, False, it_amp, 4, False, iff_amp, 5, True)
-    """
 
     mod = len(args) % 3
     if mod:
@@ -1089,12 +1082,8 @@ def set_gains_and_offsets_plan(*args):
         if type(hs) != bool:
             raise Exception('Wrong type: {} - it should be bool'.format(type(hs)))
 
-        print('set amplifier gain for {}: {}, {}'.format(ic.par.dev_name.value, val, hs))
         if hs:
            hs_str = 'hs'
         else:
            hs_str = 'ln'
         yield from bps.mv(ic.par.offset, lut_offsets[ic.par.dev_name.value][hs_str][str(val)])
-        print('{}.offset -> {}'.format(ic.par.dev_name.value, lut_offsets[ic.par.dev_name.value][hs_str][str(val)]))
-
-
