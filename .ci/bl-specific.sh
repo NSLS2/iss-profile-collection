@@ -14,5 +14,7 @@ sudo mkdir -v -p /nsls2/xf08id/metadata/
 sudo mkdir -v -p /mnt/xf08ida-ioc1/
 sudo chmod -Rv go+rw /nsls2/xf08id/ /mnt/xf08ida-ioc1/
 
-touch /mnt/xf08ida-ioc1/test_5000
+for f in .ci/test-files/test_[0-9]*; do
+    cp -v $f /mnt/xf08ida-ioc1/
+done
 
