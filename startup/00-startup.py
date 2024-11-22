@@ -110,23 +110,23 @@ EpicsSignalBase.set_defaults(timeout=10, connection_timeout=10)
 
 #from databroker import Broker
 
-db_archive = Broker.named('iss')
-db = Broker.named('iss-local')
+# db_archive = Broker.named('iss')
+# db = Broker.named('iss-local')
 
 # db_proc = get_spectrum_catalog()
 # db_proc = get_spectrum_catalog_new()
 RE = RunEngine()
-# nslsii.configure_base(get_ipython().user_ns, 'iss', pbar=False)
-# nslsii.configure_kafka_publisher(RE, "iss")
+nslsii.configure_base(get_ipython().user_ns, 'iss', pbar=False)
+nslsii.configure_kafka_publisher(RE, "iss")
 
 logger_db = logging.getLogger('databroker')
 logger_db.setLevel('WARNING')
 
-# bec.disable_plots()
-# bec.disable_table()
-# RE.subscribe(bec)
-# peaks = bec.peaks  # just as alias for less typing
-#
+bec.disable_plots()
+bec.disable_table()
+RE.subscribe(bec)
+peaks = bec.peaks  # just as alias for less typing
+
 
 # class ISSPersistnetDict(PersistentDict):
 #
