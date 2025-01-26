@@ -71,13 +71,21 @@ class VonHamosGeometry(ObjectWithSettings):
             output[k] = cur_config[k]
         return output
 
+    # def compute_geometry_for_bragg(self, bragg_deg):
+    #     bragg = np.deg2rad(bragg_deg)
+    #     cr_x = self.R
+    #     cr_y = self.R / np.tan(bragg)
+    #     det_x = 0
+    #     det_y = 2 * cr_y
+    #     return cr_x, cr_y, det_x, det_y
+
     def compute_geometry_for_bragg(self, bragg_deg):
         bragg = np.deg2rad(bragg_deg)
-        cr_x = self.R
-        cr_y = self.R / np.tan(bragg)
-        det_x = 0
-        det_y = 2 * cr_y
-        return cr_x, cr_y, det_x, det_y
+        cr_x = self.R/np.sin(bragg)
+        det_x = 2*self.R*(np.cos(bragg)**2)/np.sin(bragg)
+        det_y = 2*self.R* np.cos(bragg)
+        theta = 90-bragg_deg
+        return cr_x, det_x, det_y, theta
 
     def e2bragg(self, energy):
         return e2bragg(energy, self.crystal, self.hkl)
@@ -136,7 +144,6 @@ class VonHamosDetectorArm(VonHamosPseudoPositioner):
         det_pitch, det_x, det_y = pseudo_dict['det_pitch'], pseudo_dict['det_x'], pseudo_dict['det_y']
 
         det_pitch_rad = np.deg2rad(det_pitch)
-
         _phi = np.pi - 2 * det_pitch_rad
         _sin_th1 = (self.det_h - self.det_L2 * np.sin(_phi) - det_y) / self.det_L1
         motor_det_th1 = np.arcsin(_sin_th1)

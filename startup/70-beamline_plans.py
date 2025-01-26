@@ -96,7 +96,7 @@ def bender_scan_plan_bundle(element, edge, error_message_func=None):
 
 
 def obtain_hhm_calibration_plan(dE=25, is_final=False, propagate_calibration=False, plot_func=None, error_message_func=None, liveplot_kwargs=None):
-    energy_nominal, energy_actual = get_energy_offset(-1, db, db_proc, dE=dE, plot_fun=plot_func)
+    energy_nominal, energy_actual = get_energy_offset(-1, db, dE=dE, plot_fun=plot_func)
 
     print_to_gui(f'{ttime.ctime()} [Energy calibration] Energy shift is {energy_actual - energy_nominal:.2f} eV')
     hhm.calibrate(energy_nominal, energy_actual, error_message_func=error_message_func)
@@ -117,17 +117,16 @@ def calibrate_mono_energy_plan_bundle(element='', edge='', propagate_calibration
     # validate_element_edge_in_db_proc(element, edge, error_message_func=error_message_func)
     run_calibration = True
     run_simple_scan = False
-    try:
-        #validate foil exists
-        db_proc[element][edge]
-    except Exception as e:
-        e_message = str(e)
-        print_to_gui(e_message)
-        if question_message_func is not None:
-            ret = question_message_func('Warning', f'{e_message}\n would you like to take a spectrum from this foil anyway to calibrate manually?'
-                                             f'\n If the spectum is good, do not forget to add to the library!')
-            run_calibration = False
-            run_simple_scan = ret
+    with open(f'{ROOT_PATH_SHARED}/settings/reference_library.json') as fp:
+        reference_library = json.load(fp)
+
+    run_calibration = False
+    if element in reference_library.keys():
+        if edge in reference_library[element]:
+            run_calibration = True
+
+    if run_calibration == False:
+        question_message_func('Warning', f' Calibration foil scan does not exist in teh reference library')
 
     if run_calibration or run_simple_scan:
         plans, trajectory_filename = prepare_foil_scan(element, edge)

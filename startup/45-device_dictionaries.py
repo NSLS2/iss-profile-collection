@@ -34,6 +34,7 @@ detector_dictionary =   {
                                      'channels': ['pil100k2_stats1_total', 'pil100k2_stats2_total',
                                                   'pil100k2_stats3_total', 'pil100k2_stats4_total',
                                                   'pil100k2_stats1_max_value']},
+                    'Ge detector':{'device':ge_detector, 'flying_device':ge_detector_stream},
 
                     # 'PI-MTE3': {'device': picam,
                     #                  'channels': ['picam_stats1_total','picam_stats2_total',

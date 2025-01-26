@@ -285,3 +285,5 @@ class FIPSpectrometerMotor(Device):
 
 fip_spectrometer_crystal = FIPSpectrometerMotor('XF:08IDB-OP{FIP-VHS:Stage1-Ax', name='fip_spectrometer_crystal')
 fip_spectrometer_detector = FIPSpectrometerMotor('XF:08IDB-OP{FIP-VHS:Stage2-Ax', name='fip_spectrometer_detector')
+
+

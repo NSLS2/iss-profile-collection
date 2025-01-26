@@ -147,3 +147,4 @@ def get_hhm_scan_md(name, comment, trajectory_filename, detectors_dict, element,
     return {**md_hhm_scan, **md_scan, **metadata}
 
 
+
