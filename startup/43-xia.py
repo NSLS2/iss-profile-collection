@@ -273,18 +273,19 @@ class XIAXMAPFileStore(FileStorePluginBase, HDF5Plugin):
 
         return desc
 
-class XIADetectorSettings(CamBase):
+# class XIADetectorSettings(CamBase):
+class XIADetectorSettings(Device):
    '''XIA XMAP detector'''
 
-   def __init__(self, prefix, *, read_attrs=None, configuration_attrs=None,
-                **kwargs):
-       if read_attrs is None:
-           read_attrs = []
-       # if configuration_attrs is None:
-       #     configuration_attrs = ['config_path', 'config_save_path',
-       #                            ]
-       super().__init__(prefix, read_attrs=read_attrs,
-                        configuration_attrs=configuration_attrs, **kwargs)
+   # def __init__(self, prefix, *, read_attrs=None, configuration_attrs=None,
+   #              **kwargs):
+   #     if read_attrs is None:
+   #         read_attrs = []
+   #     # if configuration_attrs is None:
+   #     #     configuration_attrs = ['config_path', 'config_save_path',
+   #     #                            ]
+   #     super().__init__(prefix, read_attrs=read_attrs,
+   #                      configuration_attrs=configuration_attrs, **kwargs)
 
    start = Cpt(EpicsSignal,'EraseStart')
    acquire = Cpt(EpicsSignal,'EraseStart')
@@ -344,6 +345,98 @@ class XmapMCA(Device):
     R0 = Cpt(EpicsSignal, ".R0", kind=Kind.hinted)
     R0nm = Cpt(EpicsSignal, ".R0NM", kind=Kind.hinted)
 
+#     val = Cpt(EpicsSignal, ".VAL", kind=Kind.hinted)
+#     R1low = Cpt(EpicsSignal, ".R0LO", kind=Kind.hinted)
+#     R1high = Cpt(EpicsSignal, ".R0HI", kind=Kind.hinted)
+#     R1 = Cpt(EpicsSignal, ".R0", kind=Kind.hinted)
+#     R1nm = Cpt(EpicsSignal, ".R0NM", kind=Kind.hinted)
+#
+# class XmapMCA3(Device):
+#     val = Cpt(EpicsSignal, ".VAL", kind=Kind.hinted)
+#     R0low = Cpt(EpicsSignal, ".R0LO", kind=Kind.hinted)
+#     R0high = Cpt(EpicsSignal, ".R0HI", kind=Kind.hinted)
+#     R0 = Cpt(EpicsSignal, ".R0", kind=Kind.hinted)
+#     R0nm = Cpt(EpicsSignal, ".R0NM", kind=Kind.hinted)
+#
+# class XmapMCA4(Device):
+#     val = Cpt(EpicsSignal, ".VAL", kind=Kind.hinted)
+#     R0low = Cpt(EpicsSignal, ".R0LO", kind=Kind.hinted)
+#     R0high = Cpt(EpicsSignal, ".R0HI", kind=Kind.hinted)
+#     R0 = Cpt(EpicsSignal, ".R0", kind=Kind.hinted)
+#     R0nm = Cpt(EpicsSignal, ".R0NM", kind=Kind.hinted)
+#
+# class XmapMCA5(Device):
+#     val = Cpt(EpicsSignal, ".VAL", kind=Kind.hinted)
+#     R0low = Cpt(EpicsSignal, ".R0LO", kind=Kind.hinted)
+#     R0high = Cpt(EpicsSignal, ".R0HI", kind=Kind.hinted)
+#     R0 = Cpt(EpicsSignal, ".R0", kind=Kind.hinted)
+#     R0nm = Cpt(EpicsSignal, ".R0NM", kind=Kind.hinted)
+#
+# class XmapMCA6(Device):
+#     val = Cpt(EpicsSignal, ".VAL", kind=Kind.hinted)
+#     R0low = Cpt(EpicsSignal, ".R0LO", kind=Kind.hinted)
+#     R0high = Cpt(EpicsSignal, ".R0HI", kind=Kind.hinted)
+#     R0 = Cpt(EpicsSignal, ".R0", kind=Kind.hinted)
+#     R0nm = Cpt(EpicsSignal, ".R0NM", kind=Kind.hinted)
+#
+# class XmapMCA7(Device):
+#     val = Cpt(EpicsSignal, ".VAL", kind=Kind.hinted)
+#     R0low = Cpt(EpicsSignal, ".R0LO", kind=Kind.hinted)
+#     R0high = Cpt(EpicsSignal, ".R0HI", kind=Kind.hinted)
+#     R0 = Cpt(EpicsSignal, ".R0", kind=Kind.hinted)
+#     R0nm = Cpt(EpicsSignal, ".R0NM", kind=Kind.hinted)
+#
+# class XmapMCA8(Device):
+#     val = Cpt(EpicsSignal, ".VAL", kind=Kind.hinted)
+#     R0low = Cpt(EpicsSignal, ".R0LO", kind=Kind.hinted)
+#     R0high = Cpt(EpicsSignal, ".R0HI", kind=Kind.hinted)
+#     R0 = Cpt(EpicsSignal, ".R0", kind=Kind.hinted)
+#     R0nm = Cpt(EpicsSignal, ".R0NM", kind=Kind.hinted)
+#
+# class XmapMCA9(Device):
+#     val = Cpt(EpicsSignal, ".VAL", kind=Kind.hinted)
+#     R0low = Cpt(EpicsSignal, ".R0LO", kind=Kind.hinted)
+#     R0high = Cpt(EpicsSignal, ".R0HI", kind=Kind.hinted)
+#     R0 = Cpt(EpicsSignal, ".R0", kind=Kind.hinted)
+#     R0nm = Cpt(EpicsSignal, ".R0NM", kind=Kind.hinted)
+#
+# class XmapMCA10(Device):
+#     val = Cpt(EpicsSignal, ".VAL", kind=Kind.hinted)
+#     R0low = Cpt(EpicsSignal, ".R0LO", kind=Kind.hinted)
+#     R0high = Cpt(EpicsSignal, ".R0HI", kind=Kind.hinted)
+#     R0 = Cpt(EpicsSignal, ".R0", kind=Kind.hinted)
+#     R0nm = Cpt(EpicsSignal, ".R0NM", kind=Kind.hinted)
+#
+# class XmapMCA11(Device):
+#     val = Cpt(EpicsSignal, ".VAL", kind=Kind.hinted)
+#     R0low = Cpt(EpicsSignal, ".R0LO", kind=Kind.hinted)
+#     R0high = Cpt(EpicsSignal, ".R0HI", kind=Kind.hinted)
+#     R0 = Cpt(EpicsSignal, ".R0", kind=Kind.hinted)
+#     R0nm = Cpt(EpicsSignal, ".R0NM", kind=Kind.hinted)
+#
+# class XmapMCA12(Device):
+#     val = Cpt(EpicsSignal, ".VAL", kind=Kind.hinted)
+#     R0low = Cpt(EpicsSignal, ".R0LO", kind=Kind.hinted)
+#     R0high = Cpt(EpicsSignal, ".R0HI", kind=Kind.hinted)
+#     R0 = Cpt(EpicsSignal, ".R0", kind=Kind.hinted)
+#     R0nm = Cpt(EpicsSignal, ".R0NM", kind=Kind.hinted)
+#
+# class XmapMCA13(Device):
+#     val = Cpt(EpicsSignal, ".VAL", kind=Kind.hinted)
+#     R0low = Cpt(EpicsSignal, ".R0LO", kind=Kind.hinted)
+#     R0high = Cpt(EpicsSignal, ".R0HI", kind=Kind.hinted)
+#     R0 = Cpt(EpicsSignal, ".R0", kind=Kind.hinted)
+#     R0nm = Cpt(EpicsSignal, ".R0NM", kind=Kind.hinted)
+#
+# class XmapMCA15(Device):
+#     val = Cpt(EpicsSignal, ".VAL", kind=Kind.hinted)
+#     R0low = Cpt(EpicsSignal, ".R0LO", kind=Kind.hinted)
+#     R0high = Cpt(EpicsSignal, ".R0HI", kind=Kind.hinted)
+#     R0 = Cpt(EpicsSignal, ".R0", kind=Kind.hinted)
+#     R0nm = Cpt(EpicsSignal, ".R0NM", kind=Kind.hinted)
+
+
+
 
 def make_channels(channels):
     out_dict = OrderedDict()
@@ -383,6 +476,55 @@ class XMAPFileStoreFlyable(XIAXMAPFileStore):
         self.parent.settings.stop_all.put(1)
 
         print_to_gui("done")
+
+
+
+class GeDetectorStep(XIATrigger, Device):
+    settings = Cpt(XIADetectorSettings, '')
+    channels = DDC(make_channels(range(1, 33)))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.settings.collection_mode.put(0)
+        self.settings.preset_mode.put(1)
+        self.settings.real_time.put(1)
+        self.num_channels = 32
+
+    def set_limits_for_roi(self, energy_nom, roi=1, window='auto'):
+
+        for ch_index in range(1, self.num_channels+1):
+            if window == 'auto':
+                print("USING HARDCODED WINDOW OF 250EV AROUND THE PEAK FOR CHANNEL", ch_index)
+                energy = energy_nom
+                w = 125
+            #     w = _compute_window_for_xs_roi_energy(energy_nom)
+            # else:
+            #     w = int(window)
+            # energy = _convert_xs_energy_nom2act(energy_nom, ch_index)
+            ev_low_new = int((energy - w / 2) / 5)  # TODO: divide by bin size?
+            ev_high_new = int((energy + w / 2) / 5)
+
+#            roi_obj = getattr(channel.rois, roi)
+#            roi_obj = getattr(channel, )
+            channel = getattr(self.channels, f"mca{ch_index:1d}")
+            if ev_high_new < channel.R0low.get():
+                channel.R0low.put(ev_low_new)
+                channel.R0high.put(ev_high_new)
+            else:
+                channel.R0high.put(ev_high_new)
+                channel.R0low.put(ev_low_new)
+        self.settings.copy_ROI_SCA.put(1)
+
+    def stage(self):
+        self.settings.collection_mode.put(0)
+        self.settings.preset_mode.put(1)
+        #super.stage()
+
+    def read_exposure_time(self):
+        return self.settings.acquire_time.get()
+
+    def set_exposure_time(self, new_exp_time):
+        self.settings.acquire_time.set(new_exp_time).wait()
 
 
 class GeDetector(XIATrigger, DetectorBase):
@@ -500,7 +642,7 @@ class GeDetector(XIATrigger, DetectorBase):
         return unstaged_list
 
 
-ge_detector = GeDetector('XF:08IDB-ES{GE-Det:1}', name='ge_detector')
-
-ttime.sleep(2)
+# ge_detector = GeDetector('XF:08IDB-ES{GE-Det:1}', name='ge_detector')
+ge_detector = GeDetectorStep('XF:08IDB-ES{GE-Det:1}', name='ge_detector')
+# ttime.sleep(2)
 ge_detector_stream = GeDetector('XF:08IDB-ES{GE-Det:1}', name="ge_detector_stream", ext_trigger_device=apb_trigger_ge_detector)
