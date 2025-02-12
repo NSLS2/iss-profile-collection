@@ -188,6 +188,14 @@ class Slits(Device):
 slits = Slits('XF:08IDB-OP{Slt', name='slits')
 
 
+class Hutch_Slits(Device):
+    top = Cpt(EpicsMotor, '1}Mtr')
+    bottom = Cpt(EpicsMotor, '2}Mtr')
+    inboard = Cpt(EpicsMotor, '3}Mtr')
+    outboard = Cpt(EpicsMotor, '4}Mtr')
+
+hutch_b_slits = Hutch_Slits('XF:08IDB-OP{Misc:2-Ax:', name='hutch_b_slits')
+
 class HuberStage(Device):
     y = Cpt(EpicsMotor, '-Ax:Y}Mtr')
     pitch = Cpt(EpicsMotor, '-Ax:P}Mtr')
@@ -287,3 +295,13 @@ fip_spectrometer_crystal = FIPSpectrometerMotor('XF:08IDB-OP{FIP-VHS:Stage1-Ax',
 fip_spectrometer_detector = FIPSpectrometerMotor('XF:08IDB-OP{FIP-VHS:Stage2-Ax', name='fip_spectrometer_detector')
 
 
+class VonHamosSpectrometerMotors(Device):
+    assm_y = Cpt(EpicsMotor, ':1}Mtr')
+    assm_x = Cpt(EpicsMotor, ':2}Mtr')
+    arc = Cpt(EpicsMotor, ':3}Mtr')
+
+    crystal_x = Cpt(EpicsMotor, ':6}Mtr')
+    crystal_yaw = Cpt(EpicsMotor, ':7}Mtr')
+    crystal_pitch = Cpt(EpicsMotor, ':8}Mtr')
+
+vonhamos_motors = VonHamosSpectrometerMotors('XF:08IDB-OP{MC:3-Ax', name='vonhamos_motors')

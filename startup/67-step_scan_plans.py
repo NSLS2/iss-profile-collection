@@ -26,6 +26,8 @@ def step_scan_action_factory(energy_steps, time_steps):
                 yield from bps.mv(det.cam.acquire_time, time_step)
             elif det.name == 'xs':
                 yield from bps.mv(det.settings.acquire_time, time_step)
+            elif det.name == 'ge_detector':
+                yield from bps.mv(det.settings.acquire_time, time_step)
 
         yield from bps.mv(motor, step)
         devices = [*detectors, motor]

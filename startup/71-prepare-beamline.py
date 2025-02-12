@@ -101,7 +101,7 @@ def _compute_hhmy_value(energy):
 bl_prepare_energy_ranges = [
         {
             'energy_start': 4500,
-            'energy_end': 6000,
+            'energy_end': 5700,
             'He_flow': 4,  #5 old value 2024-09-06
             'N2_flow': 1,
             'IC_voltage': 1000,
@@ -114,15 +114,29 @@ bl_prepare_energy_ranges = [
             'ir_gain': 5,
         },
         {
-            'energy_start': 5700,
-            'energy_end': 10000,
-            'He_flow': 0, #5 old value 2024-09-06
-            'N2_flow': 5,
+            'energy_start': 5701,
+            'energy_end': 7300,
+            'He_flow': 3, #5 old value 2024-09-06
+            'N2_flow': 2,
             'IC_voltage': 1650,
             'HHRM': 5,
             'CM1':0,# 0,
             'Filterbox': -69,
             'ES BPM exposure': 0.5, #0.05, # Denis 2024-06-02: changed to a higher value because of the beamline state
+            'i0_gain': 5,
+            'it_gain': 5,
+            'ir_gain': 5,
+        },
+        {
+            'energy_start': 7301,
+            'energy_end': 10000,
+            'He_flow': 0,  # 5 old value 2024-09-06
+            'N2_flow': 5,
+            'IC_voltage': 1650,
+            'HHRM': 5,
+            'CM1': 0,  # 0,
+            'Filterbox': -69,
+            'ES BPM exposure': 0.5,  # 0.05, # Denis 2024-06-02: changed to a higher value because of the beamline state
             'i0_gain': 5,
             'it_gain': 5,
             'ir_gain': 5,

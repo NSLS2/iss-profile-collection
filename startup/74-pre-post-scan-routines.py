@@ -98,7 +98,8 @@ def general_set_gains_plan(*args):
                        [hs for index, hs in enumerate(args) if index % 3 == 2]):
         yield from ic_amp.set_gain_plan(val, hs)
 
-        if type(ic_amp) != ICAmplifier:
+        # if type(ic_amp) != ICAmplifier:
+        if type(ic_amp) != ICAmplifier_Keithley:
             raise Exception('Wrong type: {} - it should be ICAmplifier'.format(type(ic)))
         if type(val) != int:
             raise Exception('Wrong type: {} - it should be int'.format(type(val)))
@@ -117,6 +118,7 @@ def set_gains_plan(i0_gain: int = 5, it_gain: int = 5, ir_gain: int = 5, iff_gai
         hs = hs == 'True'
 
     yield from general_set_gains_plan(i0_amp, i0_gain, hs, it_amp, it_gain, hs, iff_amp, iff_gain, hs, ir_amp, ir_gain, hs)
+    # yield from general_set_gains_plan(i0_amp, i0_gain, hs, it_amp, it_gain, hs, iff_amp, iff_gain, hs, ir_amp, ir_gain, hs)
     yield from get_offsets_plan()
 
 

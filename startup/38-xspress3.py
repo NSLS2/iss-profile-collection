@@ -21,6 +21,7 @@ from ophyd.status import SubscriptionStatus, DeviceStatus
 from pathlib import PurePath
 from nslsii.detectors.xspress3 import (XspressTrigger, Xspress3Detector,
                                        Xspress3Channel, Xspress3FileStore, Xspress3ROI, logger)
+from databroker.assets.handlers import (Xspress3HDF5Handler, XS3_XRF_DATA_KEY as XRF_DATA_KEY)
 
 #from isstools.trajectory.trajectory import trajectory_manager
 

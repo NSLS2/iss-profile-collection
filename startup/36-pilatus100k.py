@@ -469,6 +469,18 @@ def pil_count(acq_time:int = 1, num_frames:int =1, open_shutter:bool=True):
     if open_shutter: yield from shutter.close_plan()
 
 
+def pil2_count(acq_time:int = 1, num_frames:int =1, open_shutter:bool=True):
+    if open_shutter: yield from shutter.open_plan()
+    pil100k2.cam.acquire_time.put(acq_time)
+    pil100k2.cam.acquire_period.put(acq_time + 0.1)
+    yield from bp.count([pil100k2, apb_ave])
+    if open_shutter: yield from shutter.close_plan()
+    pil100k2.cam.acquire_time.put(1)
+    pil100k2.cam.acquire_period.put(1 + 0.1)
+
+
+
+
 
 from itertools import product
 import pandas as pd

@@ -34,11 +34,49 @@ detector_dictionary =   {
                                      'channels': ['pil100k2_stats1_total', 'pil100k2_stats2_total',
                                                   'pil100k2_stats3_total', 'pil100k2_stats4_total',
                                                   'pil100k2_stats1_max_value']},
-                    'Ge detector':{'device':ge_detector, 'flying_device':ge_detector_stream},
-
+                    'Ge detector': {'device': ge_detector, 'flying_device' : ge_detector_stream,
+                                'channels': [f'ge_detector_channels_mca{ch:1d}_R0'
+                                               for ch in range(1, 33)]+
+                                               ['xia_settings_acquire_time']}, 
+                                # 'channels': [f'xia_channel{ch:1d}_roi01_value'
+                                #                for ch in range(1, 33)]+
+                                #                ['xia_settings_acquire_time']},                              
+                    # 'Ge detector':{'device':ge_detector, 'flying_device': ge_detector_stream, 'channels':['ge_detector_channels_mca1_R0',
+                    #                                                                                        'ge_detector_channels_mca2_R0',
+                    #                                                                                        'ge_detector_channels_mca3_R0',
+                    #                                                                                        'ge_detector_channels_mca5_R0',
+                    #                                                                                        'ge_detector_channels_mca7_R0',
+                    #                                                                                        'ge_detector_channels_mca8_R0',
+                    #                                                                                        'ge_detector_channels_mca9_R0',
+                    #                                                                                        'ge_detector_channels_mca10_R0',
+                    #                                                                                        'ge_detector_channels_mca11_R0',
+                    #                                                                                        'ge_detector_channels_mca12_R0',
+                    #                                                                                        'ge_detector_channels_mca13_R0',
+                    #                                                                                        'ge_detector_channels_mca14_R0',
+                    #                                                                                        'ge_detector_channels_mca15_R0',
+                    #                                                                                        'ge_detector_channels_mca16_R0',
+                    #                                                                                        'ge_detector_channels_mca17_R0',
+                    #                                                                                        'ge_detector_channels_mca18_R0',
+                    #                                                                                        'ge_detector_channels_mca19_R0',
+                    #                                                                                        'ge_detector_channels_mca20_R0',
+                    #                                                                                        'ge_detector_channels_mca21_R0',
+                    #                                                                                        'ge_detector_channels_mca22_R0',
+                    #                                                                                        'ge_detector_channels_mca23_R0',
+                    #                                                                                        'ge_detector_channels_mca24_R0',
+                    #                                                                                        'ge_detector_channels_mca25_R0',
+                    #                                                                                        'ge_detector_channels_mca26_R0',
+                    #                                                                                        'ge_detector_channels_mca27_R0',
+                    #                                                                                        'ge_detector_channels_mca28_R0',
+                    #                                                                                        'ge_detector_channels_mca29_R0',
+                    #                                                                                        'ge_detector_channels_mca31_R0',] },
+                    # 'Ge detector': {'device': ge_detector, 'flying_device': ge_detector_stream},
                     # 'PI-MTE3': {'device': picam,
                     #                  'channels': ['picam_stats1_total','picam_stats2_total',
                     #                                                 'picam_stats3_total','picam_stats4_total']},
+                    # 'XIAXMAP': {'device': xia, 'flying_device' : xia_stream,
+                    #             'channels': [f'xia_channel{ch:1d}_roi01_value'
+                    #                            for ch in range(1, 33)]+
+                    #                            ['xia_settings_acquire_time']},
                     'Xspress3': {'device' : xs, 'flying_device' : xs_stream,
                                  'channels' : [     'xs_channel1_rois_roi01_value',
                                                     'xs_channel1_rois_roi02_value',
@@ -167,6 +205,10 @@ motor_dictionary = {
     'fip_spectrometer_detector_x':{'name': fip_spectrometer_detector.y.name, 'description': 'B1 FIP detector Y',             'keyword': 'B1 FIP detector Y',            'object': fip_spectrometer_detector.y},
     'sample_stage_B2_x':            {'name': samplexy.x.name,       'description': 'B2 Sample stage X',                        'keyword': 'B2 Sample X',                      'object': samplexy.x,    'user':True},
     'sample_stage_B2_y':            {'name': samplexy.y.name,       'description': 'B2 Sample stage Y',                        'keyword': 'B2 Sample Y',                      'object': samplexy.y,    'user':True},
+    'hutch_b_slits_top':            {'name': hutch_b_slits.top.name, 'description': 'Hutch B1 Slits top',                        'keyword': 'B1 slits top',                      'object': hutch_b_slits.top,    'user':False },
+    'hutch_b_slits_bottom':         {'name': hutch_b_slits.bottom.name, 'description': 'Hutch B1 Slits bottom',                        'keyword': 'B1 slits bottom',                      'object': hutch_b_slits.bottom,    'user':False },
+    'hutch_b_slits_inboard':        {'name': hutch_b_slits.inboard.name, 'description': 'Hutch B1 Slits inboard',                        'keyword': 'B1 slits inboard',                      'object': hutch_b_slits.inboard,    'user':False },
+    'hutch_b_slits_outboard':        {'name': hutch_b_slits.outboard.name, 'description': 'Hutch B1 Slits outboard',                        'keyword': 'B1 slits outboard',                      'object': hutch_b_slits.outboard,    'user':False },
 }
 
 def get_motor_device(motor_attr, based_on='description'):

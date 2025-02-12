@@ -643,6 +643,6 @@ class GeDetector(XIATrigger, DetectorBase):
 
 
 # ge_detector = GeDetector('XF:08IDB-ES{GE-Det:1}', name='ge_detector')
-ge_detector = GeDetectorStep('XF:08IDB-ES{GE-Det:1}', name='ge_detector')
+#ge_detector = GeDetectorStep('XF:08IDB-ES{GE-Det:1}', name='ge_detector')
 # ttime.sleep(2)
-ge_detector_stream = GeDetector('XF:08IDB-ES{GE-Det:1}', name="ge_detector_stream", ext_trigger_device=apb_trigger_ge_detector)
+#ge_detector_stream = GeDetector('XF:08IDB-ES{GE-Det:1}', name="ge_detector_stream", ext_trigger_device=apb_trigger_ge_detector)

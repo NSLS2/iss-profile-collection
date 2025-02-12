@@ -43,6 +43,7 @@ if not os.environ.get('AZURE_TESTING'):
                                johann_emission=johann_emission,
                                johann_spectrometer_manager=johann_spectrometer_manager,
                                sdd=xs,
+                               ge_detector=ge_detector,
                                inclinometers = [det_inclinometer1],
                                pil100k=pil100k,
                                apb=apb_ave,
