@@ -42,6 +42,7 @@ USER_PATH = 'processed'
 
 
 def time_now_str():
+    # return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
     return datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S.%f')
 
 # def print_to_gui(msg, tag='', add_timestamp=False, ntabs=0, stdout=sys.stdout):

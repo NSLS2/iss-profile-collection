@@ -408,7 +408,12 @@ class ISSXspress3DetectorStream(ISSXspress3Detector):
             self._asset_docs_cache.append(('datum', doc))
 
         print_to_gui(f'Xspress3 complete is done.', add_timestamp=True)
-        return NullStatus() and ext_trigger_status
+
+        # return NullStatus() and ext_trigger_status
+
+        complete_status = NullStatus() and ext_trigger_status
+        print(f"{complete_status=}")
+        return complete_status
 
     def collect(self):
         print_to_gui(f'Xspress3 collect is starting...', add_timestamp=True)

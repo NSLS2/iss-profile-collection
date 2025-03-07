@@ -72,7 +72,9 @@ class AnalogPizzaBoxTrigger(Device):
     def complete(self):
         # self.acquire.set(0).wait()
         self.stream.set(0).wait()
+        ttime.sleep(0.5)
         self.acquire.set(0).wait()
+        ttime.sleep(0.5)
         self._datum_ids = []
         datum_id = '{}/{}'.format(self._resource_uid, next(self._datum_counter))
         datum = {'resource': self._resource_uid,

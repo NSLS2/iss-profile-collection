@@ -11,6 +11,7 @@ from ophyd.areadetector.plugins import PluginBase
 from ophyd.areadetector.filestore_mixins import FileStorePluginBase
 from ophyd.areadetector.plugins import HDF5Plugin_V33
 from ophyd.areadetector import (DetectorBase, CamBase)
+from ophyd.sim import NullStatus
 import time
 from collections import OrderedDict
 import h5py
@@ -23,8 +24,8 @@ class XIAXMAPFileStore(FileStorePluginBase, HDF5Plugin_V33):
     '''XIA XMAP acquisition -> filestore'''
     # num_capture_calc = Cpt(EpicsSignal, 'NumCapture_CALC')
     # num_capture_calc_disable = Cpt(EpicsSignal, 'NumCapture_CALC.DISA')
-    # filestore_spec = XIAXMAPHDF5Handler.HANDLER_NAME
-    filestore_spec = "XIAXMAP"  #Xspress3HDF5Handler.HANDLER_NAME
+    filestore_spec = "XIA_XMAP_HDF5"
+    #filestore_spec = "AD_HDF5"  #Xspress3HDF5Handler.HANDLER_NAME
 
     def __init__(self, basename, *, config_time=0.5,
                  mds_key_format='{self.settings.name}_ch{chan}', parent=None,
@@ -107,7 +108,7 @@ class XIAXMAPFileStore(FileStorePluginBase, HDF5Plugin_V33):
         datum_kwargs.update({'frame': self.parent._abs_trigger_count,
                              'channel': int(sn[7:])})  # No idea what's happening here
         self.mds_keys[n] = key
-        print(f"{datum_kwargs=}")
+        # print(f"{datum_kwargs=}")
         super().generate_datum(key, timestamp, datum_kwargs)
 
     def stage(self):
@@ -127,7 +128,8 @@ class XIAXMAPFileStore(FileStorePluginBase, HDF5Plugin_V33):
 #        total_capture = total_points * spec_per_point
 
         # stop previous acquisition
-        self.stage_sigs[self.settings.acquire] = 0
+        # self.stage_sigs[self.settings.acquire] = 0
+        # self.stage_sigs[self.settings.stop_all] = 1
         # print(self.stage_sigs[self.settings.acquire])
 
         # re-order the stage signals and disable the calc record which is
@@ -317,6 +319,7 @@ class XIAXMAPDetectorSettings(CamBase):
     acquiring = Cpt(EpicsSignalRO,'Acquiring')
     preset_mode =  Cpt(EpicsSignal,'PresetMode')
     real_time = Cpt(EpicsSignal,'PresetReal')
+    actual_time = Cpt(EpicsSignal,'ElapsedReal')
     acquire_time = Cpt(EpicsSignal,'PresetReal')
     acquire_period = Cpt(EpicsSignal,'PresetReal')
     # MCA Spectra=0, MCA Mapping=1, SCA Mapping=2, List Mapping=3
@@ -329,14 +332,33 @@ class XIAXMAPDetectorSettings(CamBase):
 
 
 class XmapMCA(Device):
+    # DO WE REALLY NEED THEM ALL HINTED?
     val = Cpt(EpicsSignal, ".VAL", kind=Kind.hinted)
     R0low = Cpt(EpicsSignal, ".R0LO", kind=Kind.hinted)
     R0high = Cpt(EpicsSignal, ".R0HI", kind=Kind.hinted)
     R0 = Cpt(EpicsSignal, ".R0", kind=Kind.hinted)
     R0nm = Cpt(EpicsSignal, ".R0NM", kind=Kind.hinted)
 
+    R1low = Cpt(EpicsSignal, ".R1LO", kind=Kind.hinted)
+    R1high = Cpt(EpicsSignal, ".R1HI", kind=Kind.hinted)
+    R1 = Cpt(EpicsSignal, ".R1", kind=Kind.hinted)
+    R1nm = Cpt(EpicsSignal, ".R1NM", kind=Kind.hinted)
+
+    R2low = Cpt(EpicsSignal, ".R2LO", kind=Kind.hinted)
+    R2high = Cpt(EpicsSignal, ".R2HI", kind=Kind.hinted)
+    R2 = Cpt(EpicsSignal, ".R2", kind=Kind.hinted)
+    R2nm = Cpt(EpicsSignal, ".R2NM", kind=Kind.hinted)
+
+    R3low = Cpt(EpicsSignal, ".R3LO", kind=Kind.hinted)
+    R3high = Cpt(EpicsSignal, ".R3HI", kind=Kind.hinted)
+    R3 = Cpt(EpicsSignal, ".R3", kind=Kind.hinted)
+    R3nm = Cpt(EpicsSignal, ".R3NM", kind=Kind.hinted)        
+
 class XmapSCA(Device):
-    counts = Cpt(EpicsSignal, ":SCA0Counts", kind=Kind.hinted)
+    sca0counts = Cpt(EpicsSignal, ":SCA0Counts", kind=Kind.hinted)
+    sca1counts = Cpt(EpicsSignal, ":SCA1Counts", kind=Kind.hinted)
+    sca2counts = Cpt(EpicsSignal, ":SCA2Counts", kind=Kind.hinted)
+    sca3counts = Cpt(EpicsSignal, ":SCA3Counts", kind=Kind.hinted)
 
 def make_scas(channels):
     out_dict = OrderedDict()
@@ -360,7 +382,7 @@ def make_channels(channels):
 class XIAXMAPDetector(DetectorBase):
     settings = Cpt(XIAXMAPDetectorSettings, '')
 
-    _channels = DDC(make_channels(range(1, 33)))
+    _channels = DDC(make_channels(range(1, 33)), kind=Kind.hinted)
 
     scas = DDC(make_scas(range(1, 33)), kind=Kind.hinted)
 
@@ -428,7 +450,7 @@ class XIAXMAPDetector(DetectorBase):
             # if roi.enable.get():
             yield roi
 
-    def read_hdf5(self, fn, *, rois=None, max_retries=2):  # TODO:
+    def read_hdf5(self, fn, *, rois=None, max_retries=2):  # TODO: ADAPT FOR XIA XMAP
         pass
         '''Read ROI data from an HDF5 file using the current ROI configuration
 
@@ -520,6 +542,17 @@ class XIAXMAPTrigger(BlueskyInterface):  # See existing implementation
 
 class XIAXMAPFileStoreFlyable(XIAXMAPFileStore):
     def warmup(self):
+
+        def run_mode(mode):
+            self.parent.settings.collection_mode.put(mode, wait=True)
+            ttime.sleep(0.5)
+            self.parent.settings.acquire_time.put(1, wait=True)
+            ttime.sleep(0.5)
+            self.parent.settings.stop_all.put(1, wait=True)
+            ttime.sleep(0.5)
+            self.parent.settings.acquire.put(1, wait=False)
+            ttime.sleep(2)  # wait for acquisition
+            self.parent.settings.stop_all.put(1, wait=True)
         """
         A convenience method for 'priming' the plugin.
         The plugin has to 'see' one acquisition before it is ready to capture.
@@ -529,7 +562,7 @@ class XIAXMAPFileStoreFlyable(XIAXMAPFileStore):
         We had to replace "cam" with "settings" here.
         Also modified the stage sigs.
         """
-        print_to_gui(f'XIA HDF warmap starting...', add_timestamp=True)
+        print_to_gui(f'XIA HDF warmup starting...', add_timestamp=False)
         self.enable.set(1).wait()
         sigs = OrderedDict([  # (self.parent.settings.array_callbacks, 1),
                             (self.parent.settings.collection_mode, 2),
@@ -541,27 +574,32 @@ class XIAXMAPFileStoreFlyable(XIAXMAPFileStore):
 
         # Remove the hdf5.capture item here to avoid an error as it should reset back to 0 itself
         # del original_vals[self.capture]
+        ttime.sleep(1)
+        run_mode(2)
+        ttime.sleep(1)
+        # code below checks if warmup was performed correctly and re-runs the extended procedure if not
+        if int(self.array_size.width.get()) != 24064:
+            print("Bad warmup, repeating...")
+            print("Warming up in MCA Mapping mode")
+            run_mode(1)
+            ttime.sleep(1)
+            print("Now warming up in SCA Mapping mode")
+            run_mode(2)
 
-        for sig, val in sigs.items():
-            ttime.sleep(0.1)  # abundance of caution
-            sig.put(val, wait=True)
-        self.parent.settings.stop_all.put(1, wait=True)
-        self.parent.settings.acquire.put(1, wait=False)
-        ttime.sleep(1)  # wait for acquisition
-        self.parent.settings.stop_all.put(1, wait=True)
 
         for sig, val in reversed(list(original_vals.items())):
             ttime.sleep(0.1)
             sig.put(val, wait=True)
-        print_to_gui(f'XIA XMAP complete complete...', add_timestamp=True)
+
+        print_to_gui(f'XIA XMAP warmup complete...', add_timestamp=False)
 
 ROOT_PATH_WIN = "J:\\legacy\\Sandbox\\epics"
 
 class ISSXIAXMAPDetector(XIAXMAPTrigger, XIAXMAPDetector):  # For step scans
 
     hdf5 = Cpt(XIAXMAPFileStoreFlyable, 'HDF1:',
-               read_path_template=f'{ROOT_PATH_WIN}\\{RAW_PATH}\\dxp\\%Y\\%m\\%d\\',
-               root=f'{ROOT_PATH_WIN}\\{RAW_PATH}',
+               read_path_template='/nsls2/data/iss/legacy/Sandbox/epics/raw/dxp/%Y/%m/%d/',
+               root='/nsls2/data/iss/legacy/Sandbox/epics/raw/dxp',
                write_path_template=f'{ROOT_PATH_WIN}\\{RAW_PATH}\\dxp\\%Y\\%m\\%d\\',
                )
 
@@ -576,11 +614,11 @@ class ISSXIAXMAPDetector(XIAXMAPTrigger, XIAXMAPDetector):  # For step scans
                                    'rewindable'
                                    ]
         if read_attrs is None:
-#            read_attrs = ['channel1', 'channel2', 'channel3', 'channel4', 'hdf5', 'settings.acquire_time']
-            read_attrs = ['settings.acquire_time']
-            read_attrs.extend([f"scas.dxp{n:1d}.counts" for n in range(1, 33)])
-            read_attrs.extend([f"_channels.mca{n:1d}.R0" for n in range(1, 33)])
-            # read_attrs = ['hdf5'] #, 'settings.acquire_time']
+# #            read_attrs = ['channel1', 'channel2', 'channel3', 'channel4', 'hdf5', 'settings.acquire_time']
+            read_attrs = ['settings.acquire_time', 'settings.actual_time']
+#            read_attrs.extend([f"scas.dxp{n:1d}.counts" for n in range(1, 33)])
+#             read_attrs.extend([f"_channels.mca{n:1d}.R0" for n in range(1, 33)])
+#             # read_attrs = ['hdf5'] #, 'settings.acquire_time']
 
 
         super().__init__(prefix, configuration_attrs=configuration_attrs,
@@ -645,15 +683,33 @@ class ISSXIAXMAPDetector(XIAXMAPTrigger, XIAXMAPDetector):  # For step scans
 #        self.channel3.vis_enabled.put(1)
 #        self.channel4.vis_enabled.put(1)
         self.total_points.put(1)
-        if hdf5_warmup:
+        emergency_warmup = False
+
+
+        if int(self.hdf5.array_size.width.get()) in [0, 1048000]:
+            print_to_gui(f'XIA HDF plugin warmup required...', add_timestamp=False)
+            emergency_warmup = True
+
+        if hdf5_warmup or emergency_warmup:
             self.hdf5.warmup()
         self.settings.stop_all.put(1)
+
+
+        if self.settings.acquire_time.get() == 0:
+            self.settings.acquire_time.put(1)
+
+        if self.settings.collection_mode.get() == 0:
+            self.settings.preset_mode.put(1)
 
         # Hints:
         # for n in range(1, 5):
         #     getattr(self, f'channel{n}').rois.roi01.value.kind = 'hinted'
         for n in range(1, 33):
-            getattr(self._channels, f"mca{n:1d}").R0.kind = 'hinted'
+            mca_ch = getattr(self._channels, f"mca{n:1d}")
+            mca_ch.R0.kind = 'hinted'
+            mca_ch.R1.kind = 'hinted'
+            mca_ch.R2.kind = 'hinted'
+            mca_ch.R3.kind = 'hinted'
             # getattr(self.scas, f"dxp{n:1d}").counts.kind = 'hinted'
             # print(getattr(self._channels, f"mca{n:1d}").R0.kind)
 
@@ -662,6 +718,11 @@ class ISSXIAXMAPDetector(XIAXMAPTrigger, XIAXMAPDetector):  # For step scans
                                            'num_images',
                                            'trigger_mode',
                                            ]
+
+        if int(self._channels.mca1.R0low.get()) < 0 or int(self._channels.mca1.R0high.get()) < 0:
+            print_to_gui(f'XIA Initializing MCA/SCA...', add_timestamp=False)
+            self.set_limits_for_roi(5000, window='max')
+
         ## THIS IS TO CONFIGURE DATASOURCE KIND
         # for key, channel in self.channelsDict.items():
         #     roi_names = ['roi{:02}'.format(j) for j in [1, 2, 3, 4]]
@@ -670,13 +731,18 @@ class ISSXIAXMAPDetector(XIAXMAPTrigger, XIAXMAPDetector):  # For step scans
         #     for roi_n in roi_names:
         #         getattr(channel.rois, roi_n).value_sum.kind = 'omitted'
 
-    def set_limits_for_roi(self, energy_nom, roi=1, window='auto'):
+    def set_limits_for_roi(self, energy_nom, roi=0, window='auto'):
 
         for ch_index in range(1, self.settings.num_channels+1):
             if window == 'auto':
                 print("USING HARDCODED WINDOW OF 250EV AROUND THE PEAK FOR CHANNEL", ch_index)
                 energy = energy_nom
                 w = 125
+            elif window == 'max':
+                energy = 5001
+                w = 10000
+            elif isinstance(window, (int, float)):
+                w = window
             #     w = _compute_window_for_xs_roi_energy(energy_nom)
             # else:
             #     w = int(window)
@@ -687,15 +753,19 @@ class ISSXIAXMAPDetector(XIAXMAPTrigger, XIAXMAPDetector):  # For step scans
 #            roi_obj = getattr(channel.rois, roi)
 #            roi_obj = getattr(channel, )
             channel = getattr(self._channels, f"mca{ch_index:1d}")
-            if ev_high_new < channel.R0low.get():
-                channel.R0low.put(ev_low_new)
-                channel.R0high.put(ev_high_new)
+            roi_high = getattr(channel, f"R{roi:1d}high")
+            roi_low = getattr(channel, f"R{roi:1d}low")
+
+            if ev_high_new < roi_low.get():
+                roi_low.put(ev_low_new)
+                roi_high.put(ev_high_new)
             else:
-                channel.R0high.put(ev_high_new)
-                channel.R0low.put(ev_low_new)
+                roi_high.put(ev_high_new)
+                roi_low.put(ev_low_new)
+        # THIS FUNCTION WILL COPY ROI TO SCA FOR ALL SCAs ON ALL CHANNELS: SCA0 to SCA16
         self.settings.copy_ROI_SCA.put(1, wait=True)
 
-    def ensure_roi4_covering_total_mca(self, emin=600, emax=40960):
+    def ensure_roi4_covering_total_mca(self, emin=600, emax=40960):  # TODO: Needs adjustment for XMAP DXP
         for channel in self.channelsDict.items():
             channel.R0high.put(emax)
             channel.R0low.put(emin)
@@ -705,11 +775,14 @@ class ISSXIAXMAPDetector(XIAXMAPTrigger, XIAXMAPDetector):  # For step scans
         md = {}
         for ch_index, channel in self.channelsDict.items():
             v = {}
-            roi_idx = 0
-            roi_str = f'mca{ch_index:02d}'
-#            roi_obj = getattr(channel.rois, roi_str)
-            
-            v[roi_str] = [channel.R0low.get(), channel.R0high.get()]
+
+            # roi_idx = 0
+            for roi_idx in range(4):
+                roi_str = f'roi{roi_idx:1d}'
+                roi_high = getattr(channel, f"R{roi_idx:1d}high")
+                roi_low = getattr(channel, f"R{roi_idx:1d}low")
+                
+                v[roi_str] = [roi_low.get(), roi_high.get()]
             md[f"ch{ch_index:02d}"] = v
         return md
 
@@ -742,34 +815,20 @@ class ISSXIAXMAPDetectorStream(ISSXIAXMAPDetector):
 
     def _infer_datum_keys(self):
         self.datum_keys = []
-        for i in range(1, 33): #range(self.hdf5.array_size.height.get()):  # TODO: check hdf5.array_size.height
-            # self.datum_keys.append({"name": f"{self.name}",
-            #                         "channel": i + 1,
-            #                         "type": "spectrum"})
-            # self.datum_keys.append({"name": f"{self.name}",
-            #                         "channel": i + 1,
-            #                         "type": "roi"})
-#            self.datum_keys.append({"data_type": "spectrum",
-#                                    "channel": i + 1,
-#                                    "roi_num" : 0})
-
-#            channel = getattr(self, f"channel{i+1}")
-#            for roi_num in range(1, channel.rois.num_rois.get() + 1):  
-#            if getattr(channel.rois, f"roi{roi_num:02d}").enable.get() == 1:
-#            if getattr(channel.rois, f"roi{roi_num:02d}").enable.get() == 1:  # Only one, always enabled
-            self.datum_keys.append({"data_type": "roi",
-                                    "channel": i + 1,
-                                    "roi_num": 1})
-
-            # self.datum_keys.append(f'{self.name}_ch{i + 1:02d}_roi')
+        for i in range(1, 33):
+            for j in range(4):
+                # self.datum_keys.append({"name": f"{self.name}",
+                #                         "channel": i + 1,
+                #                         "type": "spectrum"})
+                # self.datum_keys.append({"name": f"{self.name}",
+                #                         "channel": i + 1,
+                #                         "type": "roi"})
+                self.datum_keys.append({"data_type": "roi",
+                                        "channel": i,
+                                        "roi_num": j})
 
     def format_datum_key(self, input_dict):
-        # return f'{input_dict["name"]}_ch{input_dict["channel"]:02d}_{input_dict["type"]}'
-#        f'xia_channel{ch:1d}_roi01_value'
-#        'xs_channel1_rois_roi01_value'
-#       'xia_detector_channels_mca{ch:1d}_R0'
-        # output = f'xia_channel{input_dict["channel"]:02d}_{input_dict["data_type"]}{input_dict["roi_num"]:02d}'
-        output = f'ge_detector_channels_{input_dict["channel"]:1d}_R0'
+        output = f'ge_detector_channels_mca{input_dict["channel"]:1d}_R{input_dict["roi_num"]:1d}'
 #        if input_dict["data_type"] == 'roi':
 #            output += f'{input_dict["roi_num"]:02d}'
         return output
@@ -803,6 +862,11 @@ class ISSXIAXMAPDetectorStream(ISSXIAXMAPDetector):
 
         staged_list = super().stage()
         staged_list += self.ext_trigger_device.stage()
+        print("Moving XIA modules synchronization to staging...")
+        self.settings.acquire.put(1, wait=False)
+        print("Waiting for sync: 10s")
+        ttime.sleep(10)
+
         return staged_list
 
     def unstage(self):
@@ -818,10 +882,11 @@ class ISSXIAXMAPDetectorStream(ISSXIAXMAPDetector):
 
 
     def kickoff(self):
-        self.settings.acquire.set(1).wait()
-        print_to_gui(f'Waiting for XIA modules to start...', add_timestamp=True)
-        ttime.sleep(10)
-        print_to_gui(f'Starting GATE signal...', add_timestamp=True)
+        # self.settings.acquire.put(1, wait=False)
+        # print_to_gui(f'Waiting for XIA modules to start...', add_timestamp=True)
+        # ttime.sleep(10)  # THIS IS MOVED TO STAGING TO PREVENT FLYER FROM FREEZING
+        # ttime.sleep()
+        # print_to_gui(f'Starting GATE signal...', add_timestamp=True)
         return self.ext_trigger_device.kickoff()
 
     def complete(self):
@@ -841,18 +906,20 @@ class ISSXIAXMAPDetectorStream(ISSXIAXMAPDetector):
         self._datum_ids = {}
 
         for datum_key_dict in self.datum_keys:
-            print(datum_key_dict)
+            # print(datum_key_dict)
             datum_key = self.format_datum_key(datum_key_dict)
             datum_id = f'{_resource_uid}/{datum_key}'
             self._datum_ids[datum_key] = datum_id
             doc = {'resource': _resource_uid,
                    'datum_id': datum_id,
                    'datum_kwargs': datum_key_dict}
-            print(doc)
+            # print(doc)
             self._asset_docs_cache.append(('datum', doc))
 
         print_to_gui(f'XIA XMAP complete is done.', add_timestamp=True)
-        return NullStatus() and ext_trigger_status
+        complete_status = NullStatus() and ext_trigger_status
+        print(f"{complete_status=}")
+        return complete_status
 
     def collect(self):
         print_to_gui(f'XIA XMAP collect is starting...', add_timestamp=True)
@@ -884,7 +951,7 @@ class ISSXIAXMAPDetectorStream(ISSXIAXMAPDetector):
             else:
                 raise KeyError(f'data_type={datum_key_dict["data_type"]} not supported')
             xia_spectra_dicts[datum_key] = value
-        print(xia_spectra_dicts)
+        # print(xia_spectra_dicts)
 
         return_dict_xs = {self.name : xia_spectra_dicts}
 
@@ -911,5 +978,7 @@ class ISSXIAXMAPDetectorStream(ISSXIAXMAPDetector):
     
 
 ge_detector = ISSXIAXMAPDetector('XF:08IDB-ES{GE-Det:1}', name='ge_detector')
+ge_detector.scas.kind = Kind.hinted
+ge_detector._channels.kind = Kind.hinted
 # ttime.sleep(2)
 ge_detector_stream = ISSXIAXMAPDetectorStream('XF:08IDB-ES{GE-Det:1}', name="ge_detector_stream", ext_trigger_device=apb_trigger_ge_detector)    

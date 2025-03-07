@@ -35,9 +35,9 @@ detector_dictionary =   {
                                                   'pil100k2_stats3_total', 'pil100k2_stats4_total',
                                                   'pil100k2_stats1_max_value']},
                     'Ge detector': {'device': ge_detector, 'flying_device' : ge_detector_stream,
-                                'channels': [f'ge_detector_channels_mca{ch:1d}_R0'
-                                               for ch in range(1, 33)]+
-                                               ['xia_settings_acquire_time']}, 
+                                'channels': [f'ge_detector__channels_mca{ch:1d}_R{rnum:1d}'
+                                               for ch, rnum in product(range(1, 33), range(4))]+
+                                               ['ge_detector_settings_acquire_time']},
                                 # 'channels': [f'xia_channel{ch:1d}_roi01_value'
                                 #                for ch in range(1, 33)]+
                                 #                ['xia_settings_acquire_time']},                              

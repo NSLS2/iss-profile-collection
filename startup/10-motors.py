@@ -239,7 +239,6 @@ class SampleStage(Device):
     z = Cpt(EpicsMotor, 'XF:08IDB-OP{Misc-Ax:2}Mtr')
     # z = Cpt(EpicsMotorThatCannotReachTheTargetProperly, 'XF:08IDB-OP{Misc-Ax:2}Mtr')
     th = Cpt(EpicsMotor, 'XF:08IDB-OP{Gon:Th:1}Mtr')
-
     def mv(self, pos_dict, wait=True):
         '''
         pos_dict = {'x' : -300,

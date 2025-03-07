@@ -55,7 +55,7 @@ def _compute_hhmy_value(energy):
     # data is stored in two files:
     # /nsls2/xf08id/Sandbox/Beamline_components/2022_02_10_beamline_tabulation/beamline_hhmy_tabulation_att2.json
     # /nsls2/xf08id/Sandbox/Beamline_components/2022_02_10_beamline_tabulation/beamline_hhmy_tabulation_att2_high_energies.json
-    energy_tab = np.array([ 4900,  5100,  5500,  6000,  7000,  8000,  9000, 10000, 11000, 12000, 13000, 15000, 17500, 20000])
+    energy_tab = np.array([ 4900,  5100,  5500,  6000,  7000,  8000,  9000, 10000, 11000, 12000, 13000, 15000, 17500, 20000, 26000])
     hhmy_tab = np.array([9.937850000000001,
                          9.57315,
                          9.467450000000001,
@@ -69,7 +69,8 @@ def _compute_hhmy_value(energy):
                          8.88475,
                          8.84365,
                          8.85205,
-                         8.816450000000001])
+                         8.816450000000001,
+                         8.601])
 
     f = interpolate.interp1d(energy_tab, hhmy_tab, kind='cubic', fill_value='extrapolate')
 
