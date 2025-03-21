@@ -2065,7 +2065,7 @@ class EpicsSignalAsEncoderForMotor(EpicsSignal):
 
 
 det_inclinometer1 = EpicsSignalAsEncoderForMotor('XF:08IDB-CT{DIODE-Box_B2:4}InCh0:Data-I', name='det_inclinometer1',
-                                conversion_json_path=f'{ROOT_PATH_SHARED}/settings/json/inclinometer_data.json',
+                                conversion_json_path=f'{ROOT_PATH_SHARED}/settings/json/inclinometer_data_20250113.json',
                                 motor=johann_emission.motor_det_th1)
 
 

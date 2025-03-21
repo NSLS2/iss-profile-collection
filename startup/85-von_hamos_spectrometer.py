@@ -1,3 +1,5 @@
+import numpy as np
+
 print(ttime.ctime() + ' >>>> ' + __file__)
 
 
@@ -71,13 +73,21 @@ class VonHamosGeometry(ObjectWithSettings):
             output[k] = cur_config[k]
         return output
 
+    # def compute_geometry_for_bragg(self, bragg_deg):
+    #     bragg = np.deg2rad(bragg_deg)
+    #     cr_x = self.R
+    #     cr_y = self.R / np.tan(bragg)
+    #     det_x = 0
+    #     det_y = 2 * cr_y
+    #     return cr_x, cr_y, det_x, det_y
+
     def compute_geometry_for_bragg(self, bragg_deg):
         bragg = np.deg2rad(bragg_deg)
-        cr_x = self.R
-        cr_y = self.R / np.tan(bragg)
-        det_x = 0
-        det_y = 2 * cr_y
-        return cr_x, cr_y, det_x, det_y
+        cr_x = self.R/np.sin(bragg)
+        det_x = 2*self.R*(np.cos(bragg)**2)/np.sin(bragg)
+        det_y = 2*self.R* np.cos(bragg)
+        theta = 90-bragg_deg
+        return cr_x, det_x, det_y, theta
 
     def e2bragg(self, energy):
         return e2bragg(energy, self.crystal, self.hkl)
@@ -96,6 +106,14 @@ class VonHamosGeometry(ObjectWithSettings):
     def reset_spectrometer_calibration(self):
         self.energy_calibration_uid = ''
         self.save_current_config_to_settings()
+
+    def compute_arc_motion(self, bragg=90):
+        a = 337.38  # mm
+        b = 302.50  # mm
+        c = 234.55  # mm
+        alpha = 42.55 - bragg
+        return c - np.sqrt(a ** 2 + b ** 2 - 2 * a * b * np.cos(np.deg2rad(alpha)))
+
 
 von_hamos_geometry = VonHamosGeometry()
 
@@ -133,20 +151,23 @@ class VonHamosDetectorArm(VonHamosPseudoPositioner):
         return self.von_hamos_geometry.det_dx
 
     def _forward(self, pseudo_dict):
-        det_pitch, det_x, det_y = pseudo_dict['det_pitch'], pseudo_dict['det_x'], pseudo_dict['det_y']
+        bragg, det_x, det_y = pseudo_dict['det_pitch'], pseudo_dict['det_x'], pseudo_dict['det_y']
 
-        det_pitch_rad = np.deg2rad(det_pitch)
+        degree_to_radian_90_bragg = np.deg2rad(90-bragg)
 
-        _phi = np.pi - 2 * det_pitch_rad
-        _sin_th1 = (self.det_h - self.det_L2 * np.sin(_phi) - det_y) / self.det_L1
-        motor_det_th1 = np.arcsin(_sin_th1)
-        motor_det_th2 = _phi + motor_det_th1
-        motor_det_x = -self.det_dx + self.det_L1 * np.cos(motor_det_th1) - self.det_L2 * np.cos(_phi) - det_x
+        sin_th1 = (self.det_h - (self.det_L2*np.sin(degree_to_radian_90_bragg)) - det_y)/self.det_L1
+        motor_det_th1 = np.arcsin(sin_th1)
+        motor_det_th2 = motor_det_th1 + degree_to_radian_90_bragg
+        motor_det_x = -self.det_dx + (self.det_L1*np.cos(motor_det_th1)) - (self.det_L2 * np.cos(degree_to_radian_90_bragg)) + det_x
+
+
         motor_det_th1 = np.rad2deg(motor_det_th1)
         motor_det_th2 = -np.rad2deg(motor_det_th2)
-        return {'motor_det_x':      motor_det_x   + self.von_hamos_geometry.config['parking']['motor_det_x'],
-                'motor_det_th1':    motor_det_th1 + self.von_hamos_geometry.config['parking']['motor_det_th1'],
-                'motor_det_th2':    motor_det_th2 + self.von_hamos_geometry.config['parking']['motor_det_th2']}
+        return {'motor_det_x': motor_det_x + self.von_hamos_geometry.config['parking']['motor_det_x'],
+                'motor_det_th1': motor_det_th1 + self.von_hamos_geometry.config['parking']['motor_det_th1'],
+                'motor_det_th2': motor_det_th2 + self.von_hamos_geometry.config['parking']['motor_det_th2']}
+
+
 
     def _inverse(self, real_dict):
         motor_det_x, motor_det_th1, motor_det_th2 = real_dict['motor_det_x'], real_dict['motor_det_th1'], real_dict['motor_det_th2']
@@ -155,12 +176,46 @@ class VonHamosDetectorArm(VonHamosPseudoPositioner):
         motor_det_th2 -= self.von_hamos_geometry.config['parking']['motor_det_th2']
 
         motor_det_th2 *= -1
-        det_pitch = (180 - (motor_det_th2 - motor_det_th1)) / 2
-        det_x = -self.det_dx + self.det_L1 * np.cos(np.deg2rad(motor_det_th1)) - self.det_L2 * np.cos(np.deg2rad(motor_det_th2 - motor_det_th1)) - motor_det_x
-        det_y = self.det_h - self.det_L1 * np.sin(np.deg2rad(motor_det_th1)) - self.det_L2 * np.sin(np.deg2rad(motor_det_th2 - motor_det_th1))
-        return {'det_pitch' :   det_pitch,
-                'det_x' :       det_x,
-                'det_y' :       det_y}
+
+        det_pitch = motor_det_th1 - motor_det_th2 + 90
+
+        det_x = motor_det_x - self.det_L1*np.cos(np.deg2rad(motor_det_th1)) + self.det_L2*np.cos(np.deg2rad(90-det_pitch)) + self.det_dx
+        det_y = self.det_h - self.det_L1*np.sin(np.deg2rad(motor_det_th1)) - self.det_L2*np.sin(np.deg2rad(90-det_pitch))
+
+        return {'det_pitch': det_pitch,
+                'det_x': det_x,
+                'det_y': det_y}
+
+
+
+        # def _forward(self, pseudo_dict):
+    #     det_pitch, det_x, det_y = pseudo_dict['det_pitch'], pseudo_dict['det_x'], pseudo_dict['det_y']
+    #
+    #     det_pitch_rad = np.deg2rad(det_pitch)
+    #     _phi = np.pi - 2 * det_pitch_rad
+    #     _sin_th1 = (self.det_h - self.det_L2 * np.sin(_phi) - det_y) / self.det_L1
+    #     motor_det_th1 = np.arcsin(_sin_th1)
+    #     motor_det_th2 = _phi + motor_det_th1
+    #     motor_det_x = -self.det_dx + self.det_L1 * np.cos(motor_det_th1) - self.det_L2 * np.cos(_phi) - det_x
+    #     motor_det_th1 = np.rad2deg(motor_det_th1)
+    #     motor_det_th2 = -np.rad2deg(motor_det_th2)
+    #     return {'motor_det_x':      motor_det_x   + self.von_hamos_geometry.config['parking']['motor_det_x'],
+    #             'motor_det_th1':    motor_det_th1 + self.von_hamos_geometry.config['parking']['motor_det_th1'],
+    #             'motor_det_th2':    motor_det_th2 + self.von_hamos_geometry.config['parking']['motor_det_th2']}
+
+    # def _inverse(self, real_dict):
+    #     motor_det_x, motor_det_th1, motor_det_th2 = real_dict['motor_det_x'], real_dict['motor_det_th1'], real_dict['motor_det_th2']
+    #     motor_det_x -= self.von_hamos_geometry.config['parking']['motor_det_x']
+    #     motor_det_th1 -= self.von_hamos_geometry.config['parking']['motor_det_th1']
+    #     motor_det_th2 -= self.von_hamos_geometry.config['parking']['motor_det_th2']
+    #
+    #     motor_det_th2 *= -1
+    #     det_pitch = (180 - (motor_det_th2 - motor_det_th1)) / 2
+    #     det_x = -self.det_dx + self.det_L1 * np.cos(np.deg2rad(motor_det_th1)) - self.det_L2 * np.cos(np.deg2rad(motor_det_th2 - motor_det_th1)) - motor_det_x
+    #     det_y = self.det_h - self.det_L1 * np.sin(np.deg2rad(motor_det_th1)) - self.det_L2 * np.sin(np.deg2rad(motor_det_th2 - motor_det_th1))
+    #     return {'det_pitch' :   det_pitch,
+    #             'det_x' :       det_x,
+    #             'det_y' :       det_y}
 
 
 

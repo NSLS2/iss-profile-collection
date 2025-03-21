@@ -55,7 +55,7 @@ def _compute_hhmy_value(energy):
     # data is stored in two files:
     # /nsls2/xf08id/Sandbox/Beamline_components/2022_02_10_beamline_tabulation/beamline_hhmy_tabulation_att2.json
     # /nsls2/xf08id/Sandbox/Beamline_components/2022_02_10_beamline_tabulation/beamline_hhmy_tabulation_att2_high_energies.json
-    energy_tab = np.array([ 4900,  5100,  5500,  6000,  7000,  8000,  9000, 10000, 11000, 12000, 13000, 15000, 17500, 20000])
+    energy_tab = np.array([ 4900,  5100,  5500,  6000,  7000,  8000,  9000, 10000, 11000, 12000, 13000, 15000, 17500, 20000, 26000])
     hhmy_tab = np.array([9.937850000000001,
                          9.57315,
                          9.467450000000001,
@@ -69,7 +69,8 @@ def _compute_hhmy_value(energy):
                          8.88475,
                          8.84365,
                          8.85205,
-                         8.816450000000001])
+                         8.816450000000001,
+                         8.601])
 
     f = interpolate.interp1d(energy_tab, hhmy_tab, kind='cubic', fill_value='extrapolate')
 
@@ -101,23 +102,23 @@ def _compute_hhmy_value(energy):
 bl_prepare_energy_ranges = [
         {
             'energy_start': 4500,
-            'energy_end': 6000,
+            'energy_end': 5700,
             'He_flow': 4,  #5 old value 2024-09-06
             'N2_flow': 1,
             'IC_voltage': 1000,
             'HHRM': 4,
             'CM1':0,# 0,
             'Filterbox': 1,
-            'ES BPM exposure': 0.05,
+            'ES BPM exposure': 0.4,
             'i0_gain': 5,
             'it_gain': 5,
             'ir_gain': 5,
         },
         {
-            'energy_start': 5700,
-            'energy_end': 10000,
-            'He_flow': 0, #5 old value 2024-09-06
-            'N2_flow': 5,
+            'energy_start': 5701,
+            'energy_end': 7300,
+            'He_flow': 3, #5 old value 2024-09-06
+            'N2_flow': 2,
             'IC_voltage': 1650,
             'HHRM': 5,
             'CM1':0,# 0,
@@ -126,6 +127,20 @@ bl_prepare_energy_ranges = [
             'i0_gain': 5,
             'it_gain': 5,
             'ir_gain': 5,
+        },
+        {
+            'energy_start': 7301,
+            'energy_end': 10000,
+            'He_flow': 0,  # 5 old value 2024-09-06
+            'N2_flow': 5,
+            'IC_voltage': 1650,
+            'HHRM': 5,
+            'CM1': 0,  # 0,
+            'Filterbox': -69,
+            'ES BPM exposure': 0.5,  # 0.05, # Denis 2024-06-02: changed to a higher value because of the beamline state
+            'i0_gain': 5,
+            'it_gain': 6,
+            'ir_gain': 6,
         },
         {
             'energy_start': 10000,
@@ -137,9 +152,9 @@ bl_prepare_energy_ranges = [
             'CM1':0,# 0,
             'Filterbox': -139,
             'ES BPM exposure': 0.5,
-            'i0_gain': 5,
-            'it_gain': 5,
-            'ir_gain': 5,
+            'i0_gain': 6,
+            'it_gain': 6,
+            'ir_gain': 6,
         },
         {
             'energy_start': 13000,
@@ -150,10 +165,10 @@ bl_prepare_energy_ranges = [
             'HHRM': 75,
             'CM1': 40,# 0,
             'Filterbox': -139,
-            'ES BPM exposure': 0.5,
-            'i0_gain': 5,
-            'it_gain': 5,
-            'ir_gain': 5,
+            'ES BPM exposure': 0.7,
+            'i0_gain': 6,
+            'it_gain': 6,
+            'ir_gain': 6,
         },
         {
             'energy_start': 17000,
@@ -165,7 +180,7 @@ bl_prepare_energy_ranges = [
             'CM1': 40,# 0,
             'Filterbox': -209,
             'ES BPM exposure': 1.0,
-            'i0_gain': 5,
+            'i0_gain': 6,
             'it_gain': 6,
             'ir_gain': 6,
 
@@ -180,7 +195,7 @@ bl_prepare_energy_ranges = [
             'CM1': 40,# 0,
             'Filterbox': -209,
             'ES BPM exposure': 1.5,
-            'i0_gain': 5,
+            'i0_gain': 6,
             'it_gain': 6,
             'ir_gain': 6,
 

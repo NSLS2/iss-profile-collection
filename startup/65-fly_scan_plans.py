@@ -101,8 +101,11 @@ class FlyerWithMotors(Device):
         # ttime.sleep(1)
         # priority_det_complete_status = priority_det.complete()
         # priority_det_complete_status.wait()
+        print("motors complete start")
         for motor in self.motors:
             motor.complete()
+
+        print("motors complete done")
 
         self.shutter.close()
         print_to_gui(f'Detector complete complete', add_timestamp=True, tag='Flyer')

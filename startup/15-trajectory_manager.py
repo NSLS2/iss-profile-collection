@@ -383,8 +383,17 @@ class TrajectoryStack:
             df['timestamp'] = list(range(1, 9))
         if 'offset' not in df.columns:
             df['offset'] = [self.hhm.angle_offset.get()] * 8
-        df['timestamp'] = df['timestamp'].fillna(0)
-        df['offset'] = df['offset'].fillna(self.hhm.angle_offset.get())
+        # df['timestamp'] = df['timestamp'].fillna(0)
+        # df['offset'] = df['offset'].fillna(self.hhm.angle_offset.get())
+
+
+        # FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version.
+        # Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+
+        df['timestamp'] = df['timestamp'].infer_objects(copy=False).fillna(0)
+        df['offset'] = df['offset'].infer_objects(copy=False).fillna(self.hhm.angle_offset.get())
+
+
         return df
 
     def set_trajectory(self, filename, offset=None):

@@ -21,6 +21,7 @@ from ophyd.status import SubscriptionStatus, DeviceStatus
 from pathlib import PurePath
 from nslsii.detectors.xspress3 import (XspressTrigger, Xspress3Detector,
                                        Xspress3Channel, Xspress3FileStore, Xspress3ROI, logger)
+from databroker.assets.handlers import (Xspress3HDF5Handler, XS3_XRF_DATA_KEY as XRF_DATA_KEY)
 
 #from isstools.trajectory.trajectory import trajectory_manager
 
@@ -407,7 +408,12 @@ class ISSXspress3DetectorStream(ISSXspress3Detector):
             self._asset_docs_cache.append(('datum', doc))
 
         print_to_gui(f'Xspress3 complete is done.', add_timestamp=True)
-        return NullStatus() and ext_trigger_status
+
+        # return NullStatus() and ext_trigger_status
+
+        complete_status = NullStatus() and ext_trigger_status
+        print(f"{complete_status=}")
+        return complete_status
 
     def collect(self):
         print_to_gui(f'Xspress3 collect is starting...', add_timestamp=True)

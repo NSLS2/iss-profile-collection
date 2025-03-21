@@ -98,7 +98,8 @@ def general_set_gains_plan(*args):
                        [hs for index, hs in enumerate(args) if index % 3 == 2]):
         yield from ic_amp.set_gain_plan(val, hs)
 
-        if type(ic_amp) != ICAmplifier:
+        # if type(ic_amp) != ICAmplifier:
+        if type(ic_amp) != ICAmplifier_Keithley:
             raise Exception('Wrong type: {} - it should be ICAmplifier'.format(type(ic)))
         if type(val) != int:
             raise Exception('Wrong type: {} - it should be int'.format(type(val)))
@@ -117,6 +118,7 @@ def set_gains_plan(i0_gain: int = 5, it_gain: int = 5, ir_gain: int = 5, iff_gai
         hs = hs == 'True'
 
     yield from general_set_gains_plan(i0_amp, i0_gain, hs, it_amp, it_gain, hs, iff_amp, iff_gain, hs, ir_amp, ir_gain, hs)
+    # yield from general_set_gains_plan(i0_amp, i0_gain, hs, it_amp, it_gain, hs, iff_amp, iff_gain, hs, ir_amp, ir_gain, hs)
     yield from get_offsets_plan()
 
 
@@ -415,7 +417,8 @@ def quick_pitch_optimization(scan_range=1, velocity=0.2, n_tries=3):
     yield from quick_tuning_scan(motor=hhm.pitch.name, detector='I0 ion Chamber instantaneous', channel='apb_ch1',
                                  scan_range=scan_range, velocity=velocity, n_tries=n_tries)
     yield from bps.sleep(bpm_es.exp_time.get())
-    yield from set_hhm_feedback_plan(1, update_center=True)
+    #TODO remove comment from next line when the beamline is ok
+    #yield from set_hhm_feedback_plan(1, update_center=True)
 
 
 # plot_beam_center_scan(db, -1)

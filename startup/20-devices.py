@@ -384,6 +384,9 @@ class ICAmplifier_Keithley(Device):
     def set_gain_plan(self, gain, *args, **kwargs):
         yield from bps.abs_set(self.gain, gain - 3)
 
+    def get_gain_value(self):
+        return self.get_gain()[0]
+
 
 k1_amp = ICAmplifier_Keithley('XF:08ID-ES:{K428}:A:',name='k1_amp')
 k2_amp = ICAmplifier_Keithley('XF:08ID-ES:{K428}:B:',name='k2_amp')
@@ -391,6 +394,15 @@ k3_amp = ICAmplifier_Keithley('XF:08ID-ES:{K428}:C:',name='k3_amp')
 k4_amp = ICAmplifier_Keithley('XF:08ID-ES:{K428}:D:',name='k4_amp')
 
 
+
+#Updating the metadata dict to incorporate the gain values from the keithley's amplifier
+
+i0_amp = k1_amp
+it_amp = k2_amp
+ir_amp = k3_amp
+iff_amp = k4_amp
+
+#Updating the metadata dict to incorporate the gain values from the keithley's amplifier
 
 def current_suppression_plan(*args, **kwargs):
 
@@ -439,3 +451,5 @@ lakeshore = Lakeshore331Setpoint('XF:08ID-ES{LS:331-1}:', name = 'lakeshore')
 def set_lakeshore_temp(temperature: float= 5, *args, **kwargs):
     yield from bps.mv(lakeshore.setpoint, float(temperature))
     yield from bps.sleep(0.1)
+
+
