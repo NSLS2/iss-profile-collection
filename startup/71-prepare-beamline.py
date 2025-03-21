@@ -139,8 +139,8 @@ bl_prepare_energy_ranges = [
             'Filterbox': -69,
             'ES BPM exposure': 0.5,  # 0.05, # Denis 2024-06-02: changed to a higher value because of the beamline state
             'i0_gain': 5,
-            'it_gain': 5,
-            'ir_gain': 5,
+            'it_gain': 6,
+            'ir_gain': 6,
         },
         {
             'energy_start': 10000,
@@ -152,9 +152,9 @@ bl_prepare_energy_ranges = [
             'CM1':0,# 0,
             'Filterbox': -139,
             'ES BPM exposure': 0.5,
-            'i0_gain': 5,
-            'it_gain': 5,
-            'ir_gain': 5,
+            'i0_gain': 6,
+            'it_gain': 6,
+            'ir_gain': 6,
         },
         {
             'energy_start': 13000,
@@ -166,9 +166,9 @@ bl_prepare_energy_ranges = [
             'CM1': 40,# 0,
             'Filterbox': -139,
             'ES BPM exposure': 0.7,
-            'i0_gain': 5,
-            'it_gain': 5,
-            'ir_gain': 5,
+            'i0_gain': 6,
+            'it_gain': 6,
+            'ir_gain': 6,
         },
         {
             'energy_start': 17000,
@@ -180,7 +180,7 @@ bl_prepare_energy_ranges = [
             'CM1': 40,# 0,
             'Filterbox': -209,
             'ES BPM exposure': 1.0,
-            'i0_gain': 5,
+            'i0_gain': 6,
             'it_gain': 6,
             'ir_gain': 6,
 
@@ -195,7 +195,7 @@ bl_prepare_energy_ranges = [
             'CM1': 40,# 0,
             'Filterbox': -209,
             'ES BPM exposure': 1.5,
-            'i0_gain': 5,
+            'i0_gain': 6,
             'it_gain': 6,
             'ir_gain': 6,
 

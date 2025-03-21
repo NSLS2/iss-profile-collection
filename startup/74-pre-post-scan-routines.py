@@ -417,7 +417,8 @@ def quick_pitch_optimization(scan_range=1, velocity=0.2, n_tries=3):
     yield from quick_tuning_scan(motor=hhm.pitch.name, detector='I0 ion Chamber instantaneous', channel='apb_ch1',
                                  scan_range=scan_range, velocity=velocity, n_tries=n_tries)
     yield from bps.sleep(bpm_es.exp_time.get())
-    yield from set_hhm_feedback_plan(1, update_center=True)
+    #TODO remove comment from next line when the beamline is ok
+    #yield from set_hhm_feedback_plan(1, update_center=True)
 
 
 # plot_beam_center_scan(db, -1)

@@ -141,7 +141,9 @@ class HHM(Device):
         # print_to_gui(f'Mono trajectory prepare starting...', add_timestamp=True, ntabs=2)
 
         self._ensure_mono_faces_down()
+        print_to_gui(f'Prepare trajectory starting...', add_timestamp=True, tag='Monochromator')
         self.prepare_trajectory.set('1')  # Yes, the IOC requires a string.
+        print_to_gui(f'Perpare trajectory complete.', add_timestamp=True, tag='Monochromator')
         # status.wait()
         # print_to_gui(f'Ensuring mono faces down (starting)', add_timestamp=True, ntabs=2)
         # self._ensure_mono_faces_down()

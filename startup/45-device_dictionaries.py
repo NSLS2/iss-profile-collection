@@ -209,7 +209,28 @@ motor_dictionary = {
     'hutch_b_slits_bottom':         {'name': hutch_b_slits.bottom.name, 'description': 'Hutch B1 Slits bottom',                        'keyword': 'B1 slits bottom',                      'object': hutch_b_slits.bottom,    'user':False },
     'hutch_b_slits_inboard':        {'name': hutch_b_slits.inboard.name, 'description': 'Hutch B1 Slits inboard',                        'keyword': 'B1 slits inboard',                      'object': hutch_b_slits.inboard,    'user':False },
     'hutch_b_slits_outboard':        {'name': hutch_b_slits.outboard.name, 'description': 'Hutch B1 Slits outboard',                        'keyword': 'B1 slits outboard',                      'object': hutch_b_slits.outboard,    'user':False },
+    'vonhamos_assm_y': {'name': vonhamos_motors.assm_y.name, 'description': 'Von Hamos Assm Y',                        'keyword': 'VHS assm Y',                      'object': vonhamos_motors.assm_y,    'user':False },
+    'vonhamos_assm_x': {'name': vonhamos_motors.assm_x.name, 'description': 'Von Hamos Assm X',                        'keyword': 'VHS assm X',                      'object': vonhamos_motors.assm_x,    'user':False },
+    'vonhamos_arc': {'name': vonhamos_motors.arc.name, 'description': 'Von Hamos Arc',                        'keyword': 'VHS arc',                      'object': vonhamos_motors.arc,    'user':False },
+    'vonhamos_cry1_x': {'name': vonhamos_motors.crystal_x.name, 'description': 'Von Hamos crystal X',                        'keyword': 'VHS Crystal1 x',                      'object': vonhamos_motors.crystal_x,    'user':False },
+    'vonhamos_cry1_yaw': {'name': vonhamos_motors.crystal_yaw.name, 'description': 'Von Hamos crystal Yaw',                        'keyword': 'VHS Crystal1 yaw',                      'object': vonhamos_motors.crystal_yaw,    'user':False },
+    'vonhamos_cry1_pitch': {'name': vonhamos_motors.crystal_pitch.name, 'description': 'Von Hamos crystal Pitch',                        'keyword': 'VHS Crystal1 Pitch',                      'object': vonhamos_motors.crystal_pitch,    'user':False },
 }
+
+
+
+class VonHamosSpectrometerMotors(Device):
+    assm_y = Cpt(EpicsMotor, ':1}Mtr')
+    assm_x = Cpt(EpicsMotor, ':2}Mtr')
+    arc = Cpt(EpicsMotor, ':3}Mtr')
+
+    crystal_x = Cpt(EpicsMotor, ':6}Mtr')
+    crystal_yaw = Cpt(EpicsMotor, ':7}Mtr')
+    crystal_pitch = Cpt(EpicsMotor, ':8}Mtr')
+
+vonhamos_motors = VonHamosSpectrometerMotors('XF:08IDB-OP{MC:3-Ax', name='vonhamos_motors')
+
+
 
 def get_motor_device(motor_attr, based_on='description'):
     for key, motor_dict in motor_dictionary.items():
