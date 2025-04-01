@@ -2756,6 +2756,23 @@ def decode_xmap_buffers(array_data):
 
 
 
+det = [camera_sp1]
+motor = six_axes_stage.x
+plan = bp.relative_scan(det, motor, -1, 1, 20)
+RE(plan)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

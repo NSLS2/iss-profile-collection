@@ -112,6 +112,34 @@ user_manager = UserManager()
 
 
 
+def quac():
+    proposal = RE.md['proposal']
+    import requests
+    %cd ~
+    headers = {'accept': 'application/json', }
+    proposal_info = requests.get(f'https://api.nsls2.bnl.gov/v1/proposal/{proposal}', headers=headers).json()
+
+    user_names = []
+    for user in proposal_info['proposal']['users']:
+        user_names.append(f"{user['last_name']}, {user['first_name']}")
+    name_list = '" "'.join(user_names)
+    os.system(f'./search_users.sh -- "{name_list}" > output.txt')
+
+    file_path = 'output.txt'
+    with open(file_path, 'r') as file:
+        file_content = file.read()
+    strings = file_content.split('\n')
+    logins = []
+    for string in strings:
+        if (string.find(',') > -1) and (string.find('Running command') == -1):
+            inds = [index for index, char in enumerate(string) if char == '|']
+            logins.append(string[(inds[1] + 1):inds[2]].strip())
+
+    print(f'The users for the experiment under are{proposal}')
+    for name in logins:
+        print(f'    {name}')
+
+
 
 
 
