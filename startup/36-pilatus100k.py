@@ -433,7 +433,7 @@ class PilatusStreamHDF5(PilatusHDF5):
     def describe(self):
         # Add better detector metadata to avoid Tiled server side conversion.
         res = super().describe()
-        res["pil_100k2"]["dtype_numpy"] = "<i4"
+        res["pil_100k2"].setdefault("dtype_numpy", "<i4")
         return res
 
     def collect_asset_docs(self):
