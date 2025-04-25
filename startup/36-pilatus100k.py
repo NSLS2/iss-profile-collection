@@ -407,7 +407,7 @@ class PilatusStreamHDF5(PilatusHDF5):
                 value = {
                     "source": "PIL100k_HDF5",
                     "dtype": "array",
-                    "dtype_numpy": "<i4",
+                    "dtype_numpy": "<f8",
                     # 'shape': [self.cam.num_images.get()],
                     "shape": [self.hdf5.num_captured.get()],
                     "dims": ["frames"],
