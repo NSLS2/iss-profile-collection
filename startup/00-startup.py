@@ -218,4 +218,4 @@ def fix_RE_persistent_dict_md():
 # fix_RE_persistent_dict_md(bla)
 # bla
 
-shutdown = False
+shutdown = True

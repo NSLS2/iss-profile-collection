@@ -115,7 +115,6 @@ user_manager = UserManager()
 def quac():
     proposal = RE.md['proposal']
     import requests
-    %cd ~
     headers = {'accept': 'application/json', }
     proposal_info = requests.get(f'https://api.nsls2.bnl.gov/v1/proposal/{proposal}', headers=headers).json()
 
