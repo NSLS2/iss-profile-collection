@@ -435,7 +435,20 @@ class PilatusStreamHDF5(PilatusHDF5):
     def describe(self):
         # Add better detector metadata to avoid Tiled server side conversion.
         res = super().describe()
-        res["pil_100k2"].setdefault("dtype_numpy", "<i4")
+        key = "pil_100k2"
+        cam_dtype = self.parent.cam.data_type.get(as_string=True)
+        # Dynamically set Dtype
+        type_map = {
+            "Int32": "<i4",
+            "UInt8": "|u1",
+            "UInt16": "<u2",
+            "Float32": "<f4",
+            "Float64": "<f8",
+        }
+        if cam_dtype in type_map:
+            res[key].setdefault("dtype_str", type_map[cam_dtype])
+        else:
+            res[key].setdefault("dtype_numpy", "<i4")
         return res
 
     def collect_asset_docs(self):
