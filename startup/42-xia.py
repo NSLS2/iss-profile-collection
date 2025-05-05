@@ -1,3 +1,5 @@
+from ophyd import EpicsSignal
+
 print(ttime.ctime() + ' >>>> ' + __file__)
 
 import logging
@@ -311,7 +313,8 @@ class XIAXMAPDetectorSettings(CamBase):
     temperature_actual = None
     time_remaining = None
     # trigger_mode = ADCpt(SignalWithRBV, "TriggerMode")
-
+    max_energy = 33000
+    mca_len = 2048
     start = Cpt(EpicsSignal,'EraseStart')
     acquire = Cpt(EpicsSignal,'EraseStart')
     erase = Cpt(EpicsSignal,'EraseAll')
@@ -319,6 +322,7 @@ class XIAXMAPDetectorSettings(CamBase):
     acquiring = Cpt(EpicsSignalRO,'Acquiring')
     preset_mode =  Cpt(EpicsSignal,'PresetMode')
     real_time = Cpt(EpicsSignal,'PresetReal')
+    live_time  = Cpt(EpicsSignal,'PresetLive')
     actual_time = Cpt(EpicsSignal,'ElapsedReal')
     acquire_time = Cpt(EpicsSignal,'PresetReal')
     acquire_period = Cpt(EpicsSignal,'PresetReal')
@@ -328,7 +332,8 @@ class XIAXMAPDetectorSettings(CamBase):
     trigger_mode = Cpt(EpicsSignal, 'PixelAdvanceMode')
 #    xsp_name = Cpt(EpicsSignal, 'NAME')
 #    trigger_signal = Cpt(EpicsSignal, 'TRIGGER')
-    copy_ROI_SCA = Cpt(EpicsSignal, 'CopyROI_SCA')
+    copy_ch1_to_all = Cpt(EpicsSignal, 'CopyROIChannel')
+    copy_roi_to_sca = Cpt(EpicsSignal, 'CopyROI_SCA')
 
 
 class XmapMCA(Device):
@@ -352,7 +357,8 @@ class XmapMCA(Device):
     R3low = Cpt(EpicsSignal, ".R3LO", kind=Kind.hinted)
     R3high = Cpt(EpicsSignal, ".R3HI", kind=Kind.hinted)
     R3 = Cpt(EpicsSignal, ".R3", kind=Kind.hinted)
-    R3nm = Cpt(EpicsSignal, ".R3NM", kind=Kind.hinted)        
+    R3nm = Cpt(EpicsSignal, ".R3NM", kind=Kind.hinted)
+
 
 class XmapSCA(Device):
     sca0counts = Cpt(EpicsSignal, ":SCA0Counts", kind=Kind.hinted)
