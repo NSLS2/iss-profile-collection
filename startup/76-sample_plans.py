@@ -59,8 +59,6 @@ def calibrate_sample_cameras_plan(cameras=[camera_sp1, camera_sp2], dx=5, dy=5, 
 
 
 
-
-
 def random_donut_shift(v):
     random_v = 2 * v * (random() - 0.5)
     random_v = random_v * 0.5 + 0.5 * np.sign(random_v)

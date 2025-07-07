@@ -72,7 +72,9 @@ def get_standard_metadata():
 
         elif item['kind'] == 'epics_pv':
             object = item['object']
-            if object is not None:
+            if object is not None and 'notation' in item.keys():
+                value = format(item['object'].get(), item['notation'])
+            elif object is not None:
                 value = item['object'].get()
             else:
                 value = ''

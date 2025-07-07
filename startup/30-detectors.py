@@ -142,7 +142,9 @@ class EncoderFS(Encoder):
         # print('Moving file from {} to {}'.format(workstation_full_path, self._full_path))
         print_to_gui(f'{ttime.ctime()} Moving file from {workstation_full_path} to {self._full_path}')
 
-        print_to_gui(f'Here')
+        print_to_gui(f'-----------------Stuck Here--------------------- {workstation_full_path = } {self._filename = }')
+        # print(f"{workstation_full_path = }")
+        # print(f"{self._filename = }")
         cp_stat = shutil.copy(workstation_full_path, self._full_path)
         print_to_gui(f'Copy done')
         # HACK: Make datum documents here so that they are available for collect_asset_docs

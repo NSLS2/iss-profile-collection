@@ -242,4 +242,3 @@ hhm.theta.kind = 'hinted'
 hhm.y.kind = 'hinted'
 
 hhm.read_attrs = ['pitch', 'roll', 'theta', 'y', 'energy']
-

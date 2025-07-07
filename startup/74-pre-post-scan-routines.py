@@ -284,21 +284,17 @@ def set_reference_foil(element:str = 'Mn', edge:str = 'K' ):
 
     if element is None:
         yield from mv(foil_wheel.wheel1, 0)
-        yield from mv(foil_wheel.wheel2, 0)
     else:
         if element in elems:
             indx = elems.index(element)
-            yield from mv(foil_wheel.wheel2, reference_foils[indx]['fw2'])
             yield from mv(foil_wheel.wheel1, reference_foils[indx]['fw1'])
         else:
             new_element, edge, energy = find_correct_foil(element=element, edge=edge)
             if new_element in elems:
                 indx = elems.index(new_element)
-                yield from mv(foil_wheel.wheel2, reference_foils[indx]['fw2'])
                 yield from mv(foil_wheel.wheel1, reference_foils[indx]['fw1'])
             else:
                 yield from mv(foil_wheel.wheel1, 0)
-                yield from mv(foil_wheel.wheel2, 0)
 
         #yield from mv(foil_wheel.wheel2, reference[element]['foilwheel2'])
         #yield from mv(foil_wheel.wheel1, reference[element]['foilwheel1'])
@@ -422,3 +418,4 @@ def quick_pitch_optimization(scan_range=1, velocity=0.2, n_tries=3):
 
 
 # plot_beam_center_scan(db, -1)
+

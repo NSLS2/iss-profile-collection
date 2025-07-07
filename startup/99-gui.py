@@ -12,9 +12,7 @@ import time as ttime
 #                  {'x': samplexy.x.name, 'y': samplexy.y.name},
 #                  {'x': huber_stage.z.name, 'y': huber_stage.y.name}]
 
-
 #app = QApplication(sys.argv)
-
 # processing_ioc_uid = EpicsSignal('XF:08IDB-Processing:pv_uid', name='process_ioc_uid')
 processing_ioc_uid = None
 

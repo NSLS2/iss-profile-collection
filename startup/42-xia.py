@@ -1,4 +1,4 @@
-from ophyd import EpicsSignal
+from ophyd import EpicsSignal, Kind
 
 print(ttime.ctime() + ' >>>> ' + __file__)
 
@@ -366,13 +366,33 @@ class XmapSCA(Device):
     sca2counts = Cpt(EpicsSignal, ":SCA2Counts", kind=Kind.hinted)
     sca3counts = Cpt(EpicsSignal, ":SCA3Counts", kind=Kind.hinted)
 
+class Preamp(Device):
+    adc_percent_rule = Cpt(EpicsSignal, ":ADCPercentRule")
+    decay_time = Cpt(EpicsSignal, ":DecayTime")
+    detector_polarity = Cpt(EpicsSignal, ":DetectorPolarity")
+    max_energy = Cpt(EpicsSignal, ":MaxEnergy")
+    gain = Cpt(EpicsSignal, ":PreampGain")
+    reset_delay = Cpt(EpicsSignal, ":ResetDelay")
+
+'''
+XF:08IDB-ES{GE-Det:1}dxp9:ADCPercentRule
+XF:08IDB-ES{GE-Det:1}dxp9:DecayTime
+XF:08IDB-ES{GE-Det:1}dxp9:DetectorPolarity
+XF:08IDB-ES{GE-Det:1}dxp9:MaxEnergyge
+XF:08IDB-ES{GE-Det:1}dxp9:MaxEnergy
+XF:08IDB-ES{GE-Det:1}dxp9:PreampGain
+XF:08IDB-ES{GE-Det:1}dxp9:PreampGain
+XF:08IDB-ES{GE-Det:1}dxp9:ResetDelay
+
+XF:08IDB-ES{GE-Det:1}mca1.R0
+XF:08IDB-ES{GE-Det:1}dxp1:SCA0Counts
+'''
+
 def make_scas(channels):
     out_dict = OrderedDict()
     for channel in channels:  # [int]
         attr = f'dxp{channel:1d}'
         out_dict[attr] = (XmapSCA, attr, dict())
-        # attr = f"preamp{channel:1d}_gain"
-        # out_dict[attr] = (EpicsSignal, f"dxp{channel:1d}.PreampGain", dict())
     return out_dict
 
 def make_channels(channels):
@@ -380,10 +400,14 @@ def make_channels(channels):
     for channel in channels:  # [int]
         attr = f'mca{channel:1d}'
         out_dict[attr] = (XmapMCA, attr, dict())
-        # attr = f"preamp{channel:1d}_gain"
-        # out_dict[attr] = (EpicsSignal, f"dxp{channel:1d}.PreampGain", dict())
     return out_dict
 
+def make_preamps(channels):
+    out_dict = OrderedDict()
+    for channel in channels:  # [int]
+        attr = f'dxp{channel:1d}'
+        out_dict[attr] = (Preamp, attr, dict())
+    return out_dict
 
 class XIAXMAPDetector(DetectorBase):
     settings = Cpt(XIAXMAPDetectorSettings, '')
@@ -391,6 +415,8 @@ class XIAXMAPDetector(DetectorBase):
     _channels = DDC(make_channels(range(1, 33)), kind=Kind.hinted)
 
     scas = DDC(make_scas(range(1, 33)), kind=Kind.hinted)
+
+    preamps = DDC(make_preamps(range(1, 33)), kind=Kind.hinted)
 
     external_trig = Cpt(Signal, value=False,
                         doc='Use external triggering')
@@ -423,21 +449,9 @@ class XIAXMAPDetector(DetectorBase):
                          configuration_attrs=configuration_attrs,
                          name=name, parent=parent, **kwargs)
 
-        # get all sub-device instances
-#        sub_devices = {attr: getattr(self, attr)
-#                       for attr in self._sub_devices}
 
-        # filter those sub-devices, just giving channels
-#        channels = {dev.channel_num: dev
-#                    for attr, dev in sub_devices.items()
-#                    if isinstance(dev, Xspress3Channel)
-#                    }
-#        
-        
-
-        # make an ordered dictionary with the channels in order
-#        self._channelsDict = OrderedDict(sorted(channels.items()))
         self._channelsDict = {chn: getattr(self._channels, f"mca{chn:1d}") for chn in range(1, 33)}
+       # self._preamps = {chn: getattr(self._preamps, f"dxp{chn:1d}") for chn in range(1, 33)}
 
     @property
     def channelsDict(self):
@@ -771,10 +785,10 @@ class ISSXIAXMAPDetector(XIAXMAPTrigger, XIAXMAPDetector):  # For step scans
         # THIS FUNCTION WILL COPY ROI TO SCA FOR ALL SCAs ON ALL CHANNELS: SCA0 to SCA16
         self.settings.copy_ROI_SCA.put(1, wait=True)
 
-    def ensure_roi4_covering_total_mca(self, emin=600, emax=40960):  # TODO: Needs adjustment for XMAP DXP
-        for channel in self.channelsDict.items():
-            channel.R0high.put(emax)
-            channel.R0low.put(emin)
+    # def ensure_roi4_covering_total_mca(self, emin=600, emax=self.max_energy ):  # TODO: Needs adjustment for XMAP DXP
+    #     for channel in self.channelsDict.items():
+    #         channel.R0high.put(emax)
+    #         channel.R0low.put(emin)
 
     @property
     def roi_metadata(self):
@@ -985,6 +999,8 @@ class ISSXIAXMAPDetectorStream(ISSXIAXMAPDetector):
 
 ge_detector = ISSXIAXMAPDetector('XF:08IDB-ES{GE-Det:1}', name='ge_detector')
 ge_detector.scas.kind = Kind.hinted
+# ge_detector.preamps.kind = Kind.hinted
 ge_detector._channels.kind = Kind.hinted
 # ttime.sleep(2)
-ge_detector_stream = ISSXIAXMAPDetectorStream('XF:08IDB-ES{GE-Det:1}', name="ge_detector_stream", ext_trigger_device=apb_trigger_ge_detector)    
+ge_detector_stream = ISSXIAXMAPDetectorStream('XF:08IDB-ES{GE-Det:1}', name="ge_detector_stream", ext_trigger_device=apb_trigger_ge_detector)
+

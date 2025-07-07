@@ -2106,3 +2106,4 @@ _johann_motor_dictionary = {
 }
 
 motor_dictionary = {**motor_dictionary, **_johann_motor_dictionary}
+
