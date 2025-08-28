@@ -7,7 +7,6 @@ import time as ttime
 from collections import deque
 
 import numpy as np
-import paramiko
 from ophyd import Component as Cpt, Device, EpicsSignal, Kind
 from ophyd.sim import NullStatus
 from ophyd.status import SubscriptionStatus
@@ -181,7 +180,6 @@ class AnalogPizzaBoxStream(AnalogPizzaBoxAverage):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._acquiring = None
-        # self.ssh = paramiko.SSHClient()
 
         self._asset_docs_cache = deque()
         self._resource_uid = None
