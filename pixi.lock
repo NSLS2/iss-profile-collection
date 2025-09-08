@@ -748,8 +748,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxtst-1.2.5-hb9d3cd8_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxxf86vm-1.1.6-hb9d3cd8_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/xraydb-4.5.8-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/xraylarch-0.9.81-py311hca7485f_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/xraylarch-base-0.9.81-py312h7900ff3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/xraylarch-0.9.80-py311hca7485f_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xraylarch-base-0.9.80-py312h7900ff3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/xyzservices-2025.4.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/yaml-0.2.5-h280c20c_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/yarl-1.20.1-py312h178313f_0.conda
@@ -1511,8 +1511,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxtst-1.2.5-hb9d3cd8_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxxf86vm-1.1.6-hb9d3cd8_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/xraydb-4.5.8-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/xraylarch-0.9.81-py311hca7485f_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/xraylarch-base-0.9.81-py312h7900ff3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/xraylarch-0.9.80-py311hca7485f_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/xraylarch-base-0.9.80-py312h7900ff3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/xyzservices-2025.4.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/yaml-0.2.5-h280c20c_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/yarl-1.20.1-py312h178313f_0.conda
@@ -12390,10 +12390,10 @@ packages:
   - pkg:pypi/xraydb?source=hash-mapping
   size: 2425497
   timestamp: 1752889702496
-- conda: https://conda.anaconda.org/conda-forge/noarch/xraylarch-0.9.81-py311hca7485f_0.conda
+- conda: https://conda.anaconda.org/conda-forge/noarch/xraylarch-0.9.80-py311hca7485f_0.conda
   noarch: generic
-  sha256: d8962b15d0407c7a2f96515db6dfd0ff720e4a56000db802ed0e137adecc8a63
-  md5: c62910960053c061544e17cfad7e639a
+  sha256: 9824c62139d4ee0aa0281d0d473cb07b3fd277724e0af575494226b81ee5d13d
+  md5: 9de4ac3c3ac9c558f2dff3dd6a5095b0
   depends:
   - ipywidgets
   - jupyter_client
@@ -12412,15 +12412,15 @@ packages:
   - wxmplot >=0.9.57
   - wxpython >=4.1
   - wxutils >=0.3.0
-  - xraylarch-base >=0.9.81,<0.9.82.0a0
+  - xraylarch-base >=0.9.80,<0.9.81.0a0
   license: BSD-2-Clause
   license_family: BSD
   purls: []
-  size: 7570
-  timestamp: 1726855792314
-- conda: https://conda.anaconda.org/conda-forge/linux-64/xraylarch-base-0.9.81-py312h7900ff3_0.conda
-  sha256: 8f9a2359cf618977ce7930931a496d7838ae5f2f2b504b166c4b09accc0c1434
-  md5: 886a3a90bd7786c1536e03be8d9b28dd
+  size: 7604
+  timestamp: 1721303555526
+- conda: https://conda.anaconda.org/conda-forge/linux-64/xraylarch-base-0.9.80-py312h7900ff3_0.conda
+  sha256: 3508850a6101ff18436f6b5300976feacd1189a6fad89f543c215a1ef2969dc3
+  md5: 8c64bedf304ef47fad9012a73d454307
   depends:
   - asteval >=0.9.28
   - charset-normalizer
@@ -12464,8 +12464,8 @@ packages:
   license_family: BSD
   purls:
   - pkg:pypi/xraylarch?source=hash-mapping
-  size: 16321186
-  timestamp: 1726855727170
+  size: 16876368
+  timestamp: 1721303438919
 - conda: https://conda.anaconda.org/conda-forge/noarch/xyzservices-2025.4.0-pyhd8ed1ab_0.conda
   sha256: ac6d4d4133b1e0f69075158cdf00fccad20e29fc6cc45faa480cec37a84af6ae
   md5: 5663fa346821cd06dc1ece2c2600be2c
