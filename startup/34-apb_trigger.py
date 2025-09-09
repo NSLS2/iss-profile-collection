@@ -9,7 +9,6 @@ from collections import deque
 
 import numpy as np
 import pandas as pd
-import paramiko
 
 from ophyd.status import SubscriptionStatus
 
@@ -152,5 +151,3 @@ class APBTriggerFileHandler(HandlerBase):
 
 db.reg.register_handler('APB_TRIGGER',
                         APBTriggerFileHandler, overwrite=True)
-
-

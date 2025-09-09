@@ -129,7 +129,6 @@ class ElectrometerStream(ElectrometerAverage):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._acquiring = None
-        # self.ssh = paramiko.SSHClient()
 
         self._asset_docs_cache = deque()
         self._resource_uid = None
@@ -260,7 +259,3 @@ class ElectrometerStream(ElectrometerAverage):
 
 
 em_stream = ElectrometerStream(prefix="xf08id-em1:", name="apb_stream")
-
-
-
-

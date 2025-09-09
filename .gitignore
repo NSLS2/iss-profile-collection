@@ -8,3 +8,6 @@ startup/__pycache__/
 db/*
 .idea
 *.pickle
+# pixi environments
+.pixi/*
+!.pixi/config.toml
