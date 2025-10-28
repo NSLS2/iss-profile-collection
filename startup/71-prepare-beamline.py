@@ -287,6 +287,7 @@ def prepare_beamline_plan(energy: int = -1, move_cm_mirror = False, move_hhm_y=T
         if reopen_shutter:
             try:
                 yield from bps.mv(shutter_fe_2b, 'Open')
+                print_to_gui('[Prepare Beamline] Opening frontend shutter after moving correct filter')
             except FailedStatus:
                 print_to_gui(f'Error: Photon shutter failed to open.')
 
@@ -434,6 +435,7 @@ def simple_prepare_beamline_plan(energy: int = -1, move_cm_mirror = False, move_
 
         try:
             yield from bps.mv(shutter_fe_2b, 'Open')
+            print_to_gui('[Prepare Beamline] Opening frontend shutter after moving correct filter')
         except FailedStatus:
             print_to_gui(f'Error: Photon shutter failed to open.')
 

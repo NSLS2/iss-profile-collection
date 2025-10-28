@@ -23,6 +23,8 @@ class Electrometer(Device):
     ch8_range = Cpt(EpicsSignal, 'ADC:Range:H-SP')
 
 
+
+
     # ch1_offset = Cpt(EpicsSignal, 'Ch1:User:Offset-SP', kind=Kind.config)
     # ch2_offset = Cpt(EpicsSignal, 'Ch2:User:Offset-SP', kind=Kind.config)
     # ch3_offset = Cpt(EpicsSignal, 'Ch3:User:Offset-SP', kind=Kind.config)
@@ -53,6 +55,8 @@ class Electrometer(Device):
 
 
 em = Electrometer('xf08id-em1:', name = 'em')
+# em2 = Electrometer('XF:08ID1-ES{EM:01}', name = 'em2')
+
 
 class ElectrometerAverage(Electrometer):
 
@@ -260,7 +264,8 @@ class ElectrometerStream(ElectrometerAverage):
 
 
 em_stream = ElectrometerStream(prefix="xf08id-em1:", name="apb_stream")
-
+# em_stream2 = ElectrometerStream(prefix="xf08id
+# XF:08ID1-ES{EM:01}Firmware-em1:", name="apb_stream")
 
 
 

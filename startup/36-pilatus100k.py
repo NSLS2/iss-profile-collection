@@ -237,6 +237,7 @@ class PilatusHDF5(PilatusBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.set_primary_roi(1)
+        self.sample_to_detector_distance = Signal(name="sample_to_detector_distance", value=250)
         # self.set_primary_roi(2)
         # self.set_primary_roi(3)
         # self.set_primary_roi(4)
