@@ -298,6 +298,7 @@ class AnalogPizzaBoxStream(AnalogPizzaBoxAverage):
                 self.name: {
                     "source": "APB",
                     "dtype": "array",
+                    "dtype_numpy": "<i8",
                     "shape": [-1, -1],
                     "filename_bin": f"{self.filename}.bin",
                     "filename_txt": f"{self.filename}.txt",
@@ -306,6 +307,12 @@ class AnalogPizzaBoxStream(AnalogPizzaBoxAverage):
             }
         }
         return return_dict
+
+    def describe(self):
+        # Add better detector metadata to avoid Tiled server side conversion.
+        res = super().describe()
+        res["apb_ave_filename_bin"].setdefault("dtype_numpy", "<i8")
+        return res
 
     def collect_asset_docs(self):
         items = list(self._asset_docs_cache)
