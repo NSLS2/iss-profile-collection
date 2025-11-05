@@ -66,12 +66,13 @@ def prepare_foil_scan(element, edge):
     return plans, trajectory_filename
 
 
-def bender_scan_plan_bundle(element, edge, error_message_func=None):
+def bender_scan_plan_bundle(element, edge, error_message_func=None, bender_positions=None):
     # element, edge = foil_camera.read_current_foil_and_edge(error_message_func=error_message_func)
     # trajectory_filename = scan_manager.standard_trajectory_filename(element, edge)
 
     bender_current_position = bender.pos.user_readback.get()
-    bender_positions = bender_current_position + np.arange(-25, 30, 5)
+    if bender_positions is None:
+        bender_positions = bender_current_position + np.arange(-25, 30, 5)
 
     plans, trajectory_filename = prepare_foil_scan(element, edge)
 

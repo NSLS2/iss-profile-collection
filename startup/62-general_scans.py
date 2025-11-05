@@ -221,7 +221,7 @@ def collect_n_exposures_plan(name : str = '', comment : str = '',
                              detectors : list = [], mono_angle_offset=None, metadata={}):
 
     if mono_angle_offset is not None: hhm.set_new_angle_offset(mono_angle_offset)
-    default_detectors = [apb_ave, hhm_encoder]
+    default_detectors = [apb_ave, hhm_encoder, hhm.energy]
     aux_detectors = get_detector_device_list(detectors, flying=False)
     all_detectors = default_detectors + aux_detectors
     detectors_dict = {k: {'device': v} for k, v in zip(detectors, aux_detectors)}

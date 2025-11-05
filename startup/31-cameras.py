@@ -307,13 +307,14 @@ class FoilCAMERA(CAMERA):
 
     @property
     def barcode1(self):
-        return str(self.bar1.get()[:-1], encoding='UTF-8')
+        return str(self.bar1.get()[:-1], encoding='UTF-8').strip()
 
     @property
     def barcode2(self):
-        return str(self.bar2.get()[:-1], encoding='UTF-8')
+        return str(self.bar2.get()[:-1], encoding='UTF-8').strip()
 
     def read_current_foil(self, error_message_func=None):
+        #WIP test that it works with single foil
         if self.barcode1 != '':
             if self.barcode1 != 'empty':
                 return self.barcode1
@@ -356,6 +357,8 @@ bpm_es = FeedbackBPM('XF:08IDB-BI{BPM:ES}', name='bpm_es')
 bpm_es_ioc_reset = EpicsSignal('XF:08IDB-CT{IOC:BPM:ES}:SysReset', name='bpm_es_ioc_reset')
 bpm_es.append_ioc_reboot_pv(bpm_es_ioc_reset)
 
+
+
 # camera_sp3 = BPM('XF:08IDB-BI{BPM:SP-3}', name='camera_sp3')
 
 # camera_sp1 = BPM('XF:08IDB-BI{BPM:SP-1}', name='camera_sp1')
@@ -370,8 +373,9 @@ camera_sp4 = CAMERA('XF:08IDB-BI{BPM:SP-4}', name='camera_sp4')
 camera_sp5 = FoilCAMERA('XF:08IDB-BI{BPM:SP-5}', name='camera_sp5')
 camera_sp6 = CAMERA('XF:08IDB-BI{BPM:SP-6}', name='camera_sp6')
 
-foil_camera = camera_sp5
 
+foil_camera = camera_sp5
+# foil_camera_b2 = FoilCAMERA('XF:08ID1-ES{USB-Cam:2}', name='foil_camera_b2')
 #bpm_ms1 = CAMERA('XF:08IDB-BI{BPM:MS-1}', name='bpm_ms1')
 
 for bpm in [bpm_fm, bpm_cm, bpm_bt1, bpm_bt2, bpm_es,]: #camera_sp1, camera_sp2, camera_sp3, camera_sp4]:
