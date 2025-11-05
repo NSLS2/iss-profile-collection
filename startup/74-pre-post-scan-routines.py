@@ -140,15 +140,16 @@ def optimize_gains_plan(n_tries=3, trajectory_filename=None, mono_angle_offset=N
     # if 'detector_names' not in kwargs:
     # detectors = [pba1.adc7, pba2.adc6, pba1.adc1, pba1.adc6]
     detectors = [apb_ave]
-    channels = [ apb_ave.ch1,  apb_ave.ch2,  apb_ave.ch3,  apb_ave.ch4]
+    # channels = [ apb_ave.ch1,  apb_ave.ch2,  apb_ave.ch3,  apb_ave.ch4]
+    channels = [apb_ave.ch1, apb_ave.ch2, apb_ave.ch3]
     # offsets = [apb.ch1_offset, apb.ch2_offset, apb.ch3_offset, apb.ch4_offset]
 
     if trajectory_filename is not None:
         yield from prepare_trajectory_plan(trajectory_filename, offset=mono_angle_offset)
         # trajectory_stack.set_trajectory(trajectory_filename, offset=mono_angle_offset)
 
-    threshold_hi = 3.250
-    threshold_lo = 0.250
+    threshold_hi = 6.000
+    threshold_lo = 0.100
 
     e_min, e_max = trajectory_manager.read_trajectory_limits()
     scan_positions = np.arange(e_max + 50, e_min - 50, -200).tolist()

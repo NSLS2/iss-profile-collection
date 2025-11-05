@@ -154,11 +154,14 @@ ir_y = IonChamberMotor('XF:08IDB-OP{IC-Ax:Y:3', name='ir_y')
 
 
 class Bender(Device):
-    pos = Cpt(EpicsMotor, '}Mtr')
+    pos = Cpt(EpicsMotor, '{Mir:2-CM-Ax:BEN}Mtr')
     load_cell = EpicsSignalRO('XF:08IDA-OP{Mir:CM-Ax:Bender}W-I', name='bender_loading')
 # TODO: change the name of the class/object to BenderCM2/bender_cm2
-bender = Bender('XF:08IDA-OP{Mir:CM-Bender', name='bender')
+bender = Bender('XF:08IDA-OP', name='bender')
 # fm_bender = Bender('XF:08IDA-OP{Mir:CM-Bender', name='bender')
+
+
+
 
 class BenderFM(Device):
     pos = Cpt(EpicsMotor, '}Mtr')
