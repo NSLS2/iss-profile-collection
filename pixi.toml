@@ -50,6 +50,7 @@ xas = { git = "https://github.com/nsls-ii-iss/xas" }
 isstools = { git = "https://github.com/nsls-ii-iss/isstools", rev = "eb715eaa6436097cf88cf0a8f875fa1251f64657" }
 # TODO make importable without I/O and get on CF
 piezo-feedback = { git = "https://github.com/nsls-ii-iss/piezo-feedback" }
+pvxslibs = ">=1.3.2, <2"
 
 
 [feature.qs.dependencies]
