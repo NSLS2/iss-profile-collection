@@ -239,6 +239,7 @@ class XIAXMAPFileStore(FileStorePluginBase, HDF5Plugin_V33):
         spec_desc = {
             "external": "FILESTORE:",
             "dtype": "array",
+            "dtype_numpy": "<i2",
             "shape": size,
             "source": "FileStore:",
         }
@@ -1028,6 +1029,7 @@ class ISSXIAXMAPDetectorStream(ISSXIAXMAPDetector):
                 value = {
                     "source": "Ge detector",
                     "dtype": "array",
+                    "dtype_numpy": "<i2",
                     "shape": [
                         self.settings.num_images.get(),
                         self.hdf5.array_size.width.get(),
@@ -1039,6 +1041,7 @@ class ISSXIAXMAPDetectorStream(ISSXIAXMAPDetector):
                 value = {
                     "source": "Ge detector",
                     "dtype": "array",
+                    "dtype_numpy": "<i2",
                     "shape": [self.settings.num_images.get()],
                     "dims": ["frames"],
                     "external": "FILESTORE:",
