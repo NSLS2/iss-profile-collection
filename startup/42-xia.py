@@ -1,37 +1,45 @@
 from ophyd import EpicsSignal, Kind
 
-print(ttime.ctime() + ' >>>> ' + __file__)
+print(ttime.ctime() + " >>>> " + __file__)
 
 import logging
+
 logger = logging.getLogger(__name__)
-#from ophyd import EpicsSignal, Signal, SignalWithRBV, EpicsSignalRO, Kind
-from ophyd.device import (BlueskyInterface, Staged)
-from ophyd.device import (Device,
-                          DynamicDeviceComponent as DDC,
-                          Component as Cpt)
+# from ophyd import EpicsSignal, Signal, SignalWithRBV, EpicsSignalRO, Kind
+from ophyd.device import BlueskyInterface, Staged
+from ophyd.device import Device, DynamicDeviceComponent as DDC, Component as Cpt
 from ophyd.areadetector.plugins import PluginBase
 from ophyd.areadetector.filestore_mixins import FileStorePluginBase
 from ophyd.areadetector.plugins import HDF5Plugin_V33
-from ophyd.areadetector import (DetectorBase, CamBase)
+from ophyd.areadetector import DetectorBase, CamBase
 from ophyd.sim import NullStatus
 import time
 from collections import OrderedDict
 import h5py
-from databroker.assets.handlers import (Xspress3HDF5Handler, XS3_XRF_DATA_KEY as XRF_DATA_KEY)
+from databroker.assets.handlers import (
+    Xspress3HDF5Handler,
+    XS3_XRF_DATA_KEY as XRF_DATA_KEY,
+)
 
 
-
-#class Xspress3FileStore(FileStorePluginBase, HDF5Plugin):
+# class Xspress3FileStore(FileStorePluginBase, HDF5Plugin):
 class XIAXMAPFileStore(FileStorePluginBase, HDF5Plugin_V33):
-    '''XIA XMAP acquisition -> filestore'''
+    """XIA XMAP acquisition -> filestore"""
+
     # num_capture_calc = Cpt(EpicsSignal, 'NumCapture_CALC')
     # num_capture_calc_disable = Cpt(EpicsSignal, 'NumCapture_CALC.DISA')
     filestore_spec = "XIA_XMAP_HDF5"
-    #filestore_spec = "AD_HDF5"  #Xspress3HDF5Handler.HANDLER_NAME
+    # filestore_spec = "AD_HDF5"  #Xspress3HDF5Handler.HANDLER_NAME
 
-    def __init__(self, basename, *, config_time=0.5,
-                 mds_key_format='{self.settings.name}_ch{chan}', parent=None,
-                 **kwargs):
+    def __init__(
+        self,
+        basename,
+        *,
+        config_time=0.5,
+        mds_key_format="{self.settings.name}_ch{chan}",
+        parent=None,
+        **kwargs,
+    ):
         super().__init__(basename, parent=parent, **kwargs)
         det = parent
         self.settings = det.settings
@@ -39,13 +47,13 @@ class XIAXMAPFileStore(FileStorePluginBase, HDF5Plugin_V33):
         # Use the EpicsSignal file_template from the detector
         self.stage_sigs[self.blocking_callbacks] = 1
         self.stage_sigs[self.enable] = 1
-        self.stage_sigs[self.compression] = 'zlib'
-        self.stage_sigs[self.file_template] = '%s%s_%6.6d.h5'
+        self.stage_sigs[self.compression] = "zlib"
+        self.stage_sigs[self.file_template] = "%s%s_%6.6d.h5"
 
         self._filestore_res = None
         self.create_directory.set(6).wait()
-#        self.channels = list(range(1, len([_ for _ in det.component_names
-#                                           if _.startswith('chan')]) + 1))
+        #        self.channels = list(range(1, len([_ for _ in det.component_names
+        #                                           if _.startswith('chan')]) + 1))
         self.channels = list(range(1, 33))  # TODO: REmove hardcoded values
         # self.channels = list(range(1, int(det.settings.num_channels)+1))
         # this was in original code, but I kinda-sorta nuked because
@@ -53,8 +61,9 @@ class XIAXMAPFileStore(FileStorePluginBase, HDF5Plugin_V33):
         self._master = None
 
         self._config_time = config_time
-        self.mds_keys = {chan: mds_key_format.format(self=self, chan=chan)
-                         for chan in self.channels}
+        self.mds_keys = {
+            chan: mds_key_format.format(self=self, chan=chan) for chan in self.channels
+        }
 
     def stop(self, success=False):
         ret = super().stop(success=success)
@@ -87,28 +96,33 @@ class XIAXMAPFileStore(FileStorePluginBase, HDF5Plugin_V33):
             while self.capture.get() == 1:  # HDF5 plugin .capture
                 i += 1
                 if (i % 50) == 0:
-                    logger.warning('Still capturing data .... waiting.')
+                    logger.warning("Still capturing data .... waiting.")
                 time.sleep(0.1)
                 if i > 150:
-                    logger.warning('Still capturing data .... giving up.')
-                    logger.warning('Check that the XIA XMAP is configured to take the right '
-                                   'number of frames '
-                                   f'(it is trying to take {self.parent.settings.num_images.get()})')
+                    logger.warning("Still capturing data .... giving up.")
+                    logger.warning(
+                        "Check that the XIA XMAP is configured to take the right "
+                        "number of frames "
+                        f"(it is trying to take {self.parent.settings.num_images.get()})"
+                    )
                     self.capture.put(0)
                     break
 
         except KeyboardInterrupt:
             self.capture.put(0)
-            logger.warning('Still capturing data .... interrupted.')
+            logger.warning("Still capturing data .... interrupted.")
 
         return super().unstage()
 
     def generate_datum(self, key, timestamp, datum_kwargs):
-        sn, n = next((f'channel{j}', j)  # TODO:
-                     for j in self.channels
-                     if getattr(self.parent.channels, f'mca{j:1d}').name == key)
-        datum_kwargs.update({'frame': self.parent._abs_trigger_count,
-                             'channel': int(sn[7:])})  # No idea what's happening here
+        sn, n = next(
+            (f"channel{j}", j)  # TODO:
+            for j in self.channels
+            if getattr(self.parent.channels, f"mca{j:1d}").name == key
+        )
+        datum_kwargs.update(
+            {"frame": self.parent._abs_trigger_count, "channel": int(sn[7:])}
+        )  # No idea what's happening here
         self.mds_keys[n] = key
         # print(f"{datum_kwargs=}")
         super().generate_datum(key, timestamp, datum_kwargs)
@@ -118,7 +132,7 @@ class XIAXMAPFileStore(FileStorePluginBase, HDF5Plugin_V33):
         ext_trig = self.parent.external_trig.get()
         print("XIA External_trigger", ext_trig)
 
-        logger.debug('Stopping XIA XMAP acquisition')
+        logger.debug("Stopping XIA XMAP acquisition")
         # really force it to stop acquiring
         self.settings.stop_all.put(1)
 
@@ -126,8 +140,8 @@ class XIAXMAPFileStore(FileStorePluginBase, HDF5Plugin_V33):
         if total_points < 1:
             raise RuntimeError("You must set the total points")
         # print(total_points)
-#        spec_per_point = self.parent.spectra_per_point.get()
-#        total_capture = total_points * spec_per_point
+        #        spec_per_point = self.parent.spectra_per_point.get()
+        #        total_capture = total_points * spec_per_point
 
         # stop previous acquisition
         # self.stage_sigs[self.settings.acquire] = 0
@@ -142,32 +156,33 @@ class XIAXMAPFileStore(FileStorePluginBase, HDF5Plugin_V33):
         # print(self.stage_sigs)
 
         if ext_trig:
-            print('Setting up external triggering')
-            logger.debug('Setting up external triggering')
+            print("Setting up external triggering")
+            logger.debug("Setting up external triggering")
             # self.stage_sigs[self.settings.collection_mode] = 2  # SCA Mapping
             # self.stage_sigs[self.settings.trigger_mode] = 0  # Gate
-#            self.stage_sigs[self.settings.trigger_mode] = 'TTL Veto Only'
-            # self.stage_sigs[self.settings.num_images] = total_points
+        #            self.stage_sigs[self.settings.trigger_mode] = 'TTL Veto Only'
+        # self.stage_sigs[self.settings.num_images] = total_points
         else:
-            logger.debug('Setting up internal triggering')
+            logger.debug("Setting up internal triggering")
             # self.settings.trigger_mode.put('Internal')
             # self.settings.num_images.put(1)
             # self.stage_sigs[self.settings.collection_mode] = 0  # MCA Spectra
             # self.stage_sigs[self.settings.preset_mode] = 1  # Real Time
-#            self.stage_sigs[self.settings.trigger_mode] = 'Internal'
-#            self.stage_sigs[self.settings.num_images] = spec_per_point
+        #            self.stage_sigs[self.settings.trigger_mode] = 'Internal'
+        #            self.stage_sigs[self.settings.num_images] = spec_per_point
 
-        self.stage_sigs[self.auto_save] = 'No'
-        logger.debug('Configuring other filestore stuff')
+        self.stage_sigs[self.auto_save] = "No"
+        logger.debug("Configuring other filestore stuff")
 
-        logger.debug('Making the filename')
+        logger.debug("Making the filename")
         filename, read_path, write_path = self.make_filename()
         # print(filename, read_path, write_path)
 
-        logger.debug('Setting up hdf5 plugin: ioc path: %s filename: %s',
-                     write_path, filename)
+        logger.debug(
+            "Setting up hdf5 plugin: ioc path: %s filename: %s", write_path, filename
+        )
 
-        logger.debug('Erasing old spectra')
+        logger.debug("Erasing old spectra")
         self.settings.erase.put(1, wait=True)
 
         # this must be set after self.settings.num_images because at the Epics
@@ -185,15 +200,20 @@ class XIAXMAPFileStore(FileStorePluginBase, HDF5Plugin_V33):
         ttime.sleep(0.5)
         self.enable.put(1, wait=True)
 
-        self._fn = self.file_template.get() % (self._fp,
-                                               self.file_name.get(),
-                                               self.file_number.get())
+        self._fn = self.file_template.get() % (
+            self._fp,
+            self.file_name.get(),
+            self.file_number.get(),
+        )
         # print(self._fn)
         if not self.file_path_exists.get():
-            raise IOError("Path {} does not exits on IOC!! Please Check"
-                          .format(self.file_path.get()))
+            raise IOError(
+                "Path {} does not exits on IOC!! Please Check".format(
+                    self.file_path.get()
+                )
+            )
 
-        logger.debug('Inserting the filestore resource: %s', self._fn)
+        logger.debug("Inserting the filestore resource: %s", self._fn)
         # print("Generating resource")
         self._generate_resource({})
         self._filestore_res = self._asset_docs_cache[-1][-1]
@@ -209,19 +229,20 @@ class XIAXMAPFileStore(FileStorePluginBase, HDF5Plugin_V33):
 
         return ret
 
-    def configure(self, total_points=0, master=None, external_trig=False,
-                  **kwargs):
+    def configure(self, total_points=0, master=None, external_trig=False, **kwargs):
         raise NotImplementedError()
 
     def describe(self):
         # should this use a better value?
-        size = (self.width.get(), )
+        size = (self.width.get(),)
 
-        spec_desc = {'external': 'FILESTORE:',
-                     'dtype': 'array',
-                     'shape': size,
-                     'source': 'FileStore:'
-                     }
+        spec_desc = {
+            "external": "FILESTORE:",
+            "dtype": "array",
+            "dtype_numpy": "<i2",
+            "shape": size,
+            "source": "FileStore:",
+        }
 
         desc = OrderedDict()
         for chan in self.channels:
@@ -232,19 +253,22 @@ class XIAXMAPFileStore(FileStorePluginBase, HDF5Plugin_V33):
 
 
 class XIAXMAPDetectorSettings(CamBase):
-    '''XIA XMAP'''
+    """XIA XMAP"""
 
-    def __init__(self, prefix, *, read_attrs=None, configuration_attrs=None,
-                 **kwargs):
+    def __init__(self, prefix, *, read_attrs=None, configuration_attrs=None, **kwargs):
         self.num_channels = 32  # TODO: HARDCODED
         if read_attrs is None:
             read_attrs = []
         if configuration_attrs is None:
             configuration_attrs = [
                 # 'config_path', 'config_save_path',
-                                   ]
-        super().__init__(prefix, read_attrs=read_attrs,
-                         configuration_attrs=configuration_attrs, **kwargs)
+            ]
+        super().__init__(
+            prefix,
+            read_attrs=read_attrs,
+            configuration_attrs=configuration_attrs,
+            **kwargs,
+        )
 
     array_counter = None
     array_rate = None
@@ -315,25 +339,25 @@ class XIAXMAPDetectorSettings(CamBase):
     # trigger_mode = ADCpt(SignalWithRBV, "TriggerMode")
     max_energy = 33000
     mca_len = 2048
-    start = Cpt(EpicsSignal,'EraseStart')
-    acquire = Cpt(EpicsSignal,'EraseStart')
-    erase = Cpt(EpicsSignal,'EraseAll')
-    stop_all = Cpt(EpicsSignal,'StopAll')
-    acquiring = Cpt(EpicsSignalRO,'Acquiring')
-    preset_mode =  Cpt(EpicsSignal,'PresetMode')
-    real_time = Cpt(EpicsSignal,'PresetReal')
-    live_time  = Cpt(EpicsSignal,'PresetLive')
-    actual_time = Cpt(EpicsSignal,'ElapsedReal')
-    acquire_time = Cpt(EpicsSignal,'PresetReal')
-    acquire_period = Cpt(EpicsSignal,'PresetReal')
+    start = Cpt(EpicsSignal, "EraseStart")
+    acquire = Cpt(EpicsSignal, "EraseStart")
+    erase = Cpt(EpicsSignal, "EraseAll")
+    stop_all = Cpt(EpicsSignal, "StopAll")
+    acquiring = Cpt(EpicsSignalRO, "Acquiring")
+    preset_mode = Cpt(EpicsSignal, "PresetMode")
+    real_time = Cpt(EpicsSignal, "PresetReal")
+    live_time = Cpt(EpicsSignal, "PresetLive")
+    actual_time = Cpt(EpicsSignal, "ElapsedReal")
+    acquire_time = Cpt(EpicsSignal, "PresetReal")
+    acquire_period = Cpt(EpicsSignal, "PresetReal")
     # MCA Spectra=0, MCA Mapping=1, SCA Mapping=2, List Mapping=3
-    collection_mode = Cpt(EpicsSignal,'CollectMode')
-    num_images = Cpt(EpicsSignal, 'PixelsPerRun')
-    trigger_mode = Cpt(EpicsSignal, 'PixelAdvanceMode')
-#    xsp_name = Cpt(EpicsSignal, 'NAME')
-#    trigger_signal = Cpt(EpicsSignal, 'TRIGGER')
-    copy_ch1_to_all = Cpt(EpicsSignal, 'CopyROIChannel')
-    copy_roi_to_sca = Cpt(EpicsSignal, 'CopyROI_SCA')
+    collection_mode = Cpt(EpicsSignal, "CollectMode")
+    num_images = Cpt(EpicsSignal, "PixelsPerRun")
+    trigger_mode = Cpt(EpicsSignal, "PixelAdvanceMode")
+    #    xsp_name = Cpt(EpicsSignal, 'NAME')
+    #    trigger_signal = Cpt(EpicsSignal, 'TRIGGER')
+    copy_ch1_to_all = Cpt(EpicsSignal, "CopyROIChannel")
+    copy_roi_to_sca = Cpt(EpicsSignal, "CopyROI_SCA")
 
 
 class XmapMCA(Device):
@@ -366,6 +390,7 @@ class XmapSCA(Device):
     sca2counts = Cpt(EpicsSignal, ":SCA2Counts", kind=Kind.hinted)
     sca3counts = Cpt(EpicsSignal, ":SCA3Counts", kind=Kind.hinted)
 
+
 class Preamp(Device):
     adc_percent_rule = Cpt(EpicsSignal, ":ADCPercentRule")
     decay_time = Cpt(EpicsSignal, ":DecayTime")
@@ -374,7 +399,8 @@ class Preamp(Device):
     gain = Cpt(EpicsSignal, ":PreampGain")
     reset_delay = Cpt(EpicsSignal, ":ResetDelay")
 
-'''
+
+"""
 XF:08IDB-ES{GE-Det:1}dxp9:ADCPercentRule
 XF:08IDB-ES{GE-Det:1}dxp9:DecayTime
 XF:08IDB-ES{GE-Det:1}dxp9:DetectorPolarity
@@ -386,31 +412,35 @@ XF:08IDB-ES{GE-Det:1}dxp9:ResetDelay
 
 XF:08IDB-ES{GE-Det:1}mca1.R0
 XF:08IDB-ES{GE-Det:1}dxp1:SCA0Counts
-'''
+"""
+
 
 def make_scas(channels):
     out_dict = OrderedDict()
     for channel in channels:  # [int]
-        attr = f'dxp{channel:1d}'
+        attr = f"dxp{channel:1d}"
         out_dict[attr] = (XmapSCA, attr, dict())
     return out_dict
+
 
 def make_channels(channels):
     out_dict = OrderedDict()
     for channel in channels:  # [int]
-        attr = f'mca{channel:1d}'
+        attr = f"mca{channel:1d}"
         out_dict[attr] = (XmapMCA, attr, dict())
     return out_dict
+
 
 def make_preamps(channels):
     out_dict = OrderedDict()
     for channel in channels:  # [int]
-        attr = f'dxp{channel:1d}'
+        attr = f"dxp{channel:1d}"
         out_dict[attr] = (Preamp, attr, dict())
     return out_dict
 
+
 class XIAXMAPDetector(DetectorBase):
-    settings = Cpt(XIAXMAPDetectorSettings, '')
+    settings = Cpt(XIAXMAPDetectorSettings, "")
 
     _channels = DDC(make_channels(range(1, 33)), kind=Kind.hinted)
 
@@ -418,40 +448,56 @@ class XIAXMAPDetector(DetectorBase):
 
     preamps = DDC(make_preamps(range(1, 33)), kind=Kind.hinted)
 
-    external_trig = Cpt(Signal, value=False,
-                        doc='Use external triggering')
-    total_points = Cpt(Signal, value=-1,
-                       doc='The total number of points to acquire overall')
-    make_directories = Cpt(Signal, value=False,
-                           doc='Make directories on the DAQ side')
-    rewindable = Cpt(Signal, value=False,
-                     doc='XIA XMAP cannot safely be rewound in bluesky')  # WTF
+    external_trig = Cpt(Signal, value=False, doc="Use external triggering")
+    total_points = Cpt(
+        Signal, value=-1, doc="The total number of points to acquire overall"
+    )
+    make_directories = Cpt(Signal, value=False, doc="Make directories on the DAQ side")
+    rewindable = Cpt(
+        Signal, value=False, doc="XIA XMAP cannot safely be rewound in bluesky"
+    )  # WTF
 
     data_key = XRF_DATA_KEY
 
-    def __init__(self, prefix, *, read_attrs=None, configuration_attrs=None,
-                 name=None, parent=None,
-                 # to remove?
-                 file_path='', ioc_file_path='', default_channels=None,
-                 channel_prefix=None,
-                 roi_sums=False,
-                 # to remove?
-                 **kwargs):
+    def __init__(
+        self,
+        prefix,
+        *,
+        read_attrs=None,
+        configuration_attrs=None,
+        name=None,
+        parent=None,
+        # to remove?
+        file_path="",
+        ioc_file_path="",
+        default_channels=None,
+        channel_prefix=None,
+        roi_sums=False,
+        # to remove?
+        **kwargs,
+    ):
 
-#        if read_attrs is None:
-#            read_attrs = ['channel1', ]
+        #        if read_attrs is None:
+        #            read_attrs = ['channel1', ]
 
         if configuration_attrs is None:
-            configuration_attrs = ['settings']  # Do we need channel1.rois?
-#            configuration_attrs = ['channel1.rois', 'settings']
+            configuration_attrs = ["settings"]  # Do we need channel1.rois?
+        #            configuration_attrs = ['channel1.rois', 'settings']
 
-        super().__init__(prefix, read_attrs=read_attrs,
-                         configuration_attrs=configuration_attrs,
-                         name=name, parent=parent, **kwargs)
+        super().__init__(
+            prefix,
+            read_attrs=read_attrs,
+            configuration_attrs=configuration_attrs,
+            name=name,
+            parent=parent,
+            **kwargs,
+        )
 
+        self._channelsDict = {
+            chn: getattr(self._channels, f"mca{chn:1d}") for chn in range(1, 33)
+        }
 
-        self._channelsDict = {chn: getattr(self._channels, f"mca{chn:1d}") for chn in range(1, 33)}
-       # self._preamps = {chn: getattr(self._preamps, f"dxp{chn:1d}") for chn in range(1, 33)}
+    # self._preamps = {chn: getattr(self._preamps, f"dxp{chn:1d}") for chn in range(1, 33)}
 
     @property
     def channelsDict(self):
@@ -472,7 +518,7 @@ class XIAXMAPDetector(DetectorBase):
 
     def read_hdf5(self, fn, *, rois=None, max_retries=2):  # TODO: ADAPT FOR XIA XMAP
         pass
-        '''Read ROI data from an HDF5 file using the current ROI configuration
+        """Read ROI data from an HDF5 file using the current ROI configuration
 
         Parameters
         ----------
@@ -480,34 +526,39 @@ class XIAXMAPDetector(DetectorBase):
             HDF5 filename to load
         rois : sequence of Xspress3ROI instances, optional
 
-        '''
-#        if rois is None:
-#            rois = self.enabled_rois
+        """
+        #        if rois is None:
+        #            rois = self.enabled_rois
 
         num_points = self.settings.num_images.get()
         if isinstance(fn, h5py.File):
             hdf = fn
         else:
-            hdf = h5py.File(fn, 'r')
+            hdf = h5py.File(fn, "r")
 
         RoiTuple = Xspress3ROI.get_device_tuple()
 
         handler = Xspress3HDF5Handler(hdf, key=self.data_key)
         for roi in self.enabled_rois:
-            roi_data = handler.get_roi(chan=roi.channel_num,
-                                       bin_low=roi.bin_low.get(),
-                                       bin_high=roi.bin_high.get(),
-                                       max_points=num_points)
+            roi_data = handler.get_roi(
+                chan=roi.channel_num,
+                bin_low=roi.bin_low.get(),
+                bin_high=roi.bin_high.get(),
+                max_points=num_points,
+            )
 
-            roi_info = RoiTuple(bin_low=roi.bin_low.get(),
-                                bin_high=roi.bin_high.get(),
-                                ev_low=roi.ev_low.get(),
-                                ev_high=roi.ev_high.get(),
-                                value=roi_data,
-                                value_sum=None,
-                                enable=None)
+            roi_info = RoiTuple(
+                bin_low=roi.bin_low.get(),
+                bin_high=roi.bin_high.get(),
+                ev_low=roi.ev_low.get(),
+                ev_high=roi.ev_high.get(),
+                value=roi_data,
+                value_sum=None,
+                enable=None,
+            )
 
             yield roi.name, roi_info
+
 
 class XIAXMAPTrigger(BlueskyInterface):  # See existing implementation
     """Base class for trigger mixin classes
@@ -573,6 +624,7 @@ class XIAXMAPFileStoreFlyable(XIAXMAPFileStore):
             self.parent.settings.acquire.put(1, wait=False)
             ttime.sleep(2)  # wait for acquisition
             self.parent.settings.stop_all.put(1, wait=True)
+
         """
         A convenience method for 'priming' the plugin.
         The plugin has to 'see' one acquisition before it is ready to capture.
@@ -582,15 +634,18 @@ class XIAXMAPFileStoreFlyable(XIAXMAPFileStore):
         We had to replace "cam" with "settings" here.
         Also modified the stage sigs.
         """
-        print_to_gui(f'XIA HDF warmup starting...', add_timestamp=False)
+        print_to_gui(f"XIA HDF warmup starting...", add_timestamp=False)
         self.enable.set(1).wait()
-        sigs = OrderedDict([  # (self.parent.settings.array_callbacks, 1),
-                            (self.parent.settings.collection_mode, 2),
-                            # just in case the acquisition time is set very long...
-                            (self.parent.settings.acquire_time, 1)])  #,
+        sigs = OrderedDict(
+            [  # (self.parent.settings.array_callbacks, 1),
+                (self.parent.settings.collection_mode, 2),
+                # just in case the acquisition time is set very long...
+                (self.parent.settings.acquire_time, 1),
+            ]
+        )  # ,
 
         original_vals = {sig: sig.get() for sig in sigs}
-        #print(original_vals)
+        # print(original_vals)
 
         # Remove the hdf5.capture item here to avoid an error as it should reset back to 0 itself
         # del original_vals[self.capture]
@@ -606,45 +661,50 @@ class XIAXMAPFileStoreFlyable(XIAXMAPFileStore):
             print("Now warming up in SCA Mapping mode")
             run_mode(2)
 
-
         for sig, val in reversed(list(original_vals.items())):
             ttime.sleep(0.1)
             sig.put(val, wait=True)
 
-        print_to_gui(f'XIA XMAP warmup complete...', add_timestamp=False)
+        print_to_gui(f"XIA XMAP warmup complete...", add_timestamp=False)
+
 
 ROOT_PATH_WIN = "J:\\legacy\\Sandbox\\epics"
 
+
 class ISSXIAXMAPDetector(XIAXMAPTrigger, XIAXMAPDetector):  # For step scans
 
-    hdf5 = Cpt(XIAXMAPFileStoreFlyable, 'HDF1:',
-               read_path_template='/nsls2/data/iss/legacy/Sandbox/epics/raw/dxp/%Y/%m/%d/',
-               root='/nsls2/data/iss/legacy/Sandbox/epics/raw/dxp',
-               write_path_template=f'{ROOT_PATH_WIN}\\{RAW_PATH}\\dxp\\%Y\\%m\\%d\\',
-               )
-
+    hdf5 = Cpt(
+        XIAXMAPFileStoreFlyable,
+        "HDF1:",
+        read_path_template="/nsls2/data/iss/legacy/Sandbox/epics/raw/dxp/%Y/%m/%d/",
+        root="/nsls2/data/iss/legacy/Sandbox/epics/raw/dxp",
+        write_path_template=f"{ROOT_PATH_WIN}\\{RAW_PATH}\\dxp\\%Y\\%m\\%d\\",
+    )
 
     def __init__(self, prefix, *, configuration_attrs=None, read_attrs=None, **kwargs):
         if configuration_attrs is None:
             configuration_attrs = [
-                                   'external_trig',
-                                   'total_points',
-#                                   'spectra_per_point',
-                                   'settings',
-                                   'rewindable'
-                                   ]
+                "external_trig",
+                "total_points",
+                #                                   'spectra_per_point',
+                "settings",
+                "rewindable",
+            ]
         if read_attrs is None:
-# #            read_attrs = ['channel1', 'channel2', 'channel3', 'channel4', 'hdf5', 'settings.acquire_time']
-            read_attrs = ['settings.acquire_time', 'settings.actual_time']
-#            read_attrs.extend([f"scas.dxp{n:1d}.counts" for n in range(1, 33)])
-#             read_attrs.extend([f"_channels.mca{n:1d}.R0" for n in range(1, 33)])
-#             # read_attrs = ['hdf5'] #, 'settings.acquire_time']
+            # #            read_attrs = ['channel1', 'channel2', 'channel3', 'channel4', 'hdf5', 'settings.acquire_time']
+            read_attrs = ["settings.acquire_time", "settings.actual_time"]
+        #            read_attrs.extend([f"scas.dxp{n:1d}.counts" for n in range(1, 33)])
+        #             read_attrs.extend([f"_channels.mca{n:1d}.R0" for n in range(1, 33)])
+        #             # read_attrs = ['hdf5'] #, 'settings.acquire_time']
 
-
-        super().__init__(prefix, configuration_attrs=configuration_attrs,
-                         read_attrs=read_attrs, **kwargs)
+        super().__init__(
+            prefix,
+            configuration_attrs=configuration_attrs,
+            read_attrs=read_attrs,
+            **kwargs,
+        )
         # self.set_channels_for_hdf5()
-#        self.spectra_per_point.put(1)
+        #        self.spectra_per_point.put(1)
 
         self._asset_docs_cache = deque()
         # self._datum_counter = None
@@ -656,7 +716,7 @@ class ISSXIAXMAPDetector(XIAXMAPTrigger, XIAXMAPDetector):  # For step scans
         return staged_list
 
     def unstage(self):
-    
+
         return super().unstage()
 
     def set_exposure_time(self, new_exp_time):
@@ -668,15 +728,16 @@ class ISSXIAXMAPDetector(XIAXMAPTrigger, XIAXMAPDetector):  # For step scans
     def test_exposure(self, acq_time=1, num_images=1):
         # THIS MUST WORK WITH STEP MODE
         _old_acquire_time = self.settings.acquire_time.value
-#        _old_num_images = self.settings.num_images.value
+        #        _old_num_images = self.settings.num_images.value
         # self.settings.acquire_time.set(acq_time).wait()
         self.set_exposure_time(acq_time)
-#        self.settings.num_images.set(num_images).wait()
+        #        self.settings.num_images.set(num_images).wait()
         self.settings.erase.put(1)
         self._acquisition_signal.put(1, wait=True)
         # self.settings.acquire_time.set(_old_acquire_time).wait()
         self.set_exposure_time(_old_acquire_time)
-#        self.settings.num_images.set(_old_num_images).wait()
+
+    #        self.settings.num_images.set(_old_num_images).wait()
 
     def set_channels_for_hdf5(self, channels=list(range(1, 33))):
         """
@@ -687,33 +748,32 @@ class ISSXIAXMAPDetector(XIAXMAPTrigger, XIAXMAPDetector):  # For step scans
             the channels to save the data for
         """
         # The number of channel
-#        for n in channels:
-#            getattr(self, f'channel{n}').rois.read_attrs = ['roi{:02}'.format(j) for j in [1, 2, 3, 4]]
+        #        for n in channels:
+        #            getattr(self, f'channel{n}').rois.read_attrs = ['roi{:02}'.format(j) for j in [1, 2, 3, 4]]
 
         for n in channels:
-            getattr(self._channels, f'mca{n:1d}').read_attrs = ['R0']   # ['roi{:02}'.format(j) for j in [1, 2, 3, 4]]
-
+            getattr(self._channels, f"mca{n:1d}").read_attrs = [
+                "R0"
+            ]  # ['roi{:02}'.format(j) for j in [1, 2, 3, 4]]
 
         self.hdf5.num_extra_dims.put(0)
         # self.settings.num_channels.put(len(channels))  # TODO: HARDCODED
 
     def warmup(self, hdf5_warmup=False):
-#        self.channel1.vis_enabled.put(1)
-#        self.channel2.vis_enabled.put(1)
-#        self.channel3.vis_enabled.put(1)
-#        self.channel4.vis_enabled.put(1)
+        #        self.channel1.vis_enabled.put(1)
+        #        self.channel2.vis_enabled.put(1)
+        #        self.channel3.vis_enabled.put(1)
+        #        self.channel4.vis_enabled.put(1)
         self.total_points.put(1)
         emergency_warmup = False
 
-
         if int(self.hdf5.array_size.width.get()) in [0, 1048000]:
-            print_to_gui(f'XIA HDF plugin warmup required...', add_timestamp=False)
+            print_to_gui(f"XIA HDF plugin warmup required...", add_timestamp=False)
             emergency_warmup = True
 
         if hdf5_warmup or emergency_warmup:
             self.hdf5.warmup()
         self.settings.stop_all.put(1)
-
 
         if self.settings.acquire_time.get() == 0:
             self.settings.acquire_time.put(1)
@@ -726,22 +786,25 @@ class ISSXIAXMAPDetector(XIAXMAPTrigger, XIAXMAPDetector):  # For step scans
         #     getattr(self, f'channel{n}').rois.roi01.value.kind = 'hinted'
         for n in range(1, 33):
             mca_ch = getattr(self._channels, f"mca{n:1d}")
-            mca_ch.R0.kind = 'hinted'
-            mca_ch.R1.kind = 'hinted'
-            mca_ch.R2.kind = 'hinted'
-            mca_ch.R3.kind = 'hinted'
+            mca_ch.R0.kind = "hinted"
+            mca_ch.R1.kind = "hinted"
+            mca_ch.R2.kind = "hinted"
+            mca_ch.R3.kind = "hinted"
             # getattr(self.scas, f"dxp{n:1d}").counts.kind = 'hinted'
             # print(getattr(self._channels, f"mca{n:1d}").R0.kind)
 
         self.settings.configuration_attrs = [
-                                           'acquire_time',
-                                           'num_images',
-                                           'trigger_mode',
-                                           ]
+            "acquire_time",
+            "num_images",
+            "trigger_mode",
+        ]
 
-        if int(self._channels.mca1.R0low.get()) < 0 or int(self._channels.mca1.R0high.get()) < 0:
-            print_to_gui(f'XIA Initializing MCA/SCA...', add_timestamp=False)
-            self.set_limits_for_roi(5000, window='max')
+        if (
+            int(self._channels.mca1.R0low.get()) < 0
+            or int(self._channels.mca1.R0high.get()) < 0
+        ):
+            print_to_gui(f"XIA Initializing MCA/SCA...", add_timestamp=False)
+            self.set_limits_for_roi(5000, window="max")
 
         ## THIS IS TO CONFIGURE DATASOURCE KIND
         # for key, channel in self.channelsDict.items():
@@ -751,14 +814,17 @@ class ISSXIAXMAPDetector(XIAXMAPTrigger, XIAXMAPDetector):  # For step scans
         #     for roi_n in roi_names:
         #         getattr(channel.rois, roi_n).value_sum.kind = 'omitted'
 
-    def set_limits_for_roi(self, energy_nom, roi=0, window='auto'):
+    def set_limits_for_roi(self, energy_nom, roi=0, window="auto"):
 
-        for ch_index in range(1, self.settings.num_channels+1):
-            if window == 'auto':
-                print("USING HARDCODED WINDOW OF 250EV AROUND THE PEAK FOR CHANNEL", ch_index)
+        for ch_index in range(1, self.settings.num_channels + 1):
+            if window == "auto":
+                print(
+                    "USING HARDCODED WINDOW OF 250EV AROUND THE PEAK FOR CHANNEL",
+                    ch_index,
+                )
                 energy = energy_nom
                 w = 125
-            elif window == 'max':
+            elif window == "max":
                 energy = 5001
                 w = 10000
             elif isinstance(window, (int, float)):
@@ -770,8 +836,8 @@ class ISSXIAXMAPDetector(XIAXMAPTrigger, XIAXMAPDetector):  # For step scans
             ev_low_new = int((energy - w / 2) / 5)  # TODO: divide by bin size?
             ev_high_new = int((energy + w / 2) / 5)
 
-#            roi_obj = getattr(channel.rois, roi)
-#            roi_obj = getattr(channel, )
+            #            roi_obj = getattr(channel.rois, roi)
+            #            roi_obj = getattr(channel, )
             channel = getattr(self._channels, f"mca{ch_index:1d}")
             roi_high = getattr(channel, f"R{roi:1d}high")
             roi_low = getattr(channel, f"R{roi:1d}low")
@@ -798,17 +864,16 @@ class ISSXIAXMAPDetector(XIAXMAPTrigger, XIAXMAPDetector):  # For step scans
 
             # roi_idx = 0
             for roi_idx in range(4):
-                roi_str = f'roi{roi_idx:1d}'
+                roi_str = f"roi{roi_idx:1d}"
                 roi_high = getattr(channel, f"R{roi_idx:1d}high")
                 roi_low = getattr(channel, f"R{roi_idx:1d}low")
-                
+
                 v[roi_str] = [roi_low.get(), roi_high.get()]
             md[f"ch{ch_index:02d}"] = v
         return md
 
     def read_config_metadata(self):
-        md = {'device_name': self.name,
-              'roi': self.roi_metadata}
+        md = {"device_name": self.name, "roi": self.roi_metadata}
         return md
 
 
@@ -824,6 +889,7 @@ class ISSXIAXMAPDetector(XIAXMAPTrigger, XIAXMAPDetector):  # For step scans
 #     # if validate:
 #     #     schema_validators[DocumentNames.bulk_datum].validate(doc)
 #     return doc
+
 
 class ISSXIAXMAPDetectorStream(ISSXIAXMAPDetector):
 
@@ -843,14 +909,12 @@ class ISSXIAXMAPDetectorStream(ISSXIAXMAPDetector):
                 # self.datum_keys.append({"name": f"{self.name}",
                 #                         "channel": i + 1,
                 #                         "type": "roi"})
-                self.datum_keys.append({"data_type": "roi",
-                                        "channel": i,
-                                        "roi_num": j})
+                self.datum_keys.append({"data_type": "roi", "channel": i, "roi_num": j})
 
     def format_datum_key(self, input_dict):
         output = f'ge_detector_channels_mca{input_dict["channel"]:1d}_R{input_dict["roi_num"]:1d}'
-#        if input_dict["data_type"] == 'roi':
-#            output += f'{input_dict["roi_num"]:02d}'
+        #        if input_dict["data_type"] == 'roi':
+        #            output += f'{input_dict["roi_num"]:02d}'
         return output
 
     def prepare_to_fly(self, traj_duration):
@@ -871,7 +935,7 @@ class ISSXIAXMAPDetectorStream(ISSXIAXMAPDetector):
         # self.settings.trigger_mode.put(0, wait=True)  # Gate
         # Re-setting hdf5 in order to save proper data
         self.hdf5.enable.put(0, wait=True)
-        ttime.sleep(1.)
+        ttime.sleep(1.0)
         self.hdf5.enable.put(1, wait=True)
         # self.hdf5.warmup()  # TODO: TEST the array size
         self.hdf5.file_write_mode.put(1)  # Capture
@@ -900,7 +964,6 @@ class ISSXIAXMAPDetectorStream(ISSXIAXMAPDetector):
         unstaged_list += self.ext_trigger_device.unstage()
         return unstaged_list
 
-
     def kickoff(self):
         # self.settings.acquire.put(1, wait=False)
         # print_to_gui(f'Waiting for XIA modules to start...', add_timestamp=True)
@@ -910,17 +973,16 @@ class ISSXIAXMAPDetectorStream(ISSXIAXMAPDetector):
         return self.ext_trigger_device.kickoff()
 
     def complete(self):
-        print_to_gui(f'XIA XMAP complete is starting...', add_timestamp=True)
+        print_to_gui(f"XIA XMAP complete is starting...", add_timestamp=True)
 
         acquire_status = self.settings.stop_all.put(1, wait=True)  # STOP
-        capture_status = self.hdf5.capture.put(0, wait=True)      # STOP
+        capture_status = self.hdf5.capture.put(0, wait=True)  # STOP
         self.hdf5.write_file.put(1)  # ONLY REQUIRED FOR Capture FILE_WRITE mode
         # (acquire_status and capture_status).wait()
 
-
         ext_trigger_status = self.ext_trigger_device.complete()
         for resource in self.hdf5._asset_docs_cache:
-            self._asset_docs_cache.append(('resource', resource[1]))
+            self._asset_docs_cache.append(("resource", resource[1]))
 
         _resource_uid = self.hdf5._resource_uid
         self._datum_ids = {}
@@ -928,52 +990,68 @@ class ISSXIAXMAPDetectorStream(ISSXIAXMAPDetector):
         for datum_key_dict in self.datum_keys:
             # print(datum_key_dict)
             datum_key = self.format_datum_key(datum_key_dict)
-            datum_id = f'{_resource_uid}/{datum_key}'
+            datum_id = f"{_resource_uid}/{datum_key}"
             self._datum_ids[datum_key] = datum_id
-            doc = {'resource': _resource_uid,
-                   'datum_id': datum_id,
-                   'datum_kwargs': datum_key_dict}
+            doc = {
+                "resource": _resource_uid,
+                "datum_id": datum_id,
+                "datum_kwargs": datum_key_dict,
+            }
             # print(doc)
-            self._asset_docs_cache.append(('datum', doc))
+            self._asset_docs_cache.append(("datum", doc))
 
-        print_to_gui(f'XIA XMAP complete is done.', add_timestamp=True)
+        print_to_gui(f"XIA XMAP complete is done.", add_timestamp=True)
         complete_status = NullStatus() and ext_trigger_status
         print(f"{complete_status=}")
         return complete_status
 
     def collect(self):
-        print_to_gui(f'XIA XMAP collect is starting...', add_timestamp=True)
+        print_to_gui(f"XIA XMAP collect is starting...", add_timestamp=True)
         ts = ttime.time()
-        yield {'data': self._datum_ids,
-               'timestamps': {self.format_datum_key(key_dict): ts for key_dict in self.datum_keys},
-               'time': ts,  # TODO: use the proper timestamps from the mono start and stop times
-               'filled': {self.format_datum_key(key_dict): False for key_dict in self.datum_keys}}
-        print_to_gui(f'XIA XMAP collect is done.', add_timestamp=True)
+        yield {
+            "data": self._datum_ids,
+            "timestamps": {
+                self.format_datum_key(key_dict): ts for key_dict in self.datum_keys
+            },
+            "time": ts,  # TODO: use the proper timestamps from the mono start and stop times
+            "filled": {
+                self.format_datum_key(key_dict): False for key_dict in self.datum_keys
+            },
+        }
+        print_to_gui(f"XIA XMAP collect is done.", add_timestamp=True)
         yield from self.ext_trigger_device.collect()
 
     def describe_collect(self):  # TODO: NEEDS TESTING
         xia_spectra_dicts = {}
         for datum_key_dict in self.datum_keys:
             datum_key = self.format_datum_key(datum_key_dict)
-            if datum_key_dict['data_type'] == 'spectrum':
-                value = {'source': 'Ge detector',
-                         'dtype': 'array',
-                         'shape': [self.settings.num_images.get(),
-                                   self.hdf5.array_size.width.get()],
-                         'dims': ['frames', 'row'],
-                         'external': 'FILESTORE:'}
-            elif datum_key_dict['data_type'] == 'roi':
-                value = {'source': 'Ge detector',
-                         'dtype': 'array',
-                         'shape': [self.settings.num_images.get()],
-                         'dims': ['frames'],
-                         'external': 'FILESTORE:'}
+            if datum_key_dict["data_type"] == "spectrum":
+                value = {
+                    "source": "Ge detector",
+                    "dtype": "array",
+                    "dtype_numpy": "<i2",
+                    "shape": [
+                        self.settings.num_images.get(),
+                        self.hdf5.array_size.width.get(),
+                    ],
+                    "dims": ["frames", "row"],
+                    "external": "FILESTORE:",
+                }
+            elif datum_key_dict["data_type"] == "roi":
+                value = {
+                    "source": "Ge detector",
+                    "dtype": "array",
+                    "dtype_numpy": "<i2",
+                    "shape": [self.settings.num_images.get()],
+                    "dims": ["frames"],
+                    "external": "FILESTORE:",
+                }
             else:
                 raise KeyError(f'data_type={datum_key_dict["data_type"]} not supported')
             xia_spectra_dicts[datum_key] = value
         # print(xia_spectra_dicts)
 
-        return_dict_xs = {self.name : xia_spectra_dicts}
+        return_dict_xs = {self.name: xia_spectra_dicts}
 
         return_dict_trig = self.ext_trigger_device.describe_collect()
         return {**return_dict_xs, **return_dict_trig}
@@ -990,17 +1068,20 @@ class ISSXIAXMAPDetectorStream(ISSXIAXMAPDetector):
         md = super().read_config_metadata()
         freq = self.ext_trigger_device.freq.get()
         dc = self.ext_trigger_device.duty_cycle.get()
-        md['frame_rate'] = freq
-        md['duty_cycle'] = dc
-        md['acquire_time'] = 1/freq
-        md['exposure_time'] = 1/freq * dc/100
+        md["frame_rate"] = freq
+        md["duty_cycle"] = dc
+        md["acquire_time"] = 1 / freq
+        md["exposure_time"] = 1 / freq * dc / 100
         return md
-    
 
-ge_detector = ISSXIAXMAPDetector('XF:08IDB-ES{GE-Det:1}', name='ge_detector')
+
+ge_detector = ISSXIAXMAPDetector("XF:08IDB-ES{GE-Det:1}", name="ge_detector")
 ge_detector.scas.kind = Kind.hinted
 # ge_detector.preamps.kind = Kind.hinted
 ge_detector._channels.kind = Kind.hinted
 # ttime.sleep(2)
-ge_detector_stream = ISSXIAXMAPDetectorStream('XF:08IDB-ES{GE-Det:1}', name="ge_detector_stream", ext_trigger_device=apb_trigger_ge_detector)
-
+ge_detector_stream = ISSXIAXMAPDetectorStream(
+    "XF:08IDB-ES{GE-Det:1}",
+    name="ge_detector_stream",
+    ext_trigger_device=apb_trigger_ge_detector,
+)
