@@ -36,11 +36,14 @@ service_plan_funcs = {
         'fly_scan_johann_elastic_alignment_plan_bundle' : {'kind' : 'bundle', 'func' : fly_scan_johann_elastic_alignment_plan_bundle},
         # 'johann_analyze_alignment_scan_plan' : johann_analyze_alignment_scan_plan,
         'quick_pitch_optimization' : quick_pitch_optimization,
-        # 'set_bpm_es_exposure_time' : set_bpm_es_exposure_time,
+        'set_bpm_es_exposure_time' : set_bpm_es_exposure_time,
+        'set_hhm_feedback_plan' : set_hhm_feedback_plan,
         'move_mono_energy' : move_mono_energy,
         'calibrate_sample_cameras_plan' : calibrate_sample_cameras_plan,
         'move_johann_spectrometer_energy': move_johann_spectrometer_energy,
         'lakeshore_set_temperature' : set_lakeshore_temp,
+        'move_energy_to_palladium' : move_energy_to_palladium,
+        'move_energy_to_copper' : move_energy_to_copper,
         # 'move_mono_pitch' : move_mono_pitch,
         }
 

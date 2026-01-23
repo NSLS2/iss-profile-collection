@@ -145,9 +145,11 @@ from redis_json_dict import RedisJSONDict
 #
 uri = "info.iss.nsls2.bnl.gov"  # replace TLA as appropriate
 # # Provide an endstation prefix, if needed, with a trailing "-"
-new_md = RedisJSONDict(redis.Redis(uri), prefix="")
+new_md = RedisJSONDict(redis.Redis(uri), prefix="") ### commented due to redis not working
+
 # #work 11-12-2024 to enable updated conda environment
-RE.md = new_md
+RE.md = new_md  ### commented due to redis not working
+
 # Patch to fix Tom's terrible deeds
 # import matplotlib.backends.backend_qt
 from matplotlib.backends.backend_qt import _create_qApp

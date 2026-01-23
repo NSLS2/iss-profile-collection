@@ -112,7 +112,8 @@ bl_prepare_energy_ranges = [
             'HHRM': 4,
             'CM1':0,# 0,
             'Filterbox': 1,
-            'ES BPM exposure': 0.05,
+            'ES BPM exposure': 0.11,
+            'ES BPM Position': 50,
             'i0_gain': 5,
             'it_gain': 5,
             'ir_gain': 5,
@@ -126,7 +127,8 @@ bl_prepare_energy_ranges = [
             'HHRM': 5,
             'CM1':0,# 0,
             'Filterbox': -69,
-            'ES BPM exposure': 0.05, #0.05, # Denis 2024-06-02: changed to a higher value because of the beamline state
+            'ES BPM exposure': 0.12, #0.05, # Denis 2024-06-02: changed to a higher value because of the beamline state
+            'ES BPM Position': 50,
             'i0_gain': 5,
             'it_gain': 5,
             'ir_gain': 5,
@@ -140,10 +142,11 @@ bl_prepare_energy_ranges = [
             'HHRM': 5,
             'CM1': 0,  # 0,
             'Filterbox': -69,
-            'ES BPM exposure': 0.05,  # 0.05, # Denis 2024-06-02: changed to a higher value because of the beamline state
+            'ES BPM exposure': 0.16,  # 0.05, # Denis 2024-06-02: changed to a higher value because of the beamline state
+            'ES BPM Position': 50,
             'i0_gain': 5,
-            'it_gain': 6,
-            'ir_gain': 6,
+            'it_gain': 5,
+            'ir_gain': 5,
         },
         {
             'energy_start': 10000,
@@ -154,10 +157,11 @@ bl_prepare_energy_ranges = [
             'HHRM': 75, # IS THIS SUPPOSED TO BE 80?
             'CM1':0,# 0,
             'Filterbox': -139,
-            'ES BPM exposure': 0.12,
-            'i0_gain': 6,
-            'it_gain': 6,
-            'ir_gain': 6,
+            'ES BPM exposure': 0.25,
+            'ES BPM Position': 50,
+            'i0_gain': 5,
+            'it_gain': 5,
+            'ir_gain': 5,
         },
         {
             'energy_start': 13000,
@@ -168,10 +172,11 @@ bl_prepare_energy_ranges = [
             'HHRM': 75,
             'CM1': 40,# 0,
             'Filterbox': -139,
-            'ES BPM exposure': 0.175,
-            'i0_gain': 6,
-            'it_gain': 6,
-            'ir_gain': 6,
+            'ES BPM exposure': 0.25,
+            'ES BPM Position': 50,
+            'i0_gain': 5,
+            'it_gain': 5,
+            'ir_gain': 5,
         },
         {
             'energy_start': 17000,
@@ -183,6 +188,7 @@ bl_prepare_energy_ranges = [
             'CM1': 40,# 0,
             'Filterbox': -209,
             'ES BPM exposure': 0.25, #old value 1
+            'ES BPM Position': 40,
             'i0_gain': 6,
             'it_gain': 6,
             'ir_gain': 6,
@@ -198,6 +204,7 @@ bl_prepare_energy_ranges = [
             'CM1': 40,# 0,
             'Filterbox': -209,
             'ES BPM exposure': 0.35,
+            'ES BPM Position': 40,
             'i0_gain': 6,
             'it_gain': 6,
             'ir_gain': 6,
@@ -348,6 +355,7 @@ def prepare_beamline_plan(energy: int = -1, move_cm_mirror = False, move_hhm_y=T
 
     print_to_gui('[Prepare Beamline] Adjusting exposure on the monitor')
     yield from bps.mv(BPM_exposure_setter, energy_range['ES BPM exposure'])
+    yield from bps.mv(bpm_es_position.x, energy_range['ES BPM Position'])
     print_to_gui('[Prepare Beamline] Beamline preparation is complete')
 
     if move_hhm_y:
@@ -483,6 +491,7 @@ def simple_prepare_beamline_plan(energy: int = -1, move_cm_mirror = False, move_
 
     print_to_gui('[Prepare Beamline] Adjusting exposure on the monitor')
     yield from bps.mv(BPM_exposure_setter, energy_range['ES BPM exposure'])
+    yield from bps.mv(bpm_es_position.x, energy_range['ES BPM Position'])
     # bpm_es.adjust_camera_exposure_time()
     print_to_gui('[Prepare Beamline] Beamline preparation is complete')
 

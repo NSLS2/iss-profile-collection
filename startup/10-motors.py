@@ -224,10 +224,10 @@ class SixAxesStage(Device):
 six_axes_stage = SixAxesStage('XF:08IDB-OP{PCL', name='six_axes_stage')
 
 class FoilWheel(Device):
-    wheel1 = Cpt(EpicsMotor, '1:Rot}Mtr')
-    wheel2 = Cpt(EpicsMotor, '2:Rot}Mtr')
+    wheel1 = Cpt(EpicsMotor, '{FoilWheel1:Rot}Mtr')
+    wheel2 = Cpt(EpicsMotor, '{SampleXY-Ax:FoilWheel2}Mtr')
 
-foil_wheel = FoilWheel('XF:08IDB-OP{FoilWheel', name='foil_wheel')
+foil_wheel = FoilWheel('XF:08IDB-OP', name='foil_wheel')
 
 class GonioMeter(Device):
     th1 = Cpt(EpicsMotor, ':1}Mtr')
@@ -307,3 +307,10 @@ class VonHamosSpectrometerMotors(Device):
     crystal_pitch = Cpt(EpicsMotor, ':8}Mtr')
 
 vonhamos_motors = VonHamosSpectrometerMotors('XF:08IDB-OP{MC:3-Ax', name='vonhamos_motors')
+
+class BPM_ES_Position(Device):
+    x = Cpt(EpicsMotor, 'Mtr')
+
+bpm_es_position = BPM_ES_Position('XF:08IDB-OP{BPM:ES-Ax:X}', name='bpm_es_position')
+
+
