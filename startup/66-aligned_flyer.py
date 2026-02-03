@@ -10,6 +10,31 @@ the xas package.
 All detector data is aligned to the APB trigger timestamps during collect(),
 eliminating the need for separate interpolation steps.
 
+APB (Analog Pizza Box)
+----------------------
+The APB is a custom electronics module developed at NSLS-II (Brookhaven National
+Laboratory) for beamline data acquisition. The name comes from its flat, rectangular
+form factor.
+
+The APB is an analog-to-digital converter (ADC) system that:
+
+1. Reads ion chamber signals:
+   - i0:  Incident beam intensity (before sample)
+   - it:  Transmitted beam intensity (after sample)
+   - ir:  Reference foil signal (for energy calibration)
+   - iff: Fluorescence signal
+
+2. Timestamps data with high precision (~8ns resolution)
+
+3. Generates trigger pulses that other detectors (Xspress3, Pilatus) use to
+   synchronize their acquisitions
+
+4. Streams data continuously during fly scans at high rates
+
+In this module, the APB trigger timestamps serve as the "master clock" - the common
+time grid that all other detector data gets interpolated to. This is why trigger
+data is critical for alignment, and collection fails if triggers cannot be read.
+
 Usage:
     # Use aligned_fly_scan_plan instead of fly_scan_plan
     RE(aligned_fly_scan_plan(name='test', trajectory_filename='Cu_K.txt', ...))
@@ -344,74 +369,128 @@ class AlignedFlyerWithMotors(FlyerWithMotors):
 
         self._file_paths = {}
         self._aligned_data = None
+        self._collection_status = {}  # Track success/failure of each data source
 
     def set_angle_offset(self, offset):
         """Set the monochromator angle offset."""
         self.angle_offset = offset
 
+    def _identify_detector_type(self, det):
+        """
+        Identify detector type using a priority-based approach.
+
+        Returns one of: 'apb_stream', 'encoder', 'xspress3', 'pilatus', 'trigger', or None
+        """
+        # Priority 1: Explicit type declaration (most reliable)
+        if hasattr(det, 'aligned_flyer_type'):
+            return det.aligned_flyer_type
+
+        # Priority 2: Check for unique attribute signatures
+        det_name = getattr(det, 'name', '')
+
+        # Encoder: has _full_path and pulses_per_deg attributes
+        if hasattr(det, '_full_path') and hasattr(det, 'pulses_per_deg'):
+            return 'encoder'
+
+        # APB stream: has filename attribute and produces .bin files
+        if hasattr(det, 'filename') and hasattr(det, 'stream'):
+            return 'apb_stream'
+
+        # Xspress3: has hdf5 component with specific structure
+        if hasattr(det, 'hdf5') and hasattr(det, 'channel1'):
+            return 'xspress3'
+
+        # Pilatus: has hdf5 component and is an area detector
+        if hasattr(det, 'hdf5') and hasattr(det, 'cam'):
+            return 'pilatus'
+
+        # Priority 3: Fall back to name matching (least reliable)
+        det_name_lower = det_name.lower()
+        if 'apb_stream' in det_name_lower or det_name_lower == 'apb_stream':
+            return 'apb_stream'
+        if 'encoder' in det_name_lower or 'enc' in det_name_lower:
+            return 'encoder'
+        if 'xs' in det_name_lower and hasattr(det, 'hdf5'):
+            return 'xspress3'
+        if 'pil' in det_name_lower and hasattr(det, 'hdf5'):
+            return 'pilatus'
+
+        return None
+
     def _gather_file_paths(self):
         """Gather file paths from all detectors after complete()."""
         self._file_paths = {}
 
-        for det in self.dets:
-            det_name = det.name
+        all_dets = self.dets + self.default_dets
 
-            # APB stream
-            if hasattr(det, 'filename') and 'apb' in det_name.lower():
+        for det in all_dets:
+            det_type = self._identify_detector_type(det)
+
+            if det_type == 'apb_stream':
+                if hasattr(det, 'filename') and det.filename is not None:
+                    self._file_paths['apb'] = f"{det.filename}.bin"
+
+            elif det_type == 'encoder':
                 if hasattr(det, '_full_path'):
-                    # Encoder
                     self._file_paths['encoder'] = det._full_path
-                elif det.filename is not None:
-                    bin_path = f"{det.filename}.bin"
-                    self._file_paths['apb'] = bin_path
 
-            # APB trigger (from Xspress3 or Pilatus)
+            elif det_type == 'xspress3':
+                if hasattr(det, 'hdf5') and hasattr(det.hdf5, 'full_file_name'):
+                    self._file_paths['xspress3'] = det.hdf5.full_file_name.get()
+
+            elif det_type == 'pilatus':
+                if hasattr(det, 'hdf5') and hasattr(det.hdf5, 'full_file_name'):
+                    self._file_paths['pilatus'] = det.hdf5.full_file_name.get()
+
+            # Check for external trigger device (can be on any detector)
             if hasattr(det, 'ext_trigger_device'):
                 trig = det.ext_trigger_device
                 if hasattr(trig, 'fn'):
                     self._file_paths['trigger'] = trig.fn
 
-            # Xspress3
-            if 'xs' in det_name.lower() and hasattr(det, 'hdf5'):
-                if hasattr(det.hdf5, 'full_file_name'):
-                    self._file_paths['xspress3'] = det.hdf5.full_file_name.get()
-
-            # Pilatus
-            if 'pil' in det_name.lower() and hasattr(det, 'hdf5'):
-                if hasattr(det.hdf5, 'full_file_name'):
-                    self._file_paths['pilatus'] = det.hdf5.full_file_name.get()
-
-        # Also check default dets
-        for det in self.default_dets:
-            det_name = det.name
-
-            if 'apb_stream' in det_name:
-                if hasattr(det, 'filename'):
-                    self._file_paths['apb'] = f"{det.filename}.bin"
-
-            if 'encoder' in det_name or 'enc' in det_name:
-                if hasattr(det, '_full_path'):
-                    self._file_paths['encoder'] = det._full_path
-
     def _read_and_align_data(self):
-        """Read all raw files and align to trigger timestamps."""
+        """
+        Read all raw files and align to trigger timestamps.
+
+        Returns
+        -------
+        aligned : OrderedDict
+            Aligned data with 'timestamps' and data channels
+        """
         self._gather_file_paths()
+        self._collection_status = {
+            'trigger': {'status': 'skipped', 'message': 'No trigger file found'},
+            'apb': {'status': 'skipped', 'message': 'No APB file found'},
+            'encoder': {'status': 'skipped', 'message': 'No encoder file found'},
+            'xspress3': {'status': 'skipped', 'message': 'No Xspress3 file found'},
+            'pilatus': {'status': 'skipped', 'message': 'No Pilatus file found'},
+        }
 
         aligned = OrderedDict()
         aligned['timestamps'] = np.array([])
 
-        # Read trigger timestamps (common time grid)
+        # Read trigger timestamps (common time grid) - CRITICAL
         trigger_times = None
         if 'trigger' in self._file_paths:
             try:
                 trigger_times = read_trigger_binary_file(self._file_paths['trigger'])
                 aligned['timestamps'] = trigger_times
+                self._collection_status['trigger'] = {
+                    'status': 'success',
+                    'message': f'Read {len(trigger_times)} trigger timestamps',
+                    'n_points': len(trigger_times)
+                }
                 print_to_gui(f'Read {len(trigger_times)} trigger timestamps', add_timestamp=True)
             except Exception as e:
-                print_to_gui(f'Warning: Could not read trigger file: {e}', add_timestamp=True)
+                self._collection_status['trigger'] = {
+                    'status': 'error',
+                    'message': str(e),
+                    'file': self._file_paths.get('trigger')
+                }
+                print_to_gui(f'ERROR: Could not read trigger file: {e}', add_timestamp=True)
 
         if trigger_times is None or len(trigger_times) == 0:
-            print_to_gui('Warning: No trigger timestamps found, cannot align data', add_timestamp=True)
+            print_to_gui('ERROR: No trigger timestamps found, cannot align data', add_timestamp=True)
             return aligned
 
         # Read and interpolate APB data
@@ -425,10 +504,22 @@ class AlignedFlyerWithMotors(FlyerWithMotors):
                         trigger_times,
                         method=self.interpolation_method
                     )
+                self._collection_status['apb'] = {
+                    'status': 'success',
+                    'message': f'Interpolated {len(apb_data["timestamps"])} -> {len(trigger_times)} points',
+                    'channels': ['i0', 'it', 'ir', 'iff'],
+                    'n_source_points': len(apb_data['timestamps']),
+                    'n_output_points': len(trigger_times)
+                }
                 print_to_gui(f'Interpolated APB data ({len(apb_data["timestamps"])} -> {len(trigger_times)} points)',
                            add_timestamp=True)
             except Exception as e:
-                print_to_gui(f'Warning: Could not read/interpolate APB data: {e}', add_timestamp=True)
+                self._collection_status['apb'] = {
+                    'status': 'error',
+                    'message': str(e),
+                    'file': self._file_paths.get('apb')
+                }
+                print_to_gui(f'ERROR: Could not read/interpolate APB data: {e}', add_timestamp=True)
 
         # Read and interpolate encoder data
         if 'encoder' in self._file_paths:
@@ -440,40 +531,120 @@ class AlignedFlyerWithMotors(FlyerWithMotors):
                     trigger_times,
                     method=self.interpolation_method
                 )
-                # Convert to energy
                 aligned['encoder'] = encoder_interp
                 aligned['energy'] = encoder2energy(
                     encoder_interp,
                     self.pulses_per_deg,
                     self.angle_offset
                 )
+                self._collection_status['encoder'] = {
+                    'status': 'success',
+                    'message': f'Interpolated encoder and converted to energy',
+                    'channels': ['encoder', 'energy'],
+                    'n_source_points': len(enc_data['timestamps']),
+                    'n_output_points': len(trigger_times)
+                }
                 print_to_gui(f'Interpolated encoder data and converted to energy', add_timestamp=True)
             except Exception as e:
-                print_to_gui(f'Warning: Could not read/interpolate encoder data: {e}', add_timestamp=True)
+                self._collection_status['encoder'] = {
+                    'status': 'error',
+                    'message': str(e),
+                    'file': self._file_paths.get('encoder')
+                }
+                print_to_gui(f'ERROR: Could not read/interpolate encoder data: {e}', add_timestamp=True)
 
         # Read Xspress3 ROI data (already aligned to triggers)
         if 'xspress3' in self._file_paths:
             try:
                 xs_data = read_xspress3_rois(self._file_paths['xspress3'])
+                channels_read = []
                 for key, values in xs_data.items():
-                    # Truncate to match trigger count
                     aligned[key] = values[:len(trigger_times)]
+                    channels_read.append(key)
+                self._collection_status['xspress3'] = {
+                    'status': 'success',
+                    'message': f'Read {len(xs_data)} ROI channels',
+                    'channels': channels_read,
+                    'n_points': len(trigger_times)
+                }
                 print_to_gui(f'Read Xspress3 ROI data ({len(xs_data)} channels)', add_timestamp=True)
             except Exception as e:
-                print_to_gui(f'Warning: Could not read Xspress3 data: {e}', add_timestamp=True)
+                self._collection_status['xspress3'] = {
+                    'status': 'error',
+                    'message': str(e),
+                    'file': self._file_paths.get('xspress3')
+                }
+                print_to_gui(f'ERROR: Could not read Xspress3 data: {e}', add_timestamp=True)
 
         # Read Pilatus ROI data (already aligned to triggers)
         if 'pilatus' in self._file_paths:
             try:
                 pil_data = read_pilatus_rois(self._file_paths['pilatus'])
+                channels_read = []
                 for key, values in pil_data.items():
                     aligned[key] = values[:len(trigger_times)]
+                    channels_read.append(key)
+                self._collection_status['pilatus'] = {
+                    'status': 'success',
+                    'message': f'Read {len(pil_data)} ROIs',
+                    'channels': channels_read,
+                    'n_points': len(trigger_times)
+                }
                 print_to_gui(f'Read Pilatus ROI data ({len(pil_data)} ROIs)', add_timestamp=True)
             except Exception as e:
-                print_to_gui(f'Warning: Could not read Pilatus data: {e}', add_timestamp=True)
+                self._collection_status['pilatus'] = {
+                    'status': 'error',
+                    'message': str(e),
+                    'file': self._file_paths.get('pilatus')
+                }
+                print_to_gui(f'ERROR: Could not read Pilatus data: {e}', add_timestamp=True)
 
         self._aligned_data = aligned
         return aligned
+
+    def _log_collection_summary(self):
+        """Log a summary of collection status for all data sources."""
+        successes = []
+        errors = []
+        skipped = []
+
+        for source, status in self._collection_status.items():
+            if status['status'] == 'success':
+                successes.append(source)
+            elif status['status'] == 'error':
+                errors.append(f"{source}: {status['message']}")
+            else:
+                skipped.append(source)
+
+        # Summary line
+        summary_parts = []
+        if successes:
+            summary_parts.append(f"OK: {', '.join(successes)}")
+        if errors:
+            summary_parts.append(f"FAILED: {len(errors)}")
+        if skipped:
+            summary_parts.append(f"skipped: {len(skipped)}")
+
+        print_to_gui(f"Collection summary - {' | '.join(summary_parts)}",
+                    add_timestamp=True, tag='AlignedFlyer')
+
+        # Log errors in detail
+        if errors:
+            for err in errors:
+                print_to_gui(f"  ERROR: {err}", add_timestamp=True, tag='AlignedFlyer')
+
+    def get_collection_status(self):
+        """
+        Return the collection status dict for programmatic access.
+
+        Returns
+        -------
+        dict
+            Keys are data sources ('trigger', 'apb', 'encoder', 'xspress3', 'pilatus').
+            Values are dicts with 'status' ('success', 'error', 'skipped'),
+            'message', and additional info depending on status.
+        """
+        return self._collection_status.copy()
 
     def collect(self):
         """
@@ -481,6 +652,9 @@ class AlignedFlyerWithMotors(FlyerWithMotors):
 
         Instead of yielding filestore references, this reads the raw data files,
         interpolates everything to the trigger timestamps, and yields actual data.
+
+        Collection status for each data source is tracked and can be retrieved
+        via get_collection_status() after collection completes.
         """
         print_to_gui('AlignedFlyer collect starting...', add_timestamp=True, tag='AlignedFlyer')
 
@@ -492,17 +666,22 @@ class AlignedFlyerWithMotors(FlyerWithMotors):
         # Read and align all data
         aligned = self._read_and_align_data()
 
+        # Log collection summary
+        self._log_collection_summary()
+
         if len(aligned.get('timestamps', [])) == 0:
-            print_to_gui('Warning: No aligned data to yield', add_timestamp=True, tag='AlignedFlyer')
+            print_to_gui('ERROR: No aligned data to yield - check collection status',
+                        add_timestamp=True, tag='AlignedFlyer')
             return
 
         timestamps = aligned['timestamps']
         n_points = len(timestamps)
 
-        print_to_gui(f'Yielding {n_points} aligned events...', add_timestamp=True, tag='AlignedFlyer')
-
         # Build list of data keys (excluding timestamps)
         data_keys = [k for k in aligned.keys() if k != 'timestamps']
+
+        print_to_gui(f'Yielding {n_points} aligned events with {len(data_keys)} channels...',
+                    add_timestamp=True, tag='AlignedFlyer')
 
         # Yield one event per trigger timestamp
         for i in range(n_points):
@@ -629,3 +808,97 @@ def aligned_fly_scan_plan(name=None, comment=None, trajectory_filename=None,
         yield from bp.fly([aligned_flyer_hhm], md=md)
 
     yield from _fly(md)
+
+
+def aligned_general_epics_motor_fly_scan(detectors, motor_dict, trajectory_dict, md,
+                                          pulses_per_deg=None, angle_offset=0,
+                                          interpolation_method='linear',
+                                          yield_raw_events=True):
+    """
+    General fly scan for arbitrary EPICS motors with aligned/interpolated data.
+
+    This is the aligned equivalent of general_epics_motor_fly_scan from
+    65-fly_scan_plans.py. It uses AlignedFlyerWithMotors to return pre-interpolated
+    data instead of filestore references.
+
+    Parameters
+    ----------
+    detectors : list
+        List of detector devices to use during the scan
+    motor_dict : dict
+        Dictionary mapping motor keys to motor devices, e.g.,
+        {'motor1': some_motor, 'motor2': another_motor}
+    trajectory_dict : dict
+        Dictionary mapping motor keys to trajectory arrays, e.g.,
+        {'motor1': trajectory_array_1, 'motor2': trajectory_array_2}
+    md : dict
+        Metadata dictionary for the scan
+    pulses_per_deg : float, optional
+        Encoder resolution for energy conversion. If None, energy conversion
+        is skipped (appropriate for non-monochromator motors).
+    angle_offset : float, optional
+        Angle offset for energy conversion (default: 0)
+    interpolation_method : str, optional
+        Interpolation method: 'linear', 'nearest', 'cubic' (default: 'linear')
+    yield_raw_events : bool, optional
+        If True, also yield raw filestore events (default: True)
+
+    Notes
+    -----
+    Unlike aligned_fly_scan_plan which is specific to the HHM monochromator,
+    this function works with arbitrary EPICS motors. If pulses_per_deg is not
+    provided, the aligned data will not include energy conversion (encoder
+    counts will still be interpolated if available).
+
+    After the scan completes, motors are returned to their initial positions.
+
+    Examples
+    --------
+    >>> motor_dict = {'roll': cr_main_roll}
+    >>> trajectory_dict = {'roll': np.linspace(0, 10, 100)}
+    >>> md = {'purpose': 'alignment scan'}
+    >>> RE(aligned_general_epics_motor_fly_scan(
+    ...     [apb_stream], motor_dict, trajectory_dict, md))
+    """
+    flyable_motors = []
+    motor_position_monitors = []
+    motor_stream_names = []
+    motor_init_pos = {}
+
+    for motor_key, motor in motor_dict.items():
+        flyable_motor = FlyableEpicsMotor(motor, name=f'flyable_{motor.name}')
+        flyable_motor.set_trajectory(trajectory_dict[motor_key])
+        flyable_motors.append(flyable_motor)
+        motor_position_monitors.append(motor.user_readback)
+        motor_stream_names.append(f'{motor.name}_monitor')
+        motor_init_pos[motor_key] = motor.position
+
+    md['motor_stream_names'] = motor_stream_names
+    md['data_type'] = 'aligned'
+    md['experiment'] = 'aligned_general_motor_fly_scan'
+
+    # Create aligned flyer for general motors
+    # Use default pulses_per_deg if not specified (energy conversion may not apply)
+    flyer_pulses_per_deg = pulses_per_deg if pulses_per_deg is not None else 360000
+
+    aligned_general_flyer = AlignedFlyerWithMotors(
+        detectors,
+        flyable_motors,
+        shutter,
+        pulses_per_deg=flyer_pulses_per_deg,
+        angle_offset=angle_offset,
+        interpolation_method=interpolation_method,
+        yield_raw_events=yield_raw_events,
+        name='aligned_general_motor_flyer'
+    )
+
+    @bpp.stage_decorator([aligned_general_flyer])
+    def _fly(md):
+        fly_plan = bp.fly([aligned_general_flyer], md=md)
+        yield from monitor_during_wrapper(fly_plan, motor_position_monitors)
+
+    yield from _fly(md)
+
+    # Return motors to initial positions
+    for motor_key, motor in motor_dict.items():
+        motor.move(motor_init_pos[motor_key], wait=True)
