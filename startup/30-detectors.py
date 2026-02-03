@@ -98,6 +98,7 @@ class EncoderFS(Encoder):
         # then moving it to the GPFS system.
         #
         ioc_file_root = '/home/softioc/tmp/'
+        # ioc_file_root = '/nsls2/data/iss/proposals/2026-1/pass-319773/assets/encpb/2026/02/03'
         self._ioc_full_path = os.path.join(ioc_file_root, filename)
         self._filename = filename
 
