@@ -15,26 +15,70 @@ bluesky-tiled-plugins = ">=2.0.0b68"
 databroker = ">=2.0.0b8,<3"
 epicscorelibs = ">=7.0.7.99.1.1,<8"
 lmfit = ">=1.3.4,<2"
-matplotlib = ">=3.10.8,<4"
+matplotlib-base= ">=3.9.3,<4"
+networkx = ">=3.4.2,<4"
 nslsii = ">=0.11.6,<0.12"
 opencv = ">=4.12.0,<5"
+numpy = "*"
 ophyd = ">=1.11.0"
 ophyd-async = ">=0.13.7,<0.14"
 pyepics = "*"
-pyqt = ">=5.15.11,<6"
 python = ">=3.12,<3.14"
 scikit-learn = ">=1.8.0,<2"
 tiled-client = ">=0.2.3,<0.3"
 tiled-server = ">=0.2.3,<0.3"
+semver = ">=3.0.4,<4"
 xraydb = ">=4.5.8,<5"
+pyqt = "<6"
+interpolation = ">=2.2.7,<3"
+periodictable = ">=1.7.1,<2"
+xraylarch = "==0.9.80"
+bluesky-kafka = ">=0.10.0,<0.11"
+larixite = ">=2024.10.0,<2025"
+aiohttp = ">=3.12.15,<4"
+slackclient = ">=2.9.3,<3"
+pyzbar = ">=0.1.9,<0.2"
+hdf5-external-filter-plugins = ">=0.1.0,<0.2"
+blosc-hdf5-plugin = ">=1.0.1,<2"
+databroker = "==2.0.0"
+epicscorelibs = ">=7.0.7.99.1.1,<8"
+bluesky-tiled-plugins = ">=2.0.0b68"
+ophyd-async = ">=0.13.7,<0.14"
+
+
+[feature.profile.pypi-dependencies]
+# TODO get updated version built on CF
+xas = { git = "https://github.com/nsls-ii-iss/xas" }
+# TODO merge PR + get on CF
+isstools = { git = "https://github.com/nsls-ii-iss/isstools", rev = "eb715eaa6436097cf88cf0a8f875fa1251f64657" }
+# TODO make importable without I/O and get on CF
+piezo-feedback = { git = "https://github.com/nsls-ii-iss/piezo-feedback" }
+pvxslibs = ">=1.3.2, <2"
+
+
+[feature.qs.dependencies]
+bluesky-queueserver = "*"
+bluesky-httpserver = "*"
+
+[feature.qs.tasks]
+# This section needs some development work to understand the best way to
+# thread the required configuration through both the task and files checked into
+# the profile.  These will interact with the ansible roles for pushing out the
+# systemd units
+qs-backend = "start-re-manager --profile-dir=."
+qs-server = "uvicorn --host localhost --port 60610 bluesky_httpserver.server:app"
+
 
 [feature.terminal.dependencies]
 ipython = ">=9.5.0"
+pyside6 = "*"
 numpy = ">2"
 
+
 [feature.terminal.tasks]
-start = "ipython --profile-dir=."
+start = "unset SESSION_MANAGER PYTHONPATH && MPLBACKEND=qtagg ipython --profile-dir=."
 pvs = "ipython --profile-dir=. -c 'get_pv_types(); exit()'"
 
 [environments]
 terminal = {features=["profile", "terminal"], solve-group="profile"}
+qs = {features=["profile", "qs"], solve-group="profile"}
