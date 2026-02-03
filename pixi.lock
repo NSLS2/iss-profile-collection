@@ -782,10 +782,24 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zlib-ng-2.2.5-hde8ca8f_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstandard-0.25.0-py312h5253ce2_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
-      - pypi: git+https://github.com/nsls-ii-iss/isstools?rev=eb715eaa6436097cf88cf0a8f875fa1251f64657#eb715eaa6436097cf88cf0a8f875fa1251f64657
+      - pypi: https://files.pythonhosted.org/packages/2d/de/95d8204d9a20fbdb353c5f8e4229b0fcb90f22b96f8246ff1f47c8a45fd5/dropbox-12.0.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/77/b6/85c4d21067220b9a78cfb81f516f9725ea6befc1544ec9bd2c1acd97c324/google_api_core-2.29.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/04/44/3677ff27998214f2fa7957359da48da378a0ffff1bd0bdaba42e752bc13e/google_api_python_client-2.189.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/83/1d/d6466de3a5249d35e832a52834115ca9d1d0de6abc22065f049707516d47/google_auth-2.48.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/99/d5/3c97526c8796d3caf5f4b3bed2b05e8a7102326f00a334e7a438237f3b22/google_auth_httplib2-0.3.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/84/21/fb96db432d187b07756e62971c4d89bdef70259e4cfa76ee32bcc0ac97d1/google_auth_oauthlib-1.2.4-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/2f/90/fd509079dfcab01102c0fdd87f3a9506894bc70afcf9e9785ef6b2b3aff6/httplib2-0.31.2-py3-none-any.whl
+      - pypi: git+https://github.com/nsls-ii-iss/isscloudtools#b74ca9cf105a844b7b04dbdf277c5bdfd591f9df
+      - pypi: https://files.pythonhosted.org/packages/be/9c/92789c596b8df838baa98fa71844d84283302f7604ed565dafe5a6b5041a/oauthlib-3.3.1-py3-none-any.whl
       - pypi: git+https://github.com/nsls-ii-iss/piezo-feedback#c1b7ab6ef49e79f5a32630d53fa1ff9380cd1498
+      - pypi: https://files.pythonhosted.org/packages/5d/79/ac273cbbf744691821a9cca88957257f41afe271637794975ca090b9588b/proto_plus-1.27.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/67/d8/8af47ecca80c365d5ffcdce6fae78ec71921052189c1486ba9dbac7a36f4/pvxslibs-1.3.2-cp312-cp312-manylinux2014_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/47/8d/d529b5d697919ba8c11ad626e835d4039be708a35b0d22de83a269a6682c/pyasn1_modules-0.4.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/3b/5d/63d4ae3b9daea098d5d6f5da83984853c1bbacd5dc826764b249fe119d24/requests_oauthlib-2.0.0-py2.py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/5c/92/d0c83f63d3518e5f0b8a311937c31347349ec9a47b209ddc17f7566f58fc/stone-3.3.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/a9/99/3ae339466c9183ea5b8ae87b34c0b897eda475d2aec2307cae60e5cd4f29/uritemplate-4.2.0-py3-none-any.whl
       - pypi: git+https://github.com/nsls-ii-iss/xas#20a466cb46a30bd6aa87102f6020a3a6f5ca82f4
+      - pypi: /nsls2/data3/iss/shared/config/repos/isstools
   terminal:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -1562,10 +1576,24 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zlib-ng-2.2.5-hde8ca8f_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstandard-0.25.0-py312h5253ce2_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
-      - pypi: git+https://github.com/nsls-ii-iss/isstools?rev=eb715eaa6436097cf88cf0a8f875fa1251f64657#eb715eaa6436097cf88cf0a8f875fa1251f64657
+      - pypi: https://files.pythonhosted.org/packages/2d/de/95d8204d9a20fbdb353c5f8e4229b0fcb90f22b96f8246ff1f47c8a45fd5/dropbox-12.0.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/77/b6/85c4d21067220b9a78cfb81f516f9725ea6befc1544ec9bd2c1acd97c324/google_api_core-2.29.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/04/44/3677ff27998214f2fa7957359da48da378a0ffff1bd0bdaba42e752bc13e/google_api_python_client-2.189.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/83/1d/d6466de3a5249d35e832a52834115ca9d1d0de6abc22065f049707516d47/google_auth-2.48.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/99/d5/3c97526c8796d3caf5f4b3bed2b05e8a7102326f00a334e7a438237f3b22/google_auth_httplib2-0.3.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/84/21/fb96db432d187b07756e62971c4d89bdef70259e4cfa76ee32bcc0ac97d1/google_auth_oauthlib-1.2.4-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/2f/90/fd509079dfcab01102c0fdd87f3a9506894bc70afcf9e9785ef6b2b3aff6/httplib2-0.31.2-py3-none-any.whl
+      - pypi: git+https://github.com/nsls-ii-iss/isscloudtools#b74ca9cf105a844b7b04dbdf277c5bdfd591f9df
+      - pypi: https://files.pythonhosted.org/packages/be/9c/92789c596b8df838baa98fa71844d84283302f7604ed565dafe5a6b5041a/oauthlib-3.3.1-py3-none-any.whl
       - pypi: git+https://github.com/nsls-ii-iss/piezo-feedback#c1b7ab6ef49e79f5a32630d53fa1ff9380cd1498
+      - pypi: https://files.pythonhosted.org/packages/5d/79/ac273cbbf744691821a9cca88957257f41afe271637794975ca090b9588b/proto_plus-1.27.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/67/d8/8af47ecca80c365d5ffcdce6fae78ec71921052189c1486ba9dbac7a36f4/pvxslibs-1.3.2-cp312-cp312-manylinux2014_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/47/8d/d529b5d697919ba8c11ad626e835d4039be708a35b0d22de83a269a6682c/pyasn1_modules-0.4.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/3b/5d/63d4ae3b9daea098d5d6f5da83984853c1bbacd5dc826764b249fe119d24/requests_oauthlib-2.0.0-py2.py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/5c/92/d0c83f63d3518e5f0b8a311937c31347349ec9a47b209ddc17f7566f58fc/stone-3.3.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/a9/99/3ae339466c9183ea5b8ae87b34c0b897eda475d2aec2307cae60e5cd4f29/uritemplate-4.2.0-py3-none-any.whl
       - pypi: git+https://github.com/nsls-ii-iss/xas#20a466cb46a30bd6aa87102f6020a3a6f5ca82f4
+      - pypi: /nsls2/data3/iss/shared/config/repos/isstools
 packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
   sha256: fe51de6107f9edc7aa4f786a70f4a883943bc9d39b3bb7307c04c41410990726
@@ -3505,6 +3533,14 @@ packages:
   - pkg:pypi/dpkt?source=hash-mapping
   size: 151982
   timestamp: 1734321907078
+- pypi: https://files.pythonhosted.org/packages/2d/de/95d8204d9a20fbdb353c5f8e4229b0fcb90f22b96f8246ff1f47c8a45fd5/dropbox-12.0.2-py3-none-any.whl
+  name: dropbox
+  version: 12.0.2
+  sha256: c5b7e9c2668adb6b12dcecd84342565dc50f7d35ab6a748d155cb79040979d1c
+  requires_dist:
+  - requests>=2.16.2
+  - six>=1.12.0
+  - stone>=2,<3.3.3
 - conda: https://conda.anaconda.org/conda-forge/noarch/ecdsa-0.19.1-pyhd8ed1ab_0.conda
   sha256: 053705fdc47a05333064c80535d9037ee0d710b9a7d8fd0de5820a6e70095cd6
   md5: 9c7f29a7c85a727c5b1d5ebc1639b38f
@@ -4236,6 +4272,94 @@ packages:
   - pkg:pypi/gmpy2?source=hash-mapping
   size: 214554
   timestamp: 1762946924209
+- pypi: https://files.pythonhosted.org/packages/77/b6/85c4d21067220b9a78cfb81f516f9725ea6befc1544ec9bd2c1acd97c324/google_api_core-2.29.0-py3-none-any.whl
+  name: google-api-core
+  version: 2.29.0
+  sha256: d30bc60980daa36e314b5d5a3e5958b0200cb44ca8fa1be2b614e932b75a3ea9
+  requires_dist:
+  - googleapis-common-protos>=1.56.2,<2.0.0
+  - protobuf>=3.19.5,!=3.20.0,!=3.20.1,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,<7.0.0
+  - proto-plus>=1.22.3,<2.0.0
+  - proto-plus>=1.25.0,<2.0.0 ; python_full_version >= '3.13'
+  - google-auth>=2.14.1,<3.0.0
+  - requests>=2.18.0,<3.0.0
+  - importlib-metadata>=1.4 ; python_full_version < '3.8'
+  - google-auth[aiohttp]>=2.35.0,<3.0.0 ; extra == 'async-rest'
+  - grpcio>=1.33.2,<2.0.0 ; extra == 'grpc'
+  - grpcio>=1.49.1,<2.0.0 ; python_full_version >= '3.11' and extra == 'grpc'
+  - grpcio>=1.75.1,<2.0.0 ; python_full_version >= '3.14' and extra == 'grpc'
+  - grpcio-status>=1.33.2,<2.0.0 ; extra == 'grpc'
+  - grpcio-status>=1.49.1,<2.0.0 ; python_full_version >= '3.11' and extra == 'grpc'
+  - grpcio-status>=1.75.1,<2.0.0 ; python_full_version >= '3.14' and extra == 'grpc'
+  - grpcio-gcp>=0.2.2,<1.0.0 ; extra == 'grpcgcp'
+  - grpcio-gcp>=0.2.2,<1.0.0 ; extra == 'grpcio-gcp'
+  requires_python: '>=3.7'
+- pypi: https://files.pythonhosted.org/packages/04/44/3677ff27998214f2fa7957359da48da378a0ffff1bd0bdaba42e752bc13e/google_api_python_client-2.189.0-py3-none-any.whl
+  name: google-api-python-client
+  version: 2.189.0
+  sha256: a258c09660a49c6159173f8bbece171278e917e104a11f0640b34751b79c8a1a
+  requires_dist:
+  - httplib2>=0.19.0,<1.0.0
+  - google-auth>=1.32.0,!=2.24.0,!=2.25.0,<3.0.0
+  - google-auth-httplib2>=0.2.0,<1.0.0
+  - google-api-core>=1.31.5,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.0,<3.0.0
+  - uritemplate>=3.0.1,<5
+  requires_python: '>=3.7'
+- pypi: https://files.pythonhosted.org/packages/83/1d/d6466de3a5249d35e832a52834115ca9d1d0de6abc22065f049707516d47/google_auth-2.48.0-py3-none-any.whl
+  name: google-auth
+  version: 2.48.0
+  sha256: 2e2a537873d449434252a9632c28bfc268b0adb1e53f9fb62afc5333a975903f
+  requires_dist:
+  - pyasn1-modules>=0.2.1
+  - cryptography>=38.0.3
+  - rsa>=3.1.4,<5
+  - cryptography>=38.0.3 ; extra == 'cryptography'
+  - aiohttp>=3.6.2,<4.0.0 ; extra == 'aiohttp'
+  - requests>=2.20.0,<3.0.0 ; extra == 'aiohttp'
+  - pyopenssl ; extra == 'enterprise-cert'
+  - pyopenssl>=20.0.0 ; extra == 'pyopenssl'
+  - pyjwt>=2.0 ; extra == 'pyjwt'
+  - pyu2f>=0.1.5 ; extra == 'reauth'
+  - requests>=2.20.0,<3.0.0 ; extra == 'requests'
+  - grpcio ; extra == 'testing'
+  - flask ; extra == 'testing'
+  - freezegun ; extra == 'testing'
+  - oauth2client ; extra == 'testing'
+  - pyjwt>=2.0 ; extra == 'testing'
+  - pytest ; extra == 'testing'
+  - pytest-cov ; extra == 'testing'
+  - pytest-localserver ; extra == 'testing'
+  - pyopenssl>=20.0.0 ; extra == 'testing'
+  - pyu2f>=0.1.5 ; extra == 'testing'
+  - responses ; extra == 'testing'
+  - urllib3 ; extra == 'testing'
+  - packaging ; extra == 'testing'
+  - aiohttp>=3.6.2,<4.0.0 ; extra == 'testing'
+  - requests>=2.20.0,<3.0.0 ; extra == 'testing'
+  - aioresponses ; extra == 'testing'
+  - pytest-asyncio ; extra == 'testing'
+  - pyopenssl<24.3.0 ; extra == 'testing'
+  - aiohttp<3.10.0 ; extra == 'testing'
+  - urllib3 ; extra == 'urllib3'
+  - packaging ; extra == 'urllib3'
+  requires_python: '>=3.8'
+- pypi: https://files.pythonhosted.org/packages/99/d5/3c97526c8796d3caf5f4b3bed2b05e8a7102326f00a334e7a438237f3b22/google_auth_httplib2-0.3.0-py3-none-any.whl
+  name: google-auth-httplib2
+  version: 0.3.0
+  sha256: 426167e5df066e3f5a0fc7ea18768c08e7296046594ce4c8c409c2457dd1f776
+  requires_dist:
+  - google-auth>=1.32.0,<3.0.0
+  - httplib2>=0.19.0,<1.0.0
+  requires_python: '>=3.7'
+- pypi: https://files.pythonhosted.org/packages/84/21/fb96db432d187b07756e62971c4d89bdef70259e4cfa76ee32bcc0ac97d1/google_auth_oauthlib-1.2.4-py3-none-any.whl
+  name: google-auth-oauthlib
+  version: 1.2.4
+  sha256: 0e922eea5f2baacaf8867febb782e46e7b153236c21592ed76ab3ddb77ffd772
+  requires_dist:
+  - google-auth>=2.15.0,!=2.43.0,!=2.44.0,!=2.45.0,<3.0.0
+  - requests-oauthlib>=0.7.0
+  - click>=6.0.0 ; extra == 'tool'
+  requires_python: '>=3.7'
 - conda: https://conda.anaconda.org/conda-forge/linux-64/google-crc32c-1.8.0-py312h03f33d3_1.conda
   sha256: 3f962b2cbdc2aac3089a5c708477657266c0a665f0eed09981a34d1ab6793065
   md5: 68f704ea294dcec9e09edd9c3d233846
@@ -4667,6 +4791,13 @@ packages:
   - pkg:pypi/httpcore?source=hash-mapping
   size: 49483
   timestamp: 1745602916758
+- pypi: https://files.pythonhosted.org/packages/2f/90/fd509079dfcab01102c0fdd87f3a9506894bc70afcf9e9785ef6b2b3aff6/httplib2-0.31.2-py3-none-any.whl
+  name: httplib2
+  version: 0.31.2
+  sha256: dbf0c2fa3862acf3c55c078ea9c0bc4481d7dc5117cae71be9514912cf9f8349
+  requires_dist:
+  - pyparsing>=3.1,<4
+  requires_python: '>=3.6'
 - conda: https://conda.anaconda.org/conda-forge/linux-64/httptools-0.7.1-py312h4c3975b_1.conda
   sha256: 3579b3765e301ee7106bdf5f506f45ad46cc1568207c0c691aa7b82737ca2e82
   md5: 931af0f1dd27b0072f2865dd55640735
@@ -5036,13 +5167,25 @@ packages:
   - pkg:pypi/isoduration?source=hash-mapping
   size: 19832
   timestamp: 1733493720346
-- pypi: git+https://github.com/nsls-ii-iss/isstools?rev=eb715eaa6436097cf88cf0a8f875fa1251f64657#eb715eaa6436097cf88cf0a8f875fa1251f64657
+- pypi: git+https://github.com/nsls-ii-iss/isscloudtools#b74ca9cf105a844b7b04dbdf277c5bdfd591f9df
+  name: isscloudtools
+  version: 0.post28+gb74ca9c
+  requires_dist:
+  - dropbox
+  - google-api-python-client
+  - google-auth-httplib2
+  - google-auth-oauthlib
+  - httplib2
+  requires_python: '>=3.6'
+- pypi: /nsls2/data3/iss/shared/config/repos/isstools
   name: isstools
-  version: 3.0.0+629.geb715ea
+  version: 3.0.0+640.gc094fd7
+  sha256: 679a9bf205f70eda4111e5bd5b1dff15e98be2c1754ca9c435495bdbff803cb2
   requires_dist:
   - numexpr
   - pyzbar
   - slackclient
+  editable: true
 - conda: https://conda.anaconda.org/conda-forge/noarch/itsdangerous-2.2.0-pyhd8ed1ab_1.conda
   sha256: 1684b7b16eec08efef5302ce298c606b163c18272b69a62b666fbaa61516f170
   md5: 7ac5f795c15f288984e32add616cdc59
@@ -8243,6 +8386,16 @@ packages:
   - pkg:pypi/numpydoc?source=hash-mapping
   size: 65801
   timestamp: 1764715638266
+- pypi: https://files.pythonhosted.org/packages/be/9c/92789c596b8df838baa98fa71844d84283302f7604ed565dafe5a6b5041a/oauthlib-3.3.1-py3-none-any.whl
+  name: oauthlib
+  version: 3.3.1
+  sha256: 88119c938d2b8fb88561af5f6ee0eec8cc8d552b7bb1f712743136eb7523b7a1
+  requires_dist:
+  - cryptography>=3.0.0 ; extra == 'rsa'
+  - cryptography>=3.0.0 ; extra == 'signedtoken'
+  - pyjwt>=2.0.0,<3 ; extra == 'signedtoken'
+  - blinker>=1.4.0 ; extra == 'signals'
+  requires_python: '>=3.8'
 - conda: https://conda.anaconda.org/conda-forge/linux-64/obstore-0.8.2-py312h0ccc70a_0.conda
   sha256: 8e037f19f10be1673565889215e9bd891f02b0eaff7375d76bbc4a4a323f5231
   md5: 39efcbcde17a55756daec4b98a8e51e7
@@ -9117,6 +9270,14 @@ packages:
   - pkg:pypi/propcache?source=hash-mapping
   size: 54233
   timestamp: 1744525107433
+- pypi: https://files.pythonhosted.org/packages/5d/79/ac273cbbf744691821a9cca88957257f41afe271637794975ca090b9588b/proto_plus-1.27.1-py3-none-any.whl
+  name: proto-plus
+  version: 1.27.1
+  sha256: e4643061f3a4d0de092d62aa4ad09fa4756b2cbb89d4627f3985018216f9fefc
+  requires_dist:
+  - protobuf>=3.19.0,<7.0.0
+  - google-api-core>=1.31.5 ; extra == 'testing'
+  requires_python: '>=3.7'
 - conda: https://conda.anaconda.org/conda-forge/linux-64/protobuf-6.31.1-py312hb8af0ac_2.conda
   sha256: 9c1dffa6371b5ae5a7659f08fa075a1a9d7b32fd11d5eaa1e7192eba4cae1207
   md5: 2aaf8d6c729beb30d1b41964e7fb2cd6
@@ -9321,6 +9482,13 @@ packages:
   - pkg:pypi/pyasn1?source=compressed-mapping
   size: 63471
   timestamp: 1769186345593
+- pypi: https://files.pythonhosted.org/packages/47/8d/d529b5d697919ba8c11ad626e835d4039be708a35b0d22de83a269a6682c/pyasn1_modules-0.4.2-py3-none-any.whl
+  name: pyasn1-modules
+  version: 0.4.2
+  sha256: 29253a9207ce32b64c3ac6600edc75368f98473906e8fd1043bd6b5b1de2c14a
+  requires_dist:
+  - pyasn1>=0.6.1,<0.7.0
+  requires_python: '>=3.8'
 - conda: https://conda.anaconda.org/conda-forge/noarch/pybtex-0.25.1-pyhd8ed1ab_0.conda
   sha256: 3053895e08ce56923e48eea7d1c07a6d8bf09948d1e69a21ae7ab9e459b0a227
   md5: 9c25a850410220d31085173fbfdfa191
@@ -10481,6 +10649,15 @@ packages:
   - pkg:pypi/requests?source=compressed-mapping
   size: 63602
   timestamp: 1766926974520
+- pypi: https://files.pythonhosted.org/packages/3b/5d/63d4ae3b9daea098d5d6f5da83984853c1bbacd5dc826764b249fe119d24/requests_oauthlib-2.0.0-py2.py3-none-any.whl
+  name: requests-oauthlib
+  version: 2.0.0
+  sha256: 7dd8a5c40426b779b0868c404bdef9768deccf22749cde15852df527e6269b36
+  requires_dist:
+  - oauthlib>=3.0.0
+  - requests>=2.0.0
+  - oauthlib[signedtoken]>=3.0.0 ; extra == 'rsa'
+  requires_python: '>=3.4'
 - conda: https://conda.anaconda.org/conda-forge/noarch/rfc3339-validator-0.1.4-pyhd8ed1ab_1.conda
   sha256: 2e4372f600490a6e0b3bac60717278448e323cab1c0fecd5f43f7c56535a99c5
   md5: 36de09a8d3e5d5e6f4ee63af49e59706
@@ -11457,6 +11634,13 @@ packages:
   - pkg:pypi/starlette?source=hash-mapping
   size: 64760
   timestamp: 1762016292582
+- pypi: https://files.pythonhosted.org/packages/5c/92/d0c83f63d3518e5f0b8a311937c31347349ec9a47b209ddc17f7566f58fc/stone-3.3.1-py3-none-any.whl
+  name: stone
+  version: 3.3.1
+  sha256: e15866fad249c11a963cce3bdbed37758f2e88c8ff4898616bc0caeb1e216047
+  requires_dist:
+  - ply>=3.4
+  - six>=1.12.0
 - conda: https://conda.anaconda.org/conda-forge/noarch/suitcase-mongo-0.7.0-pyhd8ed1ab_0.conda
   sha256: 26b42fb653ccb74243d4e1e73950edf2cfc1c79b2f6720797cf17b72d617c36f
   md5: 30068d1e506e0c54b9954d44dfcfb1bf
@@ -11999,6 +12183,11 @@ packages:
   - pkg:pypi/uri-template?source=hash-mapping
   size: 23990
   timestamp: 1733323714454
+- pypi: https://files.pythonhosted.org/packages/a9/99/3ae339466c9183ea5b8ae87b34c0b897eda475d2aec2307cae60e5cd4f29/uritemplate-4.2.0-py3-none-any.whl
+  name: uritemplate
+  version: 4.2.0
+  sha256: 962201ba1c4edcab02e60f9a0d3821e82dfc5d2d6662a21abd533879bdb8a686
+  requires_python: '>=3.9'
 - conda: https://conda.anaconda.org/conda-forge/noarch/urllib3-2.5.0-pyhd8ed1ab_0.conda
   sha256: 4fb9789154bd666ca74e428d973df81087a697dbb987775bc3198d2215f240f8
   md5: 436c165519e140cb08d246a4472a9d6a

@@ -4,7 +4,6 @@ import json
 import uuid
 
 import numpy as np
-from PyQt5 import QtGui
 from xas.trajectory import TrajectoryCreator
 from xas.xray import generate_energy_grid_from_dict, generate_emission_energy_grid_from_dict, generate_emission_relative_trajectory_from_dict
 import os

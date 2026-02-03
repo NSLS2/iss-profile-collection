@@ -10,7 +10,7 @@ from xas import xray
 import pandas as pd
 # from xas.bin import xas_energy_grid
 
-from PyQt5 import QtCore
+from qtpy import QtCore
 
 class TrajectoryManager():
     def __init__(self, hhm, **kwargs):
