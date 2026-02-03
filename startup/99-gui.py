@@ -11,7 +11,7 @@ import time as ttime
 # sample_stages = [{'x': giantxy.x.name, 'y': giantxy.y.name},
 #                  {'x': samplexy.x.name, 'y': samplexy.y.name},
 #                  {'x': huber_stage.z.name, 'y': huber_stage.y.name}]
-
+# raise Error
 #app = QApplication(sys.argv)
 # processing_ioc_uid = EpicsSignal('XF:08IDB-Processing:pv_uid', name='process_ioc_uid')
 processing_ioc_uid = None

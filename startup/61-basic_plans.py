@@ -22,13 +22,13 @@ def set_bpm_es_exposure_time(value : float = 0.2):
 
 
 
-def set_hhm_feedback_plan(state=0, update_center=False):
+def set_hhm_feedback_plan(state: int=0, update_center: bool =False):
     if update_center:
         hhm_feedback.update_center()
         yield from sleep_plan(delay=0.5)
     yield from bps.mv(hhm.fb_status, state)
 
-def move_motor_plan(motor_attr='', based_on='description', position=None):
+def move_motor_plan(motor_attr: str ='', position: float=0, based_on='description'):
     motor_device = get_motor_device(motor_attr, based_on=based_on)
     yield from bps.mv(motor_device, position, wait=True)
 

@@ -24,22 +24,24 @@ def actuate_photon_shutter_plan(state):
         print_to_gui(f'{str(e)}', tag='SHUTTER DEBUG')
         yield from bps.null()
 
-def get_offsets_plan(time : float = 2):
+def get_offsets_plan(time : float = 2, number_of_times: int = 1):
 
+    for j in range(number_of_times):
+        apb_ave.save_current_status()
+        prepare_detectors_for_exposure_plan([apb_ave], n_exposures=1)
+        set_detector_exposure_time_plan([apb_ave], time)
 
-    apb_ave.save_current_status()
-    prepare_detectors_for_exposure_plan([apb_ave], n_exposures=1)
-    set_detector_exposure_time_plan([apb_ave], time)
+        yield from actuate_photon_shutter_plan('Close')
+        yield from sleep(1)
 
-    yield from actuate_photon_shutter_plan('Close')
+        yield from current_suppression_plan()
+        # yield from sleep(1)# added for Keithley Amplifier
+        uid = (yield from bp.count([apb_ave], 1, md={"plan_name": "get_offsets_plan"}))
+        yield from actuate_photon_shutter_plan('Open')
 
-    yield from current_suppression_plan()  # added for Keithley Amplifier
-    uid = (yield from bp.count([apb_ave], 1, md={"plan_name": "get_offsets_plan"}))
-    yield from actuate_photon_shutter_plan('Open')
+        yield from apb_ave.restore_to_saved_status()
 
-    yield from apb_ave.restore_to_saved_status()
-
-    table = db[uid].table()
+        table = db[uid].table()
 
     for i in range(0,8):
         mean =  float(table[f'apb_ave_ch{i+1}_mean'])
@@ -416,6 +418,28 @@ def quick_pitch_optimization(scan_range=1, velocity=0.2, n_tries=3):
     yield from bps.sleep(bpm_es.exp_time.get())
     #TODO remove comment from next line when the beamline is ok
     #yield from set_hhm_feedback_plan(1, update_center=True)
+
+
+def move_energy_to_zirconium():
+    yield from set_hhm_feedback_plan(0)
+    yield from set_bpm_es_exposure_time(0.25)
+    yield from bps.mv(bpm_es_position.x, 40)
+    yield from move_mono_energy(energy=17998, with_feedback=False, step=2000, delay=0.5)
+    yield from move_motor_plan("A Monochromator Roll", position=512.0)
+    yield from move_motor_plan(motor_attr="A Monochromator Pitch", position=498.31)
+    yield from quick_pitch_optimization()
+    yield from set_hhm_feedback_plan(1)
+
+
+def move_energy_to_nickel():
+    yield from set_hhm_feedback_plan(0)
+    yield from set_bpm_es_exposure_time(0.16)
+    yield from bps.mv(bpm_es_position.x, 50)
+    yield from move_mono_energy(energy=8500, with_feedback=False, step=2000, delay=0.5)
+    yield from move_motor_plan("A Monochromator Roll", position=499.6)
+    yield from move_motor_plan(motor_attr="A Monochromator Pitch", position=498.32)
+    yield from quick_pitch_optimization()
+    yield from set_hhm_feedback_plan(1)
 
 
 # plot_beam_center_scan(db, -1)
