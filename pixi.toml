@@ -77,8 +77,12 @@ numpy = ">2"
 
 
 [feature.terminal.tasks]
+args = [
+    {"arg" = "proposal", "default" = ""}
+]
 start = "unset SESSION_MANAGER PYTHONPATH && MPLBACKEND=qtagg ipython --profile-dir=."
 pvs = "ipython --profile-dir=. -c 'get_pv_types(); exit()'"
+sync-experiment = "sync-experiment -b iss -p {{proposal}}"
 
 [environments]
 terminal = {features=["profile", "terminal"], solve-group="profile"}
