@@ -82,7 +82,10 @@ args = [
 ]
 start = "unset SESSION_MANAGER PYTHONPATH && MPLBACKEND=qtagg ipython --profile-dir=."
 pvs = "ipython --profile-dir=. -c 'get_pv_types(); exit()'"
-sync-experiment = "sync-experiment -b iss -p {{proposal}}"
+
+[tasks.sync-experiment]
+args = ["proposal"]
+cmd = "sync-experiment -b iss -p {{proposal}}"
 
 [environments]
 terminal = {features=["profile", "terminal"], solve-group="profile"}
