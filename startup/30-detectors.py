@@ -99,8 +99,16 @@ class EncoderFS(Encoder):
         #
         ioc_file_root = '/home/softioc/tmp/'
         # ioc_file_root = '/nsls2/data/iss/proposals/md['cycle']/md['proposal']/assets/encpb/2026/02/03'
-        self._ioc_full_path = os.path.join(ioc_file_root, filename)
-        self._filename = filename
+        parent = getattr(self, 'parent', None)
+        if parent is not None:
+            md = parent._md
+            full_path = f'{ROOT_PATH_DS}/{md["cycle"]}/{md["data_session"]}/assets/encpb/{dt.datetime.strftime(dt.datetime.now(), "%Y/%m/%d")}/{filename}'
+            print("ENCPB filename", full_path)
+            self._filename = filename
+            self._ioc_full_path = full_path
+        else:
+            self._ioc_full_path = os.path.join(ioc_file_root, filename)
+            self._filename = filename
 
         #self.filepath.put(self._full_path)   # commented out during disaster
         # self.filepath.put(self._ioc_full_path)
@@ -108,7 +116,7 @@ class EncoderFS(Encoder):
 
         self._resource_uid = str(uuid.uuid4())
         resource = {'spec': 'PIZZABOX_ENC_FILE_TXT_PD',
-                    'root': ROOT_PATH,
+                    'root': f'{ROOT_PATH_DS}/{md["cycle"]}/{md["data_session"]}/assets/encpb/{dt.datetime.strftime(dt.datetime.now(), "%Y/%m/%d")}',
                     'resource_path': full_path,
                     'resource_kwargs': {},
                     'path_semantics': os.name,
@@ -138,16 +146,16 @@ class EncoderFS(Encoder):
 
         # FIXME: beam line disaster fix.
         # Let's move the file to the correct place
-        workstation_file_root = '/mnt/xf08ida-ioc1/'
-        workstation_full_path = os.path.join(workstation_file_root, self._filename)
+        #workstation_file_root = '/mnt/xf08ida-ioc1/'
+        #workstation_full_path = os.path.join(workstation_file_root, self._filename)
         # print('Moving file from {} to {}'.format(workstation_full_path, self._full_path))
-        print_to_gui(f'{ttime.ctime()} Moving file from {workstation_full_path} to {self._full_path}')
+        #print_to_gui(f'{ttime.ctime()} Moving file from {workstation_full_path} to {self._full_path}')
 
-        print_to_gui(f'-----------------Stuck Here--------------------- {workstation_full_path = } {self._filename = }')
+        #print_to_gui(f'-----------------Stuck Here--------------------- {workstation_full_path = } {self._filename = }')
         # print(f"{workstation_full_path = }")
         # print(f"{self._filename = }")
-        cp_stat = shutil.copy(workstation_full_path, self._full_path)
-        print_to_gui(f'Copy done')
+        #cp_stat = shutil.copy(workstation_full_path, self._full_path)
+        print_to_gui(f'Copy not needed')
         # HACK: Make datum documents here so that they are available for collect_asset_docs
         # before collect() is called. May need changes to RE to do this properly. - Dan A.
 
@@ -223,7 +231,11 @@ class PizzaBoxFS(Device):
     # do3 = Cpt(DigitalOutput, '-DO:3')
 
     def __init__(self, *args, **kwargs):
+        md = None
+        if 'md' in kwargs:
+            md = kwargs.pop('md')
         super().__init__(*args, **kwargs)
+        self._md = md
         # must use internal timestamps or no bytes are written
 
 
@@ -233,7 +245,7 @@ class PizzaBoxFS(Device):
 # pb5 = PizzaBoxFS('XF:08IDA-CT{Enc05', name = 'pb5')
 # pb6 = PizzaBoxFS('XF:08IDA-CT{Enc06', name = 'pb6')
 # pb7 = PizzaBoxFS('XF:08IDA-CT{Enc07', name = 'pb7')
-pb9 = PizzaBoxFS('XF:08IDA-CT{Enc09', name ='pb9')
+pb9 = PizzaBoxFS('XF:08IDA-CT{Enc09', name ='pb9', md=RE.md)
 hhm_encoder = pb9.enc1
 hhm_encoder.pulses_per_deg = 360000
 pb9.wait_for_connection(timeout=10)

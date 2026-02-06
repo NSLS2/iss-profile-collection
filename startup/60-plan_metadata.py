@@ -107,7 +107,9 @@ def get_general_md():
 
 
 def create_interp_file_name(name, fn_ext):
-    fn = f"{ROOT_PATH}/{USER_PATH}/{RE.md['year']}/{RE.md['cycle']}/{RE.md['proposal']}/{name}{fn_ext}"
+    cycle_list = RE.md['cycle'].split('-')
+
+    fn = f"{ROOT_PATH}/{USER_PATH}/{RE.md['year']}/{cycle_list[1]}/{RE.md['proposal']['proposal_id']}/{name}{fn_ext}"
     fn = validate_file_exists(fn)
     return fn
 

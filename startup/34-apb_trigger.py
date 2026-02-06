@@ -29,12 +29,18 @@ class AnalogPizzaBoxTrigger(Device):
 
 
     def __init__(self, *args, **kwargs):
+        md = None
+        if 'md' in kwargs:
+            md = kwargs.pop('md')
         super().__init__(*args, **kwargs)
         self._acquiring = None
 
         self._asset_docs_cache = deque()
         self._resource_uid = None
         self._datum_counter = None
+        print("APB TRigger MD", md)
+        self._md = md
+
 
     def prepare_to_fly(self, traj_duration):
         self.num_points = int(self.freq.get() * (traj_duration + 1))
@@ -44,8 +50,15 @@ class AnalogPizzaBoxTrigger(Device):
         staged_list = super().stage()
 
         file_uid = new_uid()
-        self.fn = f'{ROOT_PATH}/{RAW_PATH}/apb/{dt.datetime.strftime(dt.datetime.now(), "%Y/%m/%d")}/{file_uid}.bin'
-        self.filename.set(self.fn).wait()
+        md = self._md
+        if self._md is None:
+            raise("No metadata for APB")
+        self.fn = f'{ROOT_PATH_DS}/{md['cycle']}/{md['data_session']}/assets/apb/{dt.datetime.strftime(dt.datetime.now(), "%Y/%m/%d")}/{file_uid}'
+        #self.filename = f'{ROOT_PATH}/{RAW_PATH}/apb/{dt.datetime.strftime(dt.datetime.now(), "%Y/%m/%d")}/{file_uid}'
+        print("APB filename", self.fn) 
+ 
+        # self.fn = f'{ROOT_PATH}/{RAW_PATH}/apb/{dt.datetime.strftime(dt.datetime.now(), "%Y/%m/%d")}/{file_uid}.bin'
+        # self.filename.set(self.fn).wait()
         # self.poke_streaming_destination()
         self._resource_uid = new_uid()
         resource = {'spec': 'APB_TRIGGER', #self.name.upper(),
@@ -124,11 +137,11 @@ class AnalogPizzaBoxTrigger(Device):
     #     acq_num_points = traj_duration * self.acq_rate.get() * 1000 * 1.3
     #     self.num_points = int(round(acq_num_points, ndigits=-3))
 
-apb_trigger = AnalogPizzaBoxTrigger(prefix="XF:08IDB-CT{PBA:1}:Pulse:1:", name="apb_trigger")
-apb_trigger_xs = AnalogPizzaBoxTrigger(prefix="XF:08IDB-CT{PBA:1}:Pulse:1:", name="apb_trigger_xs")
-apb_trigger_pil100k = AnalogPizzaBoxTrigger(prefix="XF:08IDB-CT{PBA:1}:Pulse:2:", name="apb_trigger_pil100k")
-apb_trigger_pil100k2 = AnalogPizzaBoxTrigger(prefix="XF:08IDB-CT{PBA:1}:Pulse:3:", name="apb_trigger_pil100k2")
-apb_trigger_ge_detector = AnalogPizzaBoxTrigger(prefix="XF:08IDB-CT{PBA:1}:Pulse:4:", name="apb_trigger_ge_detector")
+apb_trigger = AnalogPizzaBoxTrigger(prefix="XF:08IDB-CT{PBA:1}:Pulse:1:", name="apb_trigger", md=RE.md)
+apb_trigger_xs = AnalogPizzaBoxTrigger(prefix="XF:08IDB-CT{PBA:1}:Pulse:1:", name="apb_trigger_xs", md=RE.md)
+apb_trigger_pil100k = AnalogPizzaBoxTrigger(prefix="XF:08IDB-CT{PBA:1}:Pulse:2:", name="apb_trigger_pil100k", md=RE.md)
+apb_trigger_pil100k2 = AnalogPizzaBoxTrigger(prefix="XF:08IDB-CT{PBA:1}:Pulse:3:", name="apb_trigger_pil100k2", md=RE.md)
+apb_trigger_ge_detector = AnalogPizzaBoxTrigger(prefix="XF:08IDB-CT{PBA:1}:Pulse:4:", name="apb_trigger_ge_detector", md=RE.md)
 
 
 class APBTriggerFileHandler(HandlerBase):

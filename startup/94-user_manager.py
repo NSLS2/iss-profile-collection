@@ -56,7 +56,8 @@ class UserManager(PersistentListInteractingWithGUI):
         scan_sequence_manager.reset()
         batch_manager.reset()
 
-        RE.md['PI'] = f'{first_name} {last_name}'
+        # RE.md['PI'] = f'{first_name} {last_name}'
+        RE.md['PI'] = RE.md['proposal']['pi_name']
         RE.md['affiliation'] = affiliation
         RE.md['email'] = email
 
@@ -84,7 +85,7 @@ class UserManager(PersistentListInteractingWithGUI):
             self.users[_current_index]['runs'].append(run)
         else:
             self.users[_current_index]['runs']=[run]
-        RE.md['proposal'] = str(proposal)
+        # RE.md['proposal'] = str(proposal)
         RE.md['saf'] = str(saf)
         RE.md['experimenters'] = experimenters
 
