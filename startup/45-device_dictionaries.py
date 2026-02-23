@@ -105,6 +105,13 @@ detector_dictionary =   {
                     'EM I2 V monitor' : {'device' : em_ave, 'channels' : ['em_ave_ch7_mean']},
                     'EM Fluo V monitor' : {'device' : em_ave, 'channels' : ['em_ave_ch8_mean']},
                 }
+
+if rga is not None:
+    detector_dictionary['Hiden RGA'] = {
+        'device': rga,
+        'channels': [f'rga_mid{i}' for i in range(1, 11)],
+    }
+
 # comment
 def get_detector_device_list(key_list, flying=True):
     dets = []
