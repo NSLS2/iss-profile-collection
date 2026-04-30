@@ -14,7 +14,6 @@ from bluesky.simulators import summarize_plan
 from distutils.version import LooseVersion
 from datetime import datetime
 #from xview.spectra_db.db_io import get_spectrum_catalog, get_spectrum_catalog_new
-import json
 import time as ttime
 import numpy as np
 import pandas as pd
@@ -154,13 +153,21 @@ runengine_metadata_dir = Path(f'{ROOT_PATH_SHARED}/metadata/') / Path("runengine
 # Insert for testing new conda environment 2024-11-13
 import redis
 from redis_json_dict import RedisJSONDict
-#
-uri = "info.iss.nsls2.bnl.gov"  # replace TLA as appropriate
-# # Provide an endstation prefix, if needed, with a trailing "-"
-new_md = RedisJSONDict(redis.Redis(uri), prefix="") ### commented due to redis not working
+from nslsii.utils import open_redis_client
 
-# #work 11-12-2024 to enable updated conda environment
-RE.md = new_md  ### commented due to redis not working
+# Connect to the ISS beamline Redis server (db=0 for RunEngine metadata)
+_redis_client = open_redis_client(
+    redis_url="xf08id1-iss-redis1.nsls2.bnl.gov",
+    redis_db=0,
+)
+new_md = RedisJSONDict(_redis_client, prefix="")
+RE.md = new_md
+
+# Shared redis client for settings/config (db=1)
+redis_settings_client = open_redis_client(
+    redis_url="xf08id1-iss-redis1.nsls2.bnl.gov",
+    redis_db=1,
+)
 
 # Patch to fix Tom's terrible deeds
 # import matplotlib.backends.backend_qt

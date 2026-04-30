@@ -150,11 +150,12 @@ from xas.image_analysis import CameraCalibrationFF
 class SamplePositionerBPM(BPM, ObjectWithSettings):
 
     def __init__(self, *args, **kwargs):
+        from redis_json_dict import RedisJSONDict
         BPM.__init__(self, *args, **kwargs)
         ObjectWithSettings.__init__(self, json_path=f'{ROOT_PATH_SHARED}/settings/json/{self.name}_settings.json', defaultdict_use=True)
         self._read_beam_pos_from_settings()
 
-        self.calibration_file = f'{ROOT_PATH_SHARED}/settings/json/{self.name}_calibration.json'
+        self._calibration_redis_store = RedisJSONDict(redis_settings_client, prefix=f'{self.name}_calibration')
         self.load_calibration()
 
         self.grid_lines = None
@@ -174,8 +175,7 @@ class SamplePositionerBPM(BPM, ObjectWithSettings):
 
     def load_calibration(self):
         try:
-            with open(self.calibration_file) as fp:
-                calibration_data_dict = json.load(fp)
+            calibration_data_dict = self._calibration_redis_store['calibration']
             self.calibration = CameraCalibrationFF(calibration_data_dict['pix_xy1'],
                                                    calibration_data_dict['pix_xy2'],
                                                    calibration_data_dict['stage_xy'],
@@ -196,8 +196,7 @@ class SamplePositionerBPM(BPM, ObjectWithSettings):
         for k, v in _dict.items():
             if type(v) == np.ndarray:
                 _dict[k] = v.tolist()
-        with open(self.calibration_file, 'w') as f:
-            json.dump(_dict, f )
+        self._calibration_redis_store['calibration'] = _dict
 
     def update_calibration_npoly(self, npoly):
         self.calibration.update_npoly(npoly)
@@ -293,8 +292,9 @@ class FoilCAMERA(CAMERA):
         self.read_foil_data()
 
     def _read_foil_info(self):
-        with open(f'{ROOT_PATH_SHARED}/settings/json/foil_wheel.json') as fp:
-            foil_info = json.load(fp)
+        from redis_json_dict import RedisJSONDict
+        foil_wheel_store = RedisJSONDict(redis_settings_client, prefix='foil_wheel')
+        foil_info = foil_wheel_store['foil_wheel']
         return foil_info
 
     def read_foil_data(self):

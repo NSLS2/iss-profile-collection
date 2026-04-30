@@ -209,20 +209,30 @@ class EpicsMotorThatCannotReachTheTargetProperly(EpicsMotor):
 
 from collections import defaultdict
 import json
+import os
+from redis_json_dict import RedisJSONDict
+
+
+def _redis_key_from_path(path):
+    """Derive a stable Redis key from a JSON settings file path."""
+    return os.path.splitext(os.path.basename(path))[0]
+
+
 class ObjectWithSettings:
 
     def __init__(self, *args, json_path='', default_config=None, defaultdict_use=False, defaultdict_value=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.json_path = json_path
+        self._redis_key = _redis_key_from_path(json_path)
+        self._redis_store = RedisJSONDict(redis_settings_client, prefix=self._redis_key)
 
         if default_config is None:
-            if default_config is None:
-                if defaultdict_use:
-                    def _factory():
-                        return defaultdict_value
-                    default_config = defaultdict(_factory)
-                else:
-                    default_config = {}
+            if defaultdict_use:
+                def _factory():
+                    return defaultdict_value
+                default_config = defaultdict(_factory)
+            else:
+                default_config = {}
 
         self.config = self.init_config_from_settings(default_config)
 
@@ -234,24 +244,21 @@ class ObjectWithSettings:
                 return {}
             return default_config
 
-    def save_config(self, config, file):
-        with open(file, 'w') as f:
-            json.dump(config, f)
+    def save_config(self, config, file=None):
+        self._redis_store['config'] = config
 
-    def save_current_config(self, file):
+    def save_current_config(self, file=None):
         config = self.read_current_config()
-        self.save_config(config, file)
+        self.save_config(config)
 
     def save_current_config_to_settings(self):
-        self.save_current_config(self.json_path)
+        self.save_current_config()
 
-    def load_config(self, file):
-        with open(file, 'r') as f:
-            config = json.loads(f.read())
-        return config
+    def load_config(self, file=None):
+        return self._redis_store['config']
 
     def load_config_from_settings(self):
-        return self.load_config(self.json_path)
+        return self.load_config()
 
     def read_current_config(self):
         return self.config

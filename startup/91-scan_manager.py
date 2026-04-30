@@ -1,10 +1,10 @@
 print(ttime.ctime() + ' >>>> ' + __file__)
 import copy
-import json
 import uuid
 
 import numpy as np
 from PyQt5 import QtGui
+from redis_json_dict import RedisJSONDict
 from xas.trajectory import TrajectoryCreator
 from xas.xray import generate_energy_grid_from_dict, generate_emission_energy_grid_from_dict, generate_emission_relative_trajectory_from_dict
 import os
@@ -15,33 +15,32 @@ from collections import Counter
 
 
 class ScanManager():
-    def __init__(self, json_file_path = f'{ROOT_PATH_SHARED}/settings/json/scan_manager.json'):
-        self.init_global_manager(json_file_path)
-        _default_local_manager_path = f"{ROOT_PATH}/{USER_PATH}/{RE.md['year']}/{RE.md['cycle']}/{RE.md['proposal']}/scan_manager.json"
-        self.load_local_manager(_default_local_manager_path)
+    def __init__(self, redis_key='scan_manager'):
+        self.init_global_manager(redis_key)
+        _default_local_key = f"scan_manager_local_{RE.md.get('year', 'unknown')}_{RE.md.get('cycle', 'unknown')}_{RE.md.get('proposal', 'unknown')}"
+        self.load_local_manager(_default_local_key)
         self.trajectory_path = trajectory_manager.trajectory_path
         self.trajectory_creator = TrajectoryCreator()
 
-    def init_global_manager(self, json_file_path):
-        self.json_file_path = json_file_path
-        with open(self.json_file_path, 'r') as f:
-            self.scan_dict = json.loads(f.read())
-
-    # def init_local_manager(self):
-        # self.json_file_path_local = f"{ROOT_PATH}/{USER_PATH}/{RE.md['year']}/{RE.md['cycle']}/{RE.md['proposal']}/scan_manager.json"
-
-
-    def load_local_manager(self, json_file_path_local):
-        self.json_file_path_local = json_file_path_local
+    def init_global_manager(self, redis_key):
+        self.redis_key = redis_key
+        self._global_store = RedisJSONDict(redis_settings_client, prefix=redis_key)
         try:
-            with open(self.json_file_path_local, 'r') as f:
-                self.scan_list_local = json.loads(f.read())
-        except FileNotFoundError:
+            self.scan_dict = self._global_store['scan_dict']
+        except KeyError:
+            self.scan_dict = {}
+            self._global_store['scan_dict'] = self.scan_dict
+
+    def load_local_manager(self, redis_key_local):
+        self.redis_key_local = redis_key_local
+        self._local_store = RedisJSONDict(redis_settings_client, prefix=redis_key_local)
+        try:
+            self.scan_list_local = self._local_store['scan_list']
+        except KeyError:
             self.scan_list_local = []
 
     def dump_local_scan_list(self):
-        with open(self.json_file_path_local, 'w') as f:
-            json.dump(self.scan_list_local, f )
+        self._local_store['scan_list'] = self.scan_list_local
 
     def reset(self):
         pass
@@ -126,9 +125,7 @@ class ScanManager():
         #print_to_gui('SCAN IS NEW')
         self.scan_dict[new_uid] = new_scan
         self.create_trajectory_file(new_scan, new_uid)
-        os.rename(self.json_file_path, f'{os.path.splitext(self.json_file_path)[0]}.bak')
-        with open(self.json_file_path, 'w') as f:
-            json.dump(self.scan_dict, f )
+        self._global_store['scan_dict'] = self.scan_dict
         return new_uid
 
     def trajectory_filename_from_uid(self, scan_uid):
