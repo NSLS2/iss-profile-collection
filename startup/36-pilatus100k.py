@@ -230,7 +230,8 @@ class PilatusHDF5(PilatusBase):
         HDF5PluginWithFileStore,
         suffix="HDF1:",
         root="/",
-        write_path_template=f"{ROOT_PATH}/{RAW_PATH}/pil100k/%Y/%m/%d",
+        write_path_template=f"{ROOT_PATH}/{RAW_PATH}/pil100k/%Y/%m/%d", ###
+        # write_path_template=f"/tmp/pil100k",
     )  # ,
     # write_path_template=f'/nsls2/xf08id/data/pil100k/%Y/%m/%d')
 
@@ -322,8 +323,11 @@ class PilatusStreamHDF5(PilatusHDF5):
     def complete(self):
         print_to_gui(f"Pilatus100k complete is starting...", add_timestamp=True)
         acquire_status = self.cam.acquire.set(0)
+        print_to_gui(f"Acquire status captured...", add_timestamp=True)
         capture_status = self.hdf5.capture.set(0)
+        print_to_gui(f"hdf5 capture status captured...", add_timestamp=True)
         (acquire_status and capture_status).wait()
+        print_to_gui(f"both status captured...", add_timestamp=True)
 
         ext_trigger_status = self.ext_trigger_device.complete()
         for resource in self.hdf5._asset_docs_cache:

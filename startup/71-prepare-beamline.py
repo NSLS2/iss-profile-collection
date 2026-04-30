@@ -223,7 +223,7 @@ def prepare_beamline_plan(energy: int = -1, move_cm_mirror = False, move_hhm_y=T
     filter_box_setter = filterbox.y
     cm_setter = cm1.x
     hhrm_setter = hhrm.hor_translation
-    settling_time = 120
+    settling_time = 180
 
     if type(energy) == str:
         energy = int(energy)

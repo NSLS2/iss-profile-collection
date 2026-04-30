@@ -420,24 +420,24 @@ def quick_pitch_optimization(scan_range=1, velocity=0.2, n_tries=3):
     #yield from set_hhm_feedback_plan(1, update_center=True)
 
 
-def move_energy_to_zirconium():
+def move_energy_to_palladium():
     yield from set_hhm_feedback_plan(0)
     yield from set_bpm_es_exposure_time(0.25)
     yield from bps.mv(bpm_es_position.x, 40)
-    yield from move_mono_energy(energy=17998, with_feedback=False, step=2000, delay=0.5)
-    yield from move_motor_plan("A Monochromator Roll", position=512.0)
-    yield from move_motor_plan(motor_attr="A Monochromator Pitch", position=498.31)
+    yield from move_mono_energy(energy=24500, with_feedback=False, step=2000, delay=0.5)
+    yield from move_motor_plan("A Monochromator Roll", position=513.08)
+    yield from move_motor_plan(motor_attr="A Monochromator Pitch", position=500.26)
     yield from quick_pitch_optimization()
     yield from set_hhm_feedback_plan(1)
 
 
-def move_energy_to_nickel():
+def move_energy_to_copper():
     yield from set_hhm_feedback_plan(0)
-    yield from set_bpm_es_exposure_time(0.16)
-    yield from bps.mv(bpm_es_position.x, 50)
-    yield from move_mono_energy(energy=8500, with_feedback=False, step=2000, delay=0.5)
-    yield from move_motor_plan("A Monochromator Roll", position=499.6)
-    yield from move_motor_plan(motor_attr="A Monochromator Pitch", position=498.32)
+    yield from set_bpm_es_exposure_time(0.19)
+    yield from bps.mv(bpm_es_position.x, 40)
+    yield from move_mono_energy(energy=9000, with_feedback=False, step=2000, delay=0.5)
+    yield from move_motor_plan("A Monochromator Roll", position=499)
+    yield from move_motor_plan(motor_attr="A Monochromator Pitch", position=503.41)
     yield from quick_pitch_optimization()
     yield from set_hhm_feedback_plan(1)
 
