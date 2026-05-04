@@ -4,6 +4,8 @@ import logging
 import os
 import sys
 
+os.environ['QT_API'] = 'pyqt5'
+
 from pathlib import Path
 from timeit import default_timer as timer
 import appdirs
@@ -116,19 +118,19 @@ EpicsSignalBase.set_defaults(timeout=10, connection_timeout=10)
 
 # db_proc = get_spectrum_catalog()
 # db_proc = get_spectrum_catalog_new()
-RE = RunEngine()
-nslsii.configure_base(get_ipython().user_ns, 'iss', pbar=False)
+#RE = RunEngine()
+#nslsii.configure_base(get_ipython().user_ns, 'iss', pbar=False)
 #nslsii.configure_kafka_publisher(RE, "iss")
 
 # Data Security - Sync-Experiment
-# nslsii.configure_base(
-#     get_ipython().user_ns,
-#     "iss",
-#     publish_documents_with_kafka=True,
-#     redis_url="xf08id1-iss-redis1.nsls2.bnl.gov",
-#     redis_port=6380,
-#     redis_ssl=True,
-# )
+nslsii.configure_base(
+     get_ipython().user_ns,
+     "iss",
+     publish_documents_with_kafka=True,
+     redis_url="xf08id1-iss-redis1.nsls2.bnl.gov",
+     redis_port=6380,
+     redis_ssl=True,
+)
 
 
 
@@ -152,15 +154,18 @@ runengine_metadata_dir = Path(f'{ROOT_PATH_SHARED}/metadata/') / Path("runengine
 # RE.md._finalizer.atexit = False # added so that when we have stray bsui sessions on other stations, quitting them will not change the md unpredictably.
 
 # Insert for testing new conda environment 2024-11-13
-import redis
-from redis_json_dict import RedisJSONDict
+#import redis
+#from redis_json_dict import RedisJSONDict
 #
-uri = "info.iss.nsls2.bnl.gov"  # replace TLA as appropriate
+#uri = "info.iss.nsls2.bnl.gov"  # replace TLA as appropriate
 # # Provide an endstation prefix, if needed, with a trailing "-"
-new_md = RedisJSONDict(redis.Redis(uri), prefix="") ### commented due to redis not working
+#new_md = RedisJSONDict(redis.Redis(uri), prefix="") ### commented due to redis not working
 
 # #work 11-12-2024 to enable updated conda environment
-RE.md = new_md  ### commented due to redis not working
+#RE.md = new_md  ### commented due to redis not working
+
+
+
 
 # Patch to fix Tom's terrible deeds
 # import matplotlib.backends.backend_qt
