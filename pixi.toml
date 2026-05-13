@@ -19,7 +19,7 @@ matplotlib-base= ">=3.10"
 networkx = ">=3.4.2,<4"
 nslsii = "==0.11.8"
 opencv = ">=4.12.0,<5"
-numpy = "*"
+# numpy = "*"
 ophyd = ">=1.11.0"
 ophyd-async = ">=0.13.7,<0.14"
 pyepics = "*"
@@ -40,13 +40,19 @@ slackclient = ">=2.9.3,<3"
 pyzbar = ">=0.1.9,<0.2"
 hdf5-external-filter-plugins = ">=0.1.0,<0.2"
 blosc-hdf5-plugin = ">=1.0.1,<2"
+qtpy = "*"
+pandas = ">2,<3"
+nexpy = "*"
 
 
 [feature.profile.pypi-dependencies]
 # TODO get updated version built on CF
-xas = { git = "https://github.com/nsls-ii-iss/xas" }
+#xas = { git = "https://github.com/nsls-ii-iss/xas" }
+xas = {path="/nsls2/data/iss/shared/config/repos/xas/", editable= true}
 # TODO merge PR + get on CF
-isstools = { git = "https://github.com/nsls-ii-iss/isstools", rev = "eb715eaa6436097cf88cf0a8f875fa1251f64657" }
+#isstools = { git = "https://github.com/nsls-ii-iss/isstools", rev = "eb715eaa6436097cf88cf0a8f875fa1251f64657" }
+#isstools = { git = "https://github.com/NSLS2/isstools", rev = "fe098097d27f926af6f26633ee0ad34a47f61600" }
+isstools = {path="/nsls2/data/iss/shared/config/repos/isstools/", editable= true}
 isscloudtools = { git = "https://github.com/nsls-ii-iss/isscloudtools" }
 # TODO make importable without I/O and get on CF
 piezo-feedback = { git = "https://github.com/nsls-ii-iss/piezo-feedback" }
@@ -68,7 +74,9 @@ qs-server = "uvicorn --host localhost --port 60610 bluesky_httpserver.server:app
 
 [feature.terminal.dependencies]
 ipython = ">=9.5.0"
-pyside6 = "*"
+#pyside6 = "*"
+#pyqt = ">=5,<6"
+pyqt = "==5.15.11"
 numpy = ">2"
 
 

@@ -622,6 +622,7 @@ class ScanManager():
         scan_local = self.scan_list_local[scan_idx]
         scan_name = scan_local['scan_name']
         metadata['scan_name'] = scan_name
+        metadata['radiation_damage_scan'] = scan_local['aux_parameters']['radiation_damage_scan']
         for indx in range(int(repeat)):
             if type(name) == list:
                 name_n = [f'{n} {scan_name} {indx+1:04d}' for n in name]
