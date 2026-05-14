@@ -57,6 +57,7 @@ if not os.environ.get('AZURE_TESTING'):
                                tune_elements=tune_elements,
                                ic_amplifiers=ic_amplifiers,
                                print_to_gui=print_to_gui,
+                               redis_settings_client=redis_settings_client,
                                window_title="XLive @ISS/08-ID NSLS-II")
 
 
