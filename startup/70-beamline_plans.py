@@ -120,7 +120,11 @@ def calibrate_mono_energy_plan_bundle(element='', edge='', propagate_calibration
     run_simple_scan = False
     from redis_json_dict import RedisJSONDict
     _ref_lib_store = RedisJSONDict(redis_settings_client, prefix='reference_library')
-    reference_library = _ref_lib_store['reference_library']
+    try:
+        reference_library = _ref_lib_store['reference_library']
+    except Exception:
+        with open(f'{ROOT_PATH_SHARED}/settings/reference_library.json') as fp:
+            reference_library = json.load(fp)
 
     run_calibration = False
     if element in reference_library.keys():

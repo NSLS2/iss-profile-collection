@@ -186,7 +186,11 @@ class PersistentListInteractingWithGUI:
     def item_list_from_file(self, file):
         _key = _redis_key_from_path(file)
         _store = RedisJSONDict(redis_settings_client, prefix=_key)
-        item_list = _store['items']
+        try:
+            item_list = _store['items']
+        except Exception:
+            with open(file, 'r') as f:
+                item_list = json.loads(f.read())
         return item_list
 
     def save_to_settings(self):
@@ -195,7 +199,15 @@ class PersistentListInteractingWithGUI:
     def save_to_file(self, file):
         _key = _redis_key_from_path(file)
         _store = RedisJSONDict(redis_settings_client, prefix=_key)
-        _store['items'] = self.items
+        try:
+            _store['items'] = self.items
+        except Exception:
+            pass
+        try:
+            with open(file, 'w') as f:
+                json.dump(self.items, f, indent=4)
+        except Exception:
+            pass
 
     @emit_list_update_signal_decorator
     def reset(self):
@@ -299,7 +311,15 @@ class SampleManager(PersistentListInteractingWithGUI):
     def save_to_file(self, file):
         _key = _redis_key_from_path(file)
         _store = RedisJSONDict(redis_settings_client, prefix=_key)
-        _store['items'] = self.samples_as_dict_list
+        try:
+            _store['items'] = self.samples_as_dict_list
+        except Exception:
+            pass
+        try:
+            with open(file, 'w') as f:
+                json.dump(self.samples_as_dict_list, f)
+        except Exception:
+            pass
 
     @property
     def samples_as_dict_list(self):

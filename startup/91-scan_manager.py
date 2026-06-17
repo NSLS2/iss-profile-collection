@@ -108,10 +108,13 @@ from collections import Counter
 
 
 class ScanManager():
+    _global_json_path = f'{ROOT_PATH_SHARED}/settings/json/scan_manager.json'
+
     def __init__(self, redis_key='scan_manager'):
         self.init_global_manager(redis_key)
         _default_local_key = f"scan_manager_local_{RE.md.get('year', 'unknown')}_{RE.md.get('cycle', 'unknown')}_{RE.md.get('proposal', 'unknown')}"
-        self.load_local_manager(_default_local_key)
+        _default_local_json = f"{ROOT_PATH}/{USER_PATH}/{RE.md.get('year', 'unknown')}/{RE.md.get('cycle', 'unknown')}/{RE.md.get('proposal', 'unknown')}/scan_manager.json"
+        self.load_local_manager(_default_local_key, _default_local_json)
         self.trajectory_path = trajectory_manager.trajectory_path
         self.trajectory_creator = TrajectoryCreator()
 
@@ -121,19 +124,62 @@ class ScanManager():
         try:
             self.scan_dict = self._global_store['scan_dict']
         except KeyError:
-            self.scan_dict = {}
-            self._global_store['scan_dict'] = self.scan_dict
+            # Redis is reachable but key is absent — try JSON fallback then start empty
+            try:
+                with open(self._global_json_path, 'r') as f:
+                    self.scan_dict = json.loads(f.read())
+                self._global_store['scan_dict'] = self.scan_dict
+            except Exception:
+                self.scan_dict = {}
+                self._global_store['scan_dict'] = self.scan_dict
+        except Exception:
+            # Redis is unreachable — fall back to JSON file
+            try:
+                with open(self._global_json_path, 'r') as f:
+                    self.scan_dict = json.loads(f.read())
+            except Exception:
+                self.scan_dict = {}
 
-    def load_local_manager(self, redis_key_local):
+    def load_local_manager(self, redis_key_local, json_path_local=None):
         self.redis_key_local = redis_key_local
+        self.json_file_path_local = json_path_local
         self._local_store = RedisJSONDict(redis_settings_client, prefix=redis_key_local)
         try:
             self.scan_list_local = self._local_store['scan_list']
         except KeyError:
-            self.scan_list_local = []
+            # Redis reachable but key absent — try JSON fallback then start empty
+            if json_path_local:
+                try:
+                    with open(json_path_local, 'r') as f:
+                        self.scan_list_local = json.loads(f.read())
+                    self._local_store['scan_list'] = self.scan_list_local
+                except Exception:
+                    self.scan_list_local = []
+            else:
+                self.scan_list_local = []
+        except Exception:
+            # Redis unreachable — fall back to JSON file
+            if json_path_local:
+                try:
+                    with open(json_path_local, 'r') as f:
+                        self.scan_list_local = json.loads(f.read())
+                except Exception:
+                    self.scan_list_local = []
+            else:
+                self.scan_list_local = []
 
     def dump_local_scan_list(self):
-        self._local_store['scan_list'] = self.scan_list_local
+        try:
+            self._local_store['scan_list'] = self.scan_list_local
+        except Exception:
+            pass
+        if self.json_file_path_local:
+            try:
+                os.makedirs(os.path.dirname(self.json_file_path_local), exist_ok=True)
+                with open(self.json_file_path_local, 'w') as f:
+                    json.dump(self.scan_list_local, f)
+            except Exception:
+                pass
 
     def reset(self):
         pass
@@ -218,7 +264,15 @@ class ScanManager():
         #print_to_gui('SCAN IS NEW')
         self.scan_dict[new_uid] = new_scan
         self.create_trajectory_file(new_scan, new_uid)
-        self._global_store['scan_dict'] = self.scan_dict
+        try:
+            self._global_store['scan_dict'] = self.scan_dict
+        except Exception:
+            pass
+        try:
+            with open(self._global_json_path, 'w') as f:
+                json.dump(self.scan_dict, f)
+        except Exception:
+            pass
         return new_uid
 
     def trajectory_filename_from_uid(self, scan_uid):

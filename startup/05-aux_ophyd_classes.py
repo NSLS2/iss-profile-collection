@@ -245,7 +245,16 @@ class ObjectWithSettings:
             return default_config
 
     def save_config(self, config, file=None):
-        self._redis_store['config'] = config
+        try:
+            self._redis_store['config'] = config
+        except Exception:
+            pass
+        if self.json_path:
+            try:
+                with open(self.json_path, 'w') as f:
+                    json.dump(config, f)
+            except Exception:
+                pass
 
     def save_current_config(self, file=None):
         config = self.read_current_config()
@@ -255,7 +264,14 @@ class ObjectWithSettings:
         self.save_current_config()
 
     def load_config(self, file=None):
-        return self._redis_store['config']
+        try:
+            return self._redis_store['config']
+        except Exception:
+            pass
+        if self.json_path:
+            with open(self.json_path, 'r') as f:
+                return json.loads(f.read())
+        raise KeyError(f'Config not found in Redis or at {self.json_path}')
 
     def load_config_from_settings(self):
         return self.load_config()

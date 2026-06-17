@@ -213,7 +213,12 @@ class PilatusBase(SingleTriggerV33, PilatusDetectorCam):
 
         from redis_json_dict import RedisJSONDict
         _polygon_roi_store = RedisJSONDict(redis_settings_client, prefix=self.polygon_roi_redis_key)
-        md["roi_polygon"] = _polygon_roi_store['pilatus_polygon_roi']
+        try:
+            md["roi_polygon"] = _polygon_roi_store['pilatus_polygon_roi']
+        except Exception:
+            _json_path = f'{ROOT_PATH_SHARED}/settings/json/pilatus_polygon_roi.json'
+            with open(_json_path, 'r') as f:
+                md["roi_polygon"] = json.loads(f.read())
 
         return md
 

@@ -156,6 +156,7 @@ class SamplePositionerBPM(BPM, ObjectWithSettings):
         self._read_beam_pos_from_settings()
 
         self._calibration_redis_store = RedisJSONDict(redis_settings_client, prefix=f'{self.name}_calibration')
+        self._calibration_json_path = f'{ROOT_PATH_SHARED}/settings/json/{self.name}_calibration.json'
         self.load_calibration()
 
         self.grid_lines = None
@@ -175,7 +176,11 @@ class SamplePositionerBPM(BPM, ObjectWithSettings):
 
     def load_calibration(self):
         try:
-            calibration_data_dict = self._calibration_redis_store['calibration']
+            try:
+                calibration_data_dict = self._calibration_redis_store['calibration']
+            except Exception:
+                with open(self._calibration_json_path) as fp:
+                    calibration_data_dict = json.load(fp)
             self.calibration = CameraCalibrationFF(calibration_data_dict['pix_xy1'],
                                                    calibration_data_dict['pix_xy2'],
                                                    calibration_data_dict['stage_xy'],
@@ -196,7 +201,15 @@ class SamplePositionerBPM(BPM, ObjectWithSettings):
         for k, v in _dict.items():
             if type(v) == np.ndarray:
                 _dict[k] = v.tolist()
-        self._calibration_redis_store['calibration'] = _dict
+        try:
+            self._calibration_redis_store['calibration'] = _dict
+        except Exception:
+            pass
+        try:
+            with open(self._calibration_json_path, 'w') as f:
+                json.dump(_dict, f)
+        except Exception:
+            pass
 
     def update_calibration_npoly(self, npoly):
         self.calibration.update_npoly(npoly)
@@ -293,8 +306,12 @@ class FoilCAMERA(CAMERA):
 
     def _read_foil_info(self):
         from redis_json_dict import RedisJSONDict
-        foil_wheel_store = RedisJSONDict(redis_settings_client, prefix='foil_wheel')
-        foil_info = foil_wheel_store['foil_wheel']
+        try:
+            foil_wheel_store = RedisJSONDict(redis_settings_client, prefix='foil_wheel')
+            foil_info = foil_wheel_store['foil_wheel']
+        except Exception:
+            with open(f'{ROOT_PATH_SHARED}/settings/json/foil_wheel.json') as fp:
+                foil_info = json.load(fp)
         return foil_info
 
     def read_foil_data(self):
