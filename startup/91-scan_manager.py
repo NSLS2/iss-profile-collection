@@ -13,9 +13,103 @@ import logging
 import logging.handlers
 from collections import Counter
 
+# def emit_list_update_signal_decorator(method):
+#     def wrapper(obj, *args, emit_signal=True, **kwargs):
+#         result = method(obj, *args, **kwargs)
+#         if emit_signal:
+#             # print_to_gui('before update signal', add_timestamp=True, tag='Debug')
+#             obj.emit_list_update_signal()
+#             # print_to_gui('after update signal', add_timestamp=True, tag='Debug')
+#         return result
+#     return wrapper
+#
+#
+# class PersistentListInteractingWithGUI:
+#     list_update_signal = None
+#
+#     def __init__(self, json_file_path='', boot_fresh=False):
+#         self.items = []
+#         self.json_file_path = json_file_path
+#         self.init_from_settings(boot_fresh=boot_fresh)
+#
+#     @property
+#     def local_file_default_path(self):
+#         return f"{ROOT_PATH}/{USER_PATH}/{RE.md['year']}/{RE.md['cycle']}/{RE.md['proposal']}/"
+#
+#     def init_from_settings(self, boot_fresh=False):
+#         if not boot_fresh:
+#             try:
+#                 self.add_items_from_file(self.json_file_path)
+#             except FileNotFoundError:
+#                 self.save_to_settings()
+#
+#     @emit_list_update_signal_decorator
+#     def init_from_new_file(self, new_json_file_path):
+#         self.items = []
+#         self.json_file_path = new_json_file_path
+#         self.init_from_settings()
+#
+#     @emit_list_update_signal_decorator
+#     def add_items_from_file(self, file):
+#         self.items += self.item_list_from_file(file)
+#
+#     def item_list_from_file(self, file):
+#         with open(file, 'r') as f:
+#             item_list = json.loads(f.read())
+#         return item_list
+#
+#     def save_to_settings(self):
+#         self.save_to_file(self.json_file_path)
+#
+#     def save_to_file(self, file):
+#         with open(file, 'w') as f:
+#             json.dump(self.items, f, indent=4)
+#
+#     @emit_list_update_signal_decorator
+#     def reset(self):
+#         self.items = []
+#
+#     @emit_list_update_signal_decorator
+#     def insert_item_at_index(self, index, item):
+#         self.items.insert(index, item)
+#
+#     @emit_list_update_signal_decorator
+#     def add_item(self, item):
+#         self.items.append(item)
+#
+#     @emit_list_update_signal_decorator
+#     def delete_item_at_index(self, index):
+#         self.items.pop(index)
+#
+#     @emit_list_update_signal_decorator
+#     def delete_multiple_items(self, index_list):
+#         index_list.sort(reverse=True)
+#         for index in index_list:
+#             self.delete_item_at_index(index, emit_signal=False)
+#
+#     @emit_list_update_signal_decorator
+#     def update_item_at_index(self, index, item):
+#         self.items[index] = index
+#
+#     def item_at_index(self, index):
+#         return self.items[index]
+#
+#     def append_list_update_signal(self, signal):
+#         self.list_update_signal = signal
+#
+#     def emit_list_update_signal(self):
+#         if self.list_update_signal is not None:
+#             # print_to_gui('before emitting signal', add_timestamp=True, tag='Debug')
+#             self.list_update_signal.emit()
+#             # print_to_gui('after emitting signal', add_timestamp=True, tag='Debug')
+#         # print_to_gui('before saving to settings', add_timestamp=True, tag='Debug')
+#         self.save_to_settings()
+#         # print_to_gui('after saving to settings', add_timestamp=True, tag='Debug')
+
 
 class ScanManager():
     def __init__(self, json_file_path = f'{ROOT_PATH_SHARED}/settings/json/scan_manager.json'):
+        # super().__init__(self, json_file_path)
         self.init_global_manager(json_file_path)
         _default_local_manager_path = f"{ROOT_PATH}/{USER_PATH}/{RE.md['year']}/{RE.md['cycle']}/{RE.md['proposal']}/scan_manager.json"
         self.load_local_manager(_default_local_manager_path)

@@ -3,12 +3,16 @@ environments:
   default:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
+    options:
+      pypi-prerelease-mode: if-necessary-or-explicit
     packages: {}
   qs:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
     indexes:
     - https://pypi.org/simple
+    options:
+      pypi-prerelease-mode: if-necessary-or-explicit
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -493,7 +497,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-proto-1.39.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-sdk-1.39.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-semantic-conventions-0.60b1-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/ophyd-1.11.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/ophyd-1.11.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ophyd-async-0.13.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/orc-2.2.1-hd747db4_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderedmultidict-1.0.1-pyhd8ed1ab_2.conda
@@ -811,6 +815,8 @@ environments:
     - url: https://conda.anaconda.org/conda-forge/
     indexes:
     - https://pypi.org/simple
+    options:
+      pypi-prerelease-mode: if-necessary-or-explicit
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -1294,7 +1300,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-proto-1.39.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-sdk-1.39.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-semantic-conventions-0.60b1-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/ophyd-1.11.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/ophyd-1.11.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ophyd-async-0.13.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/orc-2.2.1-hd747db4_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/orderedmultidict-1.0.1-pyhd8ed1ab_2.conda
@@ -5211,13 +5217,12 @@ packages:
   requires_python: '>=3.6'
 - pypi: /nsls2/auto-storage/iss/shared/config/repos/isstools
   name: isstools
-  version: 3.0.0+642.gc007e12
+  version: 3.0.0+644.g326dca9.dirty
   sha256: 3639d00c269c752feafe712196a976470edc1d2075681be6684b948507f25de4
   requires_dist:
   - numexpr
   - pyzbar
   - slackclient
-  editable: true
 - conda: https://conda.anaconda.org/conda-forge/noarch/itsdangerous-2.2.0-pyhd8ed1ab_1.conda
   sha256: 1684b7b16eec08efef5302ce298c606b163c18272b69a62b666fbaa61516f170
   md5: 7ac5f795c15f288984e32add616cdc59
@@ -8741,9 +8746,9 @@ packages:
   - pkg:pypi/opentelemetry-semantic-conventions?source=hash-mapping
   size: 118005
   timestamp: 1765560685194
-- conda: https://conda.anaconda.org/conda-forge/noarch/ophyd-1.11.0-pyhd8ed1ab_0.conda
-  sha256: b07d22c631b07342f1a03c090b71266cf03e6b0bc26b2342fbc1f7a33c377402
-  md5: 03903a1e07390a305745b024c61d0d3d
+- conda: https://conda.anaconda.org/conda-forge/noarch/ophyd-1.11.2-pyhd8ed1ab_0.conda
+  sha256: 704251e284e2ed4766442a5c452fe461e48c1745ba199d49b4e6f10bfce50820
+  md5: a28f969b6f7b5af60865bcb87bf77c10
   depends:
   - caproto !=1.2.0
   - networkx >=2.5
@@ -8757,8 +8762,8 @@ packages:
   license_family: BSD
   purls:
   - pkg:pypi/ophyd?source=hash-mapping
-  size: 215652
-  timestamp: 1757003348106
+  size: 217502
+  timestamp: 1780613273481
 - conda: https://conda.anaconda.org/conda-forge/noarch/ophyd-async-0.13.7-pyhd8ed1ab_0.conda
   sha256: 572dcce8f84fd070002ca99f57f138d98dc8480263e7148229cb35ec19b0b7aa
   md5: cc58afb89fedd9bd009ccecf65ca4976
@@ -12673,9 +12678,8 @@ packages:
   timestamp: 1769665430320
 - pypi: /nsls2/auto-storage/iss/shared/config/repos/xas
   name: xas
-  version: 0.0.1.post416.dev0+g96f388e
+  version: 0.0.1.post418.dev0+g127a30e
   sha256: 12e972dce3b86f1200480f84ecd29a5b0dff210353f2bcb99962f05e64e1031b
-  editable: true
 - conda: https://conda.anaconda.org/conda-forge/linux-64/xcb-util-0.4.1-h4f16b4b_2.conda
   sha256: ad8cab7e07e2af268449c2ce855cbb51f43f4664936eff679b1f3862e6e4b01d
   md5: fdc27cb255a7a2cc73b7919a968b48f0

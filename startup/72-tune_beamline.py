@@ -111,6 +111,13 @@ tune_elements_ext =  [{'motor': hhm.pitch.name,
                    'retries': 3,
                    'comment': 'fine monochromator crystal distance tune',
                    'fb_enable': True},
+                  {'motor': slits.v_pos.name,
+                   'detector':'I0 ion Chamber',
+                   'range': 3,
+                   'step': 0.1,
+                   'retries': 3,
+                   'comment': 'fine B1 slits vertical position tune',
+                   'fb_enable': True},
                 ]
 
 

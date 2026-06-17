@@ -139,7 +139,7 @@ def calibrate_mono_energy_plan_bundle(element='', edge='', propagate_calibration
                        'detectors': [],
                        'element': element, 'e0': xraydb.xray_edge(element, edge).energy, 'edge': edge,
                        'metadata': {'sample_name': 'foil', 'sample_uid': 'foil', 'sample_condition': 'calibration scan',
-                                    'scan_type': 'xas', 'scan_name': f'{element}-{edge} calibration scan'}}
+                                    'scan_type': 'xas', 'scan_name': f'{element}-{edge} calibration scan', 'radiation_damage_scan':False}}
 
 
     if run_calibration:
