@@ -4,6 +4,8 @@ import logging
 import os
 import sys
 
+os.environ['QT_API'] = 'pyqt5'
+
 from pathlib import Path
 from timeit import default_timer as timer
 import appdirs
@@ -115,20 +117,22 @@ EpicsSignalBase.set_defaults(timeout=10, connection_timeout=10)
 
 # db_proc = get_spectrum_catalog()
 # db_proc = get_spectrum_catalog_new()
-RE = RunEngine()
-nslsii.configure_base(get_ipython().user_ns, 'iss', pbar=False)
+#RE = RunEngine()
+#nslsii.configure_base(get_ipython().user_ns, 'iss', pbar=False)
 #nslsii.configure_kafka_publisher(RE, "iss")
 
 # Data Security - Sync-Experiment
-# nslsii.configure_base(
-#     get_ipython().user_ns,
-#     "iss",
-#     publish_documents_with_kafka=True,
-#     redis_url="xf08id1-iss-redis1.nsls2.bnl.gov",
-#     redis_port=6380,
-#     redis_ssl=True,
-# )
+nslsii.configure_base(
+     get_ipython().user_ns,
+     "iss",
+     publish_documents_with_kafka=True,
+    redis_url = "info.iss.nsls2.bnl.gov",
+     # redis_url="xf08id1-iss-redis1.nsls2.bnl.gov",
+     # redis_port=6380,
+     # redis_ssl=True,
+)
 
+db.v2.context.http_client.headers['tiled-qos'] = 'acquisition'
 
 
 logger_db = logging.getLogger('databroker')

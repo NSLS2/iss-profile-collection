@@ -1,5 +1,7 @@
 from databroker import Broker
 db = Broker.named("iss")
+# Not critical, acceptable since this is only a test
+db.v2.context.http_client.headers['tiled-qos'] = 'acquisition'
 
 import sys
 sys.path.insert(0, '/home/xf08id/Repos/workflows')
