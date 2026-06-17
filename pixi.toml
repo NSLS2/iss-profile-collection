@@ -52,7 +52,8 @@ xas = {path="/nsls2/data/iss/shared/config/repos/xas/", editable= true}
 # TODO merge PR + get on CF
 #isstools = { git = "https://github.com/nsls-ii-iss/isstools", rev = "eb715eaa6436097cf88cf0a8f875fa1251f64657" }
 #isstools = { git = "https://github.com/NSLS2/isstools", rev = "fe098097d27f926af6f26633ee0ad34a47f61600" }
-isstools = {path="/nsls2/data/iss/shared/config/repos/isstools/", editable= true}
+#isstools = {path="/nsls2/data/iss/shared/config/repos/isstools/", editable= true}
+isstools = { git = "https://github.com/Kezzsim/isstools", rev = "eb32f45" }
 isscloudtools = { git = "https://github.com/nsls-ii-iss/isscloudtools" }
 # TODO make importable without I/O and get on CF
 piezo-feedback = { git = "https://github.com/nsls-ii-iss/piezo-feedback" }
