@@ -181,6 +181,10 @@ class SamplePositionerBPM(BPM, ObjectWithSettings):
             except Exception:
                 with open(self._calibration_json_path) as fp:
                     calibration_data_dict = json.load(fp)
+                try:
+                    self._calibration_redis_store['calibration'] = calibration_data_dict
+                except Exception:
+                    pass
             self.calibration = CameraCalibrationFF(calibration_data_dict['pix_xy1'],
                                                    calibration_data_dict['pix_xy2'],
                                                    calibration_data_dict['stage_xy'],
@@ -312,6 +316,11 @@ class FoilCAMERA(CAMERA):
         except Exception:
             with open(f'{ROOT_PATH_SHARED}/settings/json/foil_wheel.json') as fp:
                 foil_info = json.load(fp)
+            try:
+                foil_wheel_store = RedisJSONDict(redis_settings_client, prefix='foil_wheel')
+                foil_wheel_store['foil_wheel'] = foil_info
+            except Exception:
+                pass
         return foil_info
 
     def read_foil_data(self):

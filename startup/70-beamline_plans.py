@@ -125,6 +125,10 @@ def calibrate_mono_energy_plan_bundle(element='', edge='', propagate_calibration
     except Exception:
         with open(f'{ROOT_PATH_SHARED}/settings/reference_library.json') as fp:
             reference_library = json.load(fp)
+        try:
+            _ref_lib_store['reference_library'] = reference_library
+        except Exception:
+            pass
 
     run_calibration = False
     if element in reference_library.keys():

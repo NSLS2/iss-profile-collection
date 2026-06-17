@@ -219,6 +219,10 @@ class PilatusBase(SingleTriggerV33, PilatusDetectorCam):
             _json_path = f'{ROOT_PATH_SHARED}/settings/json/pilatus_polygon_roi.json'
             with open(_json_path, 'r') as f:
                 md["roi_polygon"] = json.loads(f.read())
+            try:
+                _polygon_roi_store['pilatus_polygon_roi'] = md["roi_polygon"]
+            except Exception:
+                pass
 
         return md
 

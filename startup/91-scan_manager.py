@@ -137,6 +137,10 @@ class ScanManager():
             try:
                 with open(self._global_json_path, 'r') as f:
                     self.scan_dict = json.loads(f.read())
+                try:
+                    self._global_store['scan_dict'] = self.scan_dict
+                except Exception:
+                    pass
             except Exception:
                 self.scan_dict = {}
 
@@ -163,6 +167,10 @@ class ScanManager():
                 try:
                     with open(json_path_local, 'r') as f:
                         self.scan_list_local = json.loads(f.read())
+                    try:
+                        self._local_store['scan_list'] = self.scan_list_local
+                    except Exception:
+                        pass
                 except Exception:
                     self.scan_list_local = []
             else:

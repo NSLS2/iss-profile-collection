@@ -191,6 +191,10 @@ class PersistentListInteractingWithGUI:
         except Exception:
             with open(file, 'r') as f:
                 item_list = json.loads(f.read())
+            try:
+                _store['items'] = item_list
+            except Exception:
+                pass
         return item_list
 
     def save_to_settings(self):

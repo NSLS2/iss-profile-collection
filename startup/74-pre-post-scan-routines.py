@@ -287,6 +287,10 @@ def set_reference_foil(element:str = 'Mn', edge:str = 'K' ):
     except Exception:
         with open(f'{ROOT_PATH_SHARED}/settings/json/foil_wheel.json') as fp:
             reference_foils = json.load(fp)
+        try:
+            _foil_wheel_store['foil_wheel'] = reference_foils
+        except Exception:
+            pass
     elems = [item['element'] for item in reference_foils]
 
 
@@ -320,6 +324,10 @@ def set_attenuator(thickness:int  = 0, **kwargs):
     except Exception:
         with open(f'{ROOT_PATH_SHARED}/settings/json/attenuator.json') as fp:
             attenuators_list = json.load(fp)
+        try:
+            _attenuator_store['attenuator'] = attenuators_list
+        except Exception:
+            pass
     thickness_str_list = [item['attenuator'] for item in attenuators_list]
     thickness_str = str(thickness)
     if thickness_str in thickness_str_list:

@@ -270,7 +270,12 @@ class ObjectWithSettings:
             pass
         if self.json_path:
             with open(self.json_path, 'r') as f:
-                return json.loads(f.read())
+                config = json.loads(f.read())
+            try:
+                self._redis_store['config'] = config
+            except Exception:
+                pass
+            return config
         raise KeyError(f'Config not found in Redis or at {self.json_path}')
 
     def load_config_from_settings(self):

@@ -136,10 +136,28 @@ class RowlandCircle:
 
     # config management functions
     def load_config(self, file=None):
-        return self._redis_store['config']
+        try:
+            return self._redis_store['config']
+        except Exception:
+            pass
+        with open(self.json_path, 'r') as f:
+            config = json.loads(f.read())
+        try:
+            self._redis_store['config'] = config
+        except Exception:
+            pass
+        return config
 
     def save_current_spectrometer_config(self, file=None):
-        self._redis_store['config'] = self.config
+        try:
+            self._redis_store['config'] = self.config
+        except Exception:
+            pass
+        try:
+            with open(self.json_path, 'w') as f:
+                json.dump(self.config, f)
+        except Exception:
+            pass
 
     def save_current_spectrometer_config_to_settings(self):
         self.save_current_spectrometer_config()
