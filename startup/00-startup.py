@@ -162,6 +162,8 @@ from nslsii.utils import open_redis_client
 # Connect to the ISS beamline Redis server (db=0 for RunEngine metadata)
 _redis_client = open_redis_client(
     redis_url="xf08id1-iss-redis1.nsls2.bnl.gov",
+    redis_port=6380,
+    redis_ssl=True,
     redis_db=0,
 )
 new_md = RedisJSONDict(_redis_client, prefix="")
@@ -170,6 +172,8 @@ RE.md = new_md
 # Shared redis client for settings/config (db=1)
 redis_settings_client = open_redis_client(
     redis_url="xf08id1-iss-redis1.nsls2.bnl.gov",
+    redis_port=6380,
+    redis_ssl=True,
     redis_db=1,
 )
 
