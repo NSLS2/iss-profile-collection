@@ -109,17 +109,17 @@ bl_prepare_energy_ranges = [
         {
             'energy_start': 4500,
             'energy_end': 5700,
-            'He_flow': 4,  #5 old value 2024-09-06
-            'N2_flow': 1,
+            'He_flow': 4.25,  #5 old value 2024-09-06
+            'N2_flow': 0.75,
             'IC_voltage': 1000,
-            'HHRM': 4,
+            'HHRM': 10,
             'CM1':0,# 0,
             'Filterbox': 1,
             'ES BPM exposure': 0.11,
             'ES BPM Position': 50,
-            'i0_gain': 5,
-            'it_gain': 5,
-            'ir_gain': 5,
+            'i0_gain': 6,
+            'it_gain': 6,
+            'ir_gain': 6,
             'hhm_pitch': 501.48,
             'hhm_roll': 476,
         },
@@ -129,7 +129,7 @@ bl_prepare_energy_ranges = [
             'He_flow': 3.5, #5 old value 2024-09-06
             'N2_flow': 1.5,
             'IC_voltage': 1650,
-            'HHRM': 5,
+            'HHRM': 10,
             'CM1':0,# 0,
             'Filterbox': -69,
             'ES BPM exposure': 0.12, #0.05, # Denis 2024-06-02: changed to a higher value because of the beamline state
@@ -146,7 +146,7 @@ bl_prepare_energy_ranges = [
             'He_flow': 1.5,  # 5 old value 2024-09-06
             'N2_flow': 3.5,
             'IC_voltage': 1650,
-            'HHRM': 5,
+            'HHRM': 10,
             'CM1': 0,  # 0,
             'Filterbox': -69,
             'ES BPM exposure': 0.16,  # 0.05, # Denis 2024-06-02: changed to a higher value because of the beamline state
@@ -163,7 +163,7 @@ bl_prepare_energy_ranges = [
             'He_flow': 0, #5 old value 2024-09-06
             'N2_flow': 5,
             'IC_voltage': 1650,
-            'HHRM': 75, # IS THIS SUPPOSED TO BE 80?
+            'HHRM': 70, # IS THIS SUPPOSED TO BE 80?
             'CM1':0,# 0,
             'Filterbox': -139,
             'ES BPM exposure': 0.25,
@@ -180,7 +180,7 @@ bl_prepare_energy_ranges = [
             'He_flow': 0, #5 old value 2024-09-06
             'N2_flow': 5,
             'IC_voltage': 1650,
-            'HHRM': 75,
+            'HHRM': 70,
             'CM1': 40,# 0,
             'Filterbox': -139,
             'ES BPM exposure': 0.25,
@@ -197,7 +197,7 @@ bl_prepare_energy_ranges = [
             'He_flow': 0, #2 old value 2024-09-06
             'N2_flow': 5,
             'IC_voltage': 1650,
-            'HHRM': 75,
+            'HHRM': 70,
             'CM1': 40,# 0,
             'Filterbox': -209,
             'ES BPM exposure': 0.25, #old value 1
@@ -212,10 +212,10 @@ bl_prepare_energy_ranges = [
         {
             'energy_start': 25000,
             'energy_end': 35000,
-            'He_flow': 2,
+            'He_flow': 0,
             'N2_flow': 5,
             'IC_voltage': 1650,
-            'HHRM': 75,
+            'HHRM': 70,
             'CM1': 40,# 0,
             'Filterbox': -209,
             'ES BPM exposure': 0.35,
