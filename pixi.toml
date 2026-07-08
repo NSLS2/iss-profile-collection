@@ -1,13 +1,11 @@
 [workspace]
 channels = ["conda-forge"]
 name = "iss-profile-collection"
-platforms = ["linux-64"]
+platforms = [{platform="linux-64", glibc = "2.17"}]
 version = "2025.3.1"
 
-[system-requirements]
-libc = "2.17"
-
 [feature.profile.dependencies]
+setuptools = "<81.0.0"
 bluesky-base = "==1.14.6"
 bluesky-queueserver = "*"
 bluesky-queueserver-api = ">=0.0.12,<0.0.13"
@@ -45,10 +43,11 @@ pandas = ">2,<3"
 
 [feature.profile.pypi-dependencies]
 # TODO get updated version built on CF
-xas = { git = "https://github.com/nsls-ii-iss/xas" }
+# xas = { git = "https://github.com/nsls-ii-iss/xas" }
+xas = {path = "/nsls2/data/iss/shared/config/repos/xas/", editable = true }
 # TODO merge PR + get on CF
 # isstools = { git = "https://github.com/nsls-ii-iss/isstools", rev = "eb715eaa6436097cf88cf0a8f875fa1251f64657" }
-isstools = {path = "/home/xf08id/Repos/isstools/", editable = true }
+isstools = {path = "/nsls2/data/iss/shared/config/repos/isstools/", editable = true }
 isscloudtools = { git = "https://github.com/nsls-ii-iss/isscloudtools" }
 # TODO make importable without I/O and get on CF
 piezo-feedback = { git = "https://github.com/nsls-ii-iss/piezo-feedback" }
@@ -69,7 +68,7 @@ qs-server = "uvicorn --host localhost --port 60610 bluesky_httpserver.server:app
 
 
 [feature.terminal.dependencies]
-nslsii = ">=0.11.7,<0.12"
+nslsii = ">=0.11.9,<0.12"
 ipython = ">=9.5.0"
 #pyside6 = "*"
 pyqt = ">=5,<6"

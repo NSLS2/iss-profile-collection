@@ -7,7 +7,7 @@ import time as ttime
 from collections import deque
 
 import numpy as np
-import paramiko
+# import paramiko
 from ophyd import Component as Cpt, Device, EpicsSignal, Kind
 from ophyd.sim import NullStatus
 from ophyd.status import SubscriptionStatus
