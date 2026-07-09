@@ -188,6 +188,8 @@ class PersistentListInteractingWithGUI:
         _store = RedisJSONDict(redis_settings_client, prefix=_key)
         try:
             item_list = _store['items']
+            if len(item_list) == 0:
+                raise
         except Exception:
             with open(file, 'r') as f:
                 item_list = json.loads(f.read())
