@@ -70,8 +70,8 @@ class TrajectoryManager():
         name = orig_file_name
         header = self.read_header('{}{}'.format(orig_file_path, orig_file_name))
         if is_energy:
-            min_energy = int(np.round(traj).min())
-            max_energy = int(np.round(traj).max())
+            min_energy = int(np.array(np.round(traj).min()))
+            max_energy = int(np.array(np.round(traj).max()))
             enc = np.int64(np.round(xray.energy2encoder(-traj, self.hhm.pulses_per_deg, -offset)))
             orig_file_name = '.energy_traj_aux.txt'
             np.savetxt('{}{}'.format(orig_file_path, orig_file_name), enc, fmt='%d', header=header, comments='')

@@ -280,8 +280,17 @@ def quick_optimize_gains_plan(n_tries=3, trajectory_filename=None, mono_angle_of
 
 def set_reference_foil(element:str = 'Mn', edge:str = 'K' ):
     # Adding reference foil element list
-    with open(f'{ROOT_PATH_SHARED}/settings/json/foil_wheel.json') as fp:
-        reference_foils = json.load(fp)
+    from redis_json_dict import RedisJSONDict
+    _foil_wheel_store = RedisJSONDict(redis_settings_client, prefix='foil_wheel')
+    try:
+        reference_foils = _foil_wheel_store['foil_wheel']
+    except Exception:
+        with open(f'{ROOT_PATH_SHARED}/settings/json/foil_wheel.json') as fp:
+            reference_foils = json.load(fp)
+        try:
+            _foil_wheel_store['foil_wheel'] = reference_foils
+        except Exception:
+            pass
     elems = [item['element'] for item in reference_foils]
 
 
@@ -308,8 +317,17 @@ def set_reference_foil(element:str = 'Mn', edge:str = 'K' ):
 
 def set_attenuator(thickness:int  = 0, **kwargs):
     # Adding reference foil element list
-    with open(f'{ROOT_PATH_SHARED}/settings/json/attenuator.json') as fp:
-        attenuators_list = json.load(fp)
+    from redis_json_dict import RedisJSONDict
+    _attenuator_store = RedisJSONDict(redis_settings_client, prefix='attenuator')
+    try:
+        attenuators_list = _attenuator_store['attenuator']
+    except Exception:
+        with open(f'{ROOT_PATH_SHARED}/settings/json/attenuator.json') as fp:
+            attenuators_list = json.load(fp)
+        try:
+            _attenuator_store['attenuator'] = attenuators_list
+        except Exception:
+            pass
     thickness_str_list = [item['attenuator'] for item in attenuators_list]
     thickness_str = str(thickness)
     if thickness_str in thickness_str_list:
@@ -420,24 +438,24 @@ def quick_pitch_optimization(scan_range=1, velocity=0.2, n_tries=3):
     #yield from set_hhm_feedback_plan(1, update_center=True)
 
 
-def move_energy_to_zirconium():
+def move_energy_to_platinum():
     yield from set_hhm_feedback_plan(0)
     yield from set_bpm_es_exposure_time(0.25)
-    yield from bps.mv(bpm_es_position.x, 40)
-    yield from move_mono_energy(energy=17998, with_feedback=False, step=2000, delay=0.5)
-    yield from move_motor_plan("A Monochromator Roll", position=512.0)
-    yield from move_motor_plan(motor_attr="A Monochromator Pitch", position=498.31)
+    yield from bps.mv(bpm_es_position.x, 50)
+    yield from move_mono_energy(energy=11800, with_feedback=True, step=2000, delay=0.5)
+    yield from move_motor_plan("A Monochromator Roll", position=484.3)
+    yield from move_motor_plan(motor_attr="A Monochromator Pitch", position=498.81)
     yield from quick_pitch_optimization()
     yield from set_hhm_feedback_plan(1)
 
 
 def move_energy_to_nickel():
     yield from set_hhm_feedback_plan(0)
-    yield from set_bpm_es_exposure_time(0.16)
+    yield from set_bpm_es_exposure_time(0.25)
     yield from bps.mv(bpm_es_position.x, 50)
-    yield from move_mono_energy(energy=8500, with_feedback=False, step=2000, delay=0.5)
-    yield from move_motor_plan("A Monochromator Roll", position=499.6)
-    yield from move_motor_plan(motor_attr="A Monochromator Pitch", position=498.32)
+    yield from move_mono_energy(energy=8500, with_feedback=True, step=2000, delay=0.5)
+    yield from move_motor_plan("A Monochromator Roll", position=481.3)
+    yield from move_motor_plan(motor_attr="A Monochromator Pitch", position=498.81)
     yield from quick_pitch_optimization()
     yield from set_hhm_feedback_plan(1)
 

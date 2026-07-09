@@ -4,6 +4,8 @@ import logging
 import os
 import sys
 
+os.environ['QT_API'] = 'pyqt5'
+
 from pathlib import Path
 from timeit import default_timer as timer
 import appdirs
@@ -14,7 +16,6 @@ from bluesky.simulators import summarize_plan
 from distutils.version import LooseVersion
 from datetime import datetime
 #from xview.spectra_db.db_io import get_spectrum_catalog, get_spectrum_catalog_new
-import json
 import time as ttime
 import numpy as np
 import pandas as pd
@@ -118,7 +119,7 @@ from databroker import Broker
 
 # db_proc = get_spectrum_catalog()
 # db_proc = get_spectrum_catalog_new()
-# RE = RunEngine()
+#RE = RunEngine()
 #nslsii.configure_base(get_ipython().user_ns, 'iss', pbar=False)
 #nslsii.configure_kafka_publisher(RE, "iss")
 
@@ -138,17 +139,18 @@ tiled_inserter = TiledInserter()
 
 # Data Security - Sync-Experiment
 nslsii.configure_base(
-    get_ipython().user_ns,
-    tiled_inserter,
-    publish_documents_with_kafka=True,
-    redis_url="xf08id1-iss-redis1.nsls2.bnl.gov",
-    redis_port=6380,
-    redis_ssl=True,
+     get_ipython().user_ns,
+     "iss",
+     publish_documents_with_kafka=True,
+    redis_url = "info.iss.nsls2.bnl.gov",
+     # redis_url="xf08id1-iss-redis1.nsls2.bnl.gov",
+     # redis_port=6380,
+     # redis_ssl=True,
 )
 
-db = Broker(tiled_reading_client)  # Keep for backcompatibility with older code that uses databroker
+db.v2.context.http_client.headers['tiled-qos'] = 'acquisition'
 
-print("initial md", RE.md)
+
 logger_db = logging.getLogger('databroker')
 logger_db.setLevel('WARNING')
 
@@ -169,15 +171,27 @@ runengine_metadata_dir = Path(f'{ROOT_PATH_SHARED}/metadata/') / Path("runengine
 # RE.md._finalizer.atexit = False # added so that when we have stray bsui sessions on other stations, quitting them will not change the md unpredictably.
 
 # Insert for testing new conda environment 2024-11-13
-#import redis
-#from redis_json_dict import RedisJSONDict
-#
-#uri = "info.iss.nsls2.bnl.gov"  # replace TLA as appropriate
-# # Provide an endstation prefix, if needed, with a trailing "-"
-#new_md = RedisJSONDict(redis.Redis(uri), prefix="") ### commented due to redis not working
+import redis
+from redis_json_dict import RedisJSONDict
+from nslsii.utils import open_redis_client
 
-# #work 11-12-2024 to enable updated conda environment
-#RE.md = new_md  ### commented due to redis not working
+# Connect to the ISS beamline Redis server (db=0 for RunEngine metadata)
+_redis_client = open_redis_client(
+    redis_url="xf08id1-iss-redis1.nsls2.bnl.gov",
+    redis_port=6380,
+    redis_ssl=True,
+    redis_db=0,
+)
+new_md = RedisJSONDict(_redis_client, prefix="")
+RE.md = new_md
+
+# Shared redis client for settings/config (db=1)
+redis_settings_client = open_redis_client(
+    redis_url="xf08id1-iss-redis1.nsls2.bnl.gov",
+    redis_port=6380,
+    redis_ssl=True,
+    redis_db=1,
+)
 
 # Patch to fix Tom's terrible deeds
 # import matplotlib.backends.backend_qt

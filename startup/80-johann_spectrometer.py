@@ -93,7 +93,9 @@ class RowlandCircle:
         """
         Boot rowland circle from config saved in settings
         """
+        from redis_json_dict import RedisJSONDict
         self.json_path = f'{ROOT_PATH_SHARED}/settings/json/johann_config_upd.json'
+        self._redis_store = RedisJSONDict(redis_settings_client, prefix='johann_config_upd')
         self.energy_converter = None
         self.gui_update_signal = None
 
@@ -133,21 +135,37 @@ class RowlandCircle:
         self.gui_update_signal = signal
 
     # config management functions
-    def load_config(self, file):
-        with open(file, 'r') as f:
+    def load_config(self, file=None):
+        try:
+            return self._redis_store['config']
+        except Exception:
+            pass
+        with open(self.json_path, 'r') as f:
             config = json.loads(f.read())
+        try:
+            self._redis_store['config'] = config
+        except Exception:
+            pass
         return config
 
-    def save_current_spectrometer_config(self, file):
-        with open(file, 'w') as f:
-            json.dump(self.config, f)
+    def save_current_spectrometer_config(self, file=None):
+        try:
+            self._redis_store['config'] = self.config
+        except Exception:
+            pass
+        if os.environ.get('SAVE_CONFIG_TO_JSON'):
+            try:
+                with open(self.json_path, 'w') as f:
+                    json.dump(self.config, f)
+            except Exception:
+                pass
 
     def save_current_spectrometer_config_to_settings(self):
-        self.save_current_spectrometer_config(self.json_path)
+        self.save_current_spectrometer_config()
 
     def init_from_settings(self):
         try:
-            config = self.load_config(self.json_path)
+            config = self.load_config()
         except Exception as e:
             print(f'Spectrometer config could not be loaded from settings. Loading the default configuration.\n\n{e}')
             config = {'R': 1000.0,
@@ -2065,7 +2083,7 @@ class EpicsSignalAsEncoderForMotor(EpicsSignal):
 
 
 det_inclinometer1 = EpicsSignalAsEncoderForMotor('XF:08IDB-CT{DIODE-Box_B2:4}InCh0:Data-I', name='det_inclinometer1',
-                                conversion_json_path=f'{ROOT_PATH_SHARED}/settings/json/inclinometer_data_20250113.json',
+                                conversion_json_path=f'{ROOT_PATH_SHARED}/settings/json/inclinometer_data_20260330.json',
                                 motor=johann_emission.motor_det_th1)
 
 

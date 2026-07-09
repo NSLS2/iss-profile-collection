@@ -56,8 +56,11 @@ def _compute_hhmy_value(energy):
     # /nsls2/xf08id/Sandbox/Beamline_components/2022_02_10_beamline_tabulation/beamline_hhmy_tabulation_att2.json
     # /nsls2/xf08id/Sandbox/Beamline_components/2022_02_10_beamline_tabulation/beamline_hhmy_tabulation_att2_high_energies.json
     # energy_tab = np.array([ 4900,  5100,  5500,  6000,  7000,  8000,  9000, 10000, 11000, 12000, 13000, 15000, 17500, 20000, 26000]) # before the repair of CM 2025-1
-    energy_tab = np.array([4950, 5100, 5500, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 15000, 17500, 20000, 26000, 31000]) # 2025-10-31
-    hhmy_tab = np.array([8.657, 8.606, 8.457, 8.36, 8.243, 8.143, 8.097, 8.044, 8.046, 7.995, 7.937, 7.930, 7.922, 7.940, 7.920]) #2025-10-31
+    # energy_tab = np.array([4950, 5100, 5500, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 15000, 17500, 20000, 26000, 31000]) # 2025-10-31
+    # hhmy_tab = np.array([8.657, 8.606, 8.457, 8.36, 8.243, 8.143, 8.097, 8.044, 8.046, 7.995, 7.937, 7.930, 7.922, 7.940, 7.920]) #2025-10-31
+    energy_tab = np.array([4950, 4966, 5100, 5465, 5989, 6539, 7112, 7709, 8333, 8979, 9659, 9881, 10535, 11215, 11564, 11919, 12658, 13035, 17998, 20000, 22117, 23220, 24350, 25514, 26711, 27940, 29000, 30000, 31000])  # 2026-05-21
+    hhmy_tab = np.array([8.769, 8.749, 8.692, 8.616, 8.515, 8.399, 8.332, 8.270, 8.222, 8.199, 8.174, 8.175, 8.171, 8.142, 8.139, 8.116, 8.117, 8.107, 8.031, 8.038, 8.021, 8.029, 8.029, 8.034, 8.014, 8.041, 8.041, 8.041, 8.041])  # 2026-05-21
+
     # hhmy_tab = np.array([9, 9, 9, 9, 9, 7.9, 8.1])
     # hhmy_tab = np.array([9.937850000000001,
     #                      9.57315,
@@ -117,6 +120,8 @@ bl_prepare_energy_ranges = [
             'i0_gain': 5,
             'it_gain': 5,
             'ir_gain': 5,
+            'hhm_pitch': 501.48,
+            'hhm_roll': 476,
         },
         {
             'energy_start': 5701,
@@ -132,6 +137,8 @@ bl_prepare_energy_ranges = [
             'i0_gain': 5,
             'it_gain': 5,
             'ir_gain': 5,
+            'hhm_pitch': 500.43,
+            'hhm_roll': 477,
         },
         {
             'energy_start': 7301,
@@ -147,6 +154,8 @@ bl_prepare_energy_ranges = [
             'i0_gain': 5,
             'it_gain': 5,
             'ir_gain': 5,
+            'hhm_pitch': 499.13,
+            'hhm_roll': 479,
         },
         {
             'energy_start': 10000,
@@ -162,6 +171,8 @@ bl_prepare_energy_ranges = [
             'i0_gain': 5,
             'it_gain': 5,
             'ir_gain': 5,
+            'hhm_pitch': 498.37,
+            'hhm_roll': 483.5,
         },
         {
             'energy_start': 13000,
@@ -177,6 +188,8 @@ bl_prepare_energy_ranges = [
             'i0_gain': 5,
             'it_gain': 5,
             'ir_gain': 5,
+            'hhm_pitch': 498.34,
+            'hhm_roll': 489,
         },
         {
             'energy_start': 17000,
@@ -192,6 +205,8 @@ bl_prepare_energy_ranges = [
             'i0_gain': 6,
             'it_gain': 6,
             'ir_gain': 6,
+            'hhm_pitch': 498.04,
+            'hhm_roll': 488.5,
 
         },
         {
@@ -208,6 +223,8 @@ bl_prepare_energy_ranges = [
             'i0_gain': 6,
             'it_gain': 6,
             'ir_gain': 6,
+            'hhm_pitch': 497.93,
+            'hhm_roll': 492,
 
         },
     ]
@@ -223,7 +240,9 @@ def prepare_beamline_plan(energy: int = -1, move_cm_mirror = False, move_hhm_y=T
     filter_box_setter = filterbox.y
     cm_setter = cm1.x
     hhrm_setter = hhrm.hor_translation
-    settling_time = 120
+    hhm_pitch_setter = hhm.pitch
+    hhm_roll_setter = hhm.roll
+    settling_time = 180
 
     if type(energy) == str:
         energy = int(energy)
@@ -254,6 +273,16 @@ def prepare_beamline_plan(energy: int = -1, move_cm_mirror = False, move_hhm_y=T
     end_hhrm_position = energy_range['HHRM']
     hhrm_motion_range = abs(start_hhrm_position-end_hhrm_position)
     moving_hhrm = hhrm_setter.set(end_hhrm_position)
+    #
+    start_hhm_pitch_position = hhm_pitch_setter.position
+    end_hhm_pitch_position = energy_range['hhm_pitch']
+    hhm_pitch_motion_range = abs(start_hhm_pitch_position - end_hhm_pitch_position)
+    moving_hhm_pitch = hhm_pitch_setter.set(end_hhm_pitch_position)
+    #
+    start_hhm_roll_position = hhm_roll_setter.position
+    end_hhm_roll_position = energy_range['hhm_roll']
+    hhm_roll_motion_range = abs(start_hhm_roll_position - end_hhm_roll_position)
+    moving_hhm_roll = hhm_roll_setter.set(end_hhm_roll_position)
     #
     print_to_gui('[Prepare Beamline] Setting high voltage supply to safe values...')
 
@@ -327,6 +356,22 @@ def prepare_beamline_plan(energy: int = -1, move_cm_mirror = False, move_hhm_y=T
         yield from bps.sleep(10)
 
     print_to_gui('[Prepare Beamline] High harmonics rejection mirror position set')
+
+    while not moving_hhm_pitch.done:
+        motion_so_far_pitch = hhm_pitch_setter.position
+        percent_complete = int(abs(motion_so_far_pitch - start_hhm_pitch_position) / hhm_pitch_motion_range * 100)
+        print_to_gui(f'[Prepare Beamline] HHM Pitch motion is {percent_complete} % complete')
+        yield from bps.sleep(10)
+
+    print_to_gui('[Prepare Beamline] Mono pitch position set')
+
+    while not moving_hhm_roll.done:
+        motion_so_far_roll = hhm_roll_setter.position
+        percent_complete = int(abs(motion_so_far_roll - start_hhm_roll_position) / hhm_roll_motion_range * 100)
+        print_to_gui(f'[Prepare Beamline] HHM Roll motion is {percent_complete} % complete')
+        yield from bps.sleep(10)
+
+    print_to_gui('[Prepare Beamline] Mono roll position set')
 
 #
     if move_cm_mirror == True:

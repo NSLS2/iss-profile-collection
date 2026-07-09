@@ -133,7 +133,7 @@ class PilatusBase(SingleTriggerV33, PilatusDetectorCam):
 
     over1 = Cpt(OverlayPlugin, "Over1:")
 
-    polygon_roi_path = f"{ROOT_PATH_SHARED}/settings/json/pilatus_polygon_roi.json"
+    polygon_roi_redis_key = "pilatus_polygon_roi"
 
     def __init__(self, *args, readout=0.0024, **kwargs):
         super().__init__(*args, **kwargs)
@@ -211,8 +211,18 @@ class PilatusBase(SingleTriggerV33, PilatusDetectorCam):
         md["gain_str"] = self.cam.gain_menu.get(as_string=True)
         md["roi"] = self.roi_metadata
 
-        with open(self.polygon_roi_path, "r") as f:
-            md["roi_polygon"] = json.loads(f.read())
+        from redis_json_dict import RedisJSONDict
+        _polygon_roi_store = RedisJSONDict(redis_settings_client, prefix=self.polygon_roi_redis_key)
+        try:
+            md["roi_polygon"] = _polygon_roi_store['pilatus_polygon_roi']
+        except Exception:
+            _json_path = f'{ROOT_PATH_SHARED}/settings/json/pilatus_polygon_roi.json'
+            with open(_json_path, 'r') as f:
+                md["roi_polygon"] = json.loads(f.read())
+            try:
+                _polygon_roi_store['pilatus_polygon_roi'] = md["roi_polygon"]
+            except Exception:
+                pass
 
         return md
 
@@ -324,8 +334,11 @@ class PilatusStreamHDF5(PilatusHDF5):
     def complete(self):
         print_to_gui(f"Pilatus100k complete is starting...", add_timestamp=True)
         acquire_status = self.cam.acquire.set(0)
+        print_to_gui(f"Acquire status captured...", add_timestamp=True)
         capture_status = self.hdf5.capture.set(0)
+        print_to_gui(f"hdf5 capture status captured...", add_timestamp=True)
         (acquire_status and capture_status).wait()
+        print_to_gui(f"both status captured...", add_timestamp=True)
 
         ext_trigger_status = self.ext_trigger_device.complete()
         for resource in self.hdf5._asset_docs_cache:

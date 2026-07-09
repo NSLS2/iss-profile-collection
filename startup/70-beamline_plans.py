@@ -118,8 +118,17 @@ def calibrate_mono_energy_plan_bundle(element='', edge='', propagate_calibration
     # validate_element_edge_in_db_proc(element, edge, error_message_func=error_message_func)
     run_calibration = True
     run_simple_scan = False
-    with open(f'{ROOT_PATH_SHARED}/settings/reference_library.json') as fp:
-        reference_library = json.load(fp)
+    from redis_json_dict import RedisJSONDict
+    _ref_lib_store = RedisJSONDict(redis_settings_client, prefix='reference_library')
+    try:
+        reference_library = _ref_lib_store['reference_library']
+    except Exception:
+        with open(f'{ROOT_PATH_SHARED}/settings/reference_library.json') as fp:
+            reference_library = json.load(fp)
+        try:
+            _ref_lib_store['reference_library'] = reference_library
+        except Exception:
+            pass
 
     run_calibration = False
     if element in reference_library.keys():
@@ -139,7 +148,7 @@ def calibrate_mono_energy_plan_bundle(element='', edge='', propagate_calibration
                        'detectors': [],
                        'element': element, 'e0': xraydb.xray_edge(element, edge).energy, 'edge': edge,
                        'metadata': {'sample_name': 'foil', 'sample_uid': 'foil', 'sample_condition': 'calibration scan',
-                                    'scan_type': 'xas', 'scan_name': f'{element}-{edge} calibration scan'}}
+                                    'scan_type': 'xas', 'scan_name': f'{element}-{edge} calibration scan', 'radiation_damage_scan':False}}
 
 
     if run_calibration:

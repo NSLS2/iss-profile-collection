@@ -57,4 +57,6 @@ for nds in doc_gen:
     todb(*nds)
 
 db_analysis = Broker.named("iss-analysis")
+# Not Critical but since this isn't a workflow it's permitted
+db_analysis.v2.context.http_client.headers['tiled-qos'] = 'acquisition'
 db_analysis.reg.register_handler(ISSANALYSISSPEC, HDF5DFHandler)

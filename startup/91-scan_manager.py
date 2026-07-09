@@ -1,9 +1,10 @@
 print(ttime.ctime() + ' >>>> ' + __file__)
 import copy
-import json
 import uuid
 
 import numpy as np
+from PyQt5 import QtGui
+from redis_json_dict import RedisJSONDict
 from xas.trajectory import TrajectoryCreator
 from xas.xray import generate_energy_grid_from_dict, generate_emission_energy_grid_from_dict, generate_emission_relative_trajectory_from_dict
 import os
@@ -12,35 +13,181 @@ import logging
 import logging.handlers
 from collections import Counter
 
+# def emit_list_update_signal_decorator(method):
+#     def wrapper(obj, *args, emit_signal=True, **kwargs):
+#         result = method(obj, *args, **kwargs)
+#         if emit_signal:
+#             # print_to_gui('before update signal', add_timestamp=True, tag='Debug')
+#             obj.emit_list_update_signal()
+#             # print_to_gui('after update signal', add_timestamp=True, tag='Debug')
+#         return result
+#     return wrapper
+#
+#
+# class PersistentListInteractingWithGUI:
+#     list_update_signal = None
+#
+#     def __init__(self, json_file_path='', boot_fresh=False):
+#         self.items = []
+#         self.json_file_path = json_file_path
+#         self.init_from_settings(boot_fresh=boot_fresh)
+#
+#     @property
+#     def local_file_default_path(self):
+#         return f"{ROOT_PATH}/{USER_PATH}/{RE.md['year']}/{RE.md['cycle']}/{RE.md['proposal']}/"
+#
+#     def init_from_settings(self, boot_fresh=False):
+#         if not boot_fresh:
+#             try:
+#                 self.add_items_from_file(self.json_file_path)
+#             except FileNotFoundError:
+#                 self.save_to_settings()
+#
+#     @emit_list_update_signal_decorator
+#     def init_from_new_file(self, new_json_file_path):
+#         self.items = []
+#         self.json_file_path = new_json_file_path
+#         self.init_from_settings()
+#
+#     @emit_list_update_signal_decorator
+#     def add_items_from_file(self, file):
+#         self.items += self.item_list_from_file(file)
+#
+#     def item_list_from_file(self, file):
+#         with open(file, 'r') as f:
+#             item_list = json.loads(f.read())
+#         return item_list
+#
+#     def save_to_settings(self):
+#         self.save_to_file(self.json_file_path)
+#
+#     def save_to_file(self, file):
+#         with open(file, 'w') as f:
+#             json.dump(self.items, f, indent=4)
+#
+#     @emit_list_update_signal_decorator
+#     def reset(self):
+#         self.items = []
+#
+#     @emit_list_update_signal_decorator
+#     def insert_item_at_index(self, index, item):
+#         self.items.insert(index, item)
+#
+#     @emit_list_update_signal_decorator
+#     def add_item(self, item):
+#         self.items.append(item)
+#
+#     @emit_list_update_signal_decorator
+#     def delete_item_at_index(self, index):
+#         self.items.pop(index)
+#
+#     @emit_list_update_signal_decorator
+#     def delete_multiple_items(self, index_list):
+#         index_list.sort(reverse=True)
+#         for index in index_list:
+#             self.delete_item_at_index(index, emit_signal=False)
+#
+#     @emit_list_update_signal_decorator
+#     def update_item_at_index(self, index, item):
+#         self.items[index] = index
+#
+#     def item_at_index(self, index):
+#         return self.items[index]
+#
+#     def append_list_update_signal(self, signal):
+#         self.list_update_signal = signal
+#
+#     def emit_list_update_signal(self):
+#         if self.list_update_signal is not None:
+#             # print_to_gui('before emitting signal', add_timestamp=True, tag='Debug')
+#             self.list_update_signal.emit()
+#             # print_to_gui('after emitting signal', add_timestamp=True, tag='Debug')
+#         # print_to_gui('before saving to settings', add_timestamp=True, tag='Debug')
+#         self.save_to_settings()
+#         # print_to_gui('after saving to settings', add_timestamp=True, tag='Debug')
+
 
 class ScanManager():
-    def __init__(self, json_file_path = f'{ROOT_PATH_SHARED}/settings/json/scan_manager.json'):
-        self.init_global_manager(json_file_path)
-        _default_local_manager_path = f"{ROOT_PATH}/{USER_PATH}/{RE.md['year']}/{RE.md['cycle']}/{RE.md['proposal']}/scan_manager.json"
-        self.load_local_manager(_default_local_manager_path)
+    _global_json_path = f'{ROOT_PATH_SHARED}/settings/json/scan_manager.json'
+
+    def __init__(self, redis_key='scan_manager'):
+        self.init_global_manager(redis_key)
+        _default_local_key = f"scan_manager_local_{RE.md.get('year', 'unknown')}_{RE.md.get('cycle', 'unknown')}_{RE.md.get('proposal', 'unknown')}"
+        _default_local_json = f"{ROOT_PATH}/{USER_PATH}/{RE.md.get('year', 'unknown')}/{RE.md.get('cycle', 'unknown')}/{RE.md.get('proposal', 'unknown')}/scan_manager.json"
+        self.load_local_manager(_default_local_key, _default_local_json)
         self.trajectory_path = trajectory_manager.trajectory_path
         self.trajectory_creator = TrajectoryCreator()
 
-    def init_global_manager(self, json_file_path):
-        self.json_file_path = json_file_path
-        with open(self.json_file_path, 'r') as f:
-            self.scan_dict = json.loads(f.read())
-
-    # def init_local_manager(self):
-        # self.json_file_path_local = f"{ROOT_PATH}/{USER_PATH}/{RE.md['year']}/{RE.md['cycle']}/{RE.md['proposal']}/scan_manager.json"
-
-
-    def load_local_manager(self, json_file_path_local):
-        self.json_file_path_local = json_file_path_local
+    def init_global_manager(self, redis_key):
+        self.redis_key = redis_key
+        self._global_store = RedisJSONDict(redis_settings_client, prefix=redis_key)
         try:
-            with open(self.json_file_path_local, 'r') as f:
-                self.scan_list_local = json.loads(f.read())
-        except FileNotFoundError:
-            self.scan_list_local = []
+            self.scan_dict = self._global_store['scan_dict']
+        except KeyError:
+            # Redis is reachable but key is absent — try JSON fallback then start empty
+            try:
+                with open(self._global_json_path, 'r') as f:
+                    self.scan_dict = json.loads(f.read())
+                self._global_store['scan_dict'] = self.scan_dict
+            except Exception:
+                self.scan_dict = {}
+                self._global_store['scan_dict'] = self.scan_dict
+        except Exception:
+            # Redis is unreachable — fall back to JSON file
+            try:
+                with open(self._global_json_path, 'r') as f:
+                    self.scan_dict = json.loads(f.read())
+                try:
+                    self._global_store['scan_dict'] = self.scan_dict
+                except Exception:
+                    pass
+            except Exception:
+                self.scan_dict = {}
+
+    def load_local_manager(self, redis_key_local, json_path_local=None):
+        self.redis_key_local = redis_key_local
+        self.json_file_path_local = json_path_local
+        self._local_store = RedisJSONDict(redis_settings_client, prefix=redis_key_local)
+        try:
+            self.scan_list_local = self._local_store['scan_list']
+        except KeyError:
+            # Redis reachable but key absent — try JSON fallback then start empty
+            if json_path_local:
+                try:
+                    with open(json_path_local, 'r') as f:
+                        self.scan_list_local = json.loads(f.read())
+                    self._local_store['scan_list'] = self.scan_list_local
+                except Exception:
+                    self.scan_list_local = []
+            else:
+                self.scan_list_local = []
+        except Exception:
+            # Redis unreachable — fall back to JSON file
+            if json_path_local:
+                try:
+                    with open(json_path_local, 'r') as f:
+                        self.scan_list_local = json.loads(f.read())
+                    try:
+                        self._local_store['scan_list'] = self.scan_list_local
+                    except Exception:
+                        pass
+                except Exception:
+                    self.scan_list_local = []
+            else:
+                self.scan_list_local = []
 
     def dump_local_scan_list(self):
-        with open(self.json_file_path_local, 'w') as f:
-            json.dump(self.scan_list_local, f )
+        try:
+            self._local_store['scan_list'] = self.scan_list_local
+        except Exception:
+            pass
+        if self.json_file_path_local and os.environ.get('SAVE_CONFIG_TO_JSON'):
+            try:
+                os.makedirs(os.path.dirname(self.json_file_path_local), exist_ok=True)
+                with open(self.json_file_path_local, 'w') as f:
+                    json.dump(self.scan_list_local, f)
+            except Exception:
+                pass
 
     def reset(self):
         pass
@@ -125,9 +272,16 @@ class ScanManager():
         #print_to_gui('SCAN IS NEW')
         self.scan_dict[new_uid] = new_scan
         self.create_trajectory_file(new_scan, new_uid)
-        os.rename(self.json_file_path, f'{os.path.splitext(self.json_file_path)[0]}.bak')
-        with open(self.json_file_path, 'w') as f:
-            json.dump(self.scan_dict, f )
+        try:
+            self._global_store['scan_dict'] = self.scan_dict
+        except Exception:
+            pass
+        if os.environ.get('SAVE_CONFIG_TO_JSON'):
+            try:
+                with open(self._global_json_path, 'w') as f:
+                    json.dump(self.scan_dict, f)
+            except Exception:
+                pass
         return new_uid
 
     def trajectory_filename_from_uid(self, scan_uid):
@@ -621,6 +775,7 @@ class ScanManager():
         scan_local = self.scan_list_local[scan_idx]
         scan_name = scan_local['scan_name']
         metadata['scan_name'] = scan_name
+        metadata['radiation_damage_scan'] = scan_local['aux_parameters']['radiation_damage_scan']
         for indx in range(int(repeat)):
             if type(name) == list:
                 name_n = [f'{n} {scan_name} {indx+1:04d}' for n in name]

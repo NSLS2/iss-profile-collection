@@ -42,7 +42,7 @@ service_plan_funcs = {
         'calibrate_sample_cameras_plan' : calibrate_sample_cameras_plan,
         'move_johann_spectrometer_energy': move_johann_spectrometer_energy,
         'lakeshore_set_temperature' : set_lakeshore_temp,
-        'move_energy_to_zirconium' : move_energy_to_zirconium,
+        'move_energy_to_platinum' : move_energy_to_platinum,
         'move_energy_to_nickel' : move_energy_to_nickel,
         # 'move_mono_pitch' : move_mono_pitch,
         }
