@@ -142,15 +142,17 @@ nslsii.configure_base(
      get_ipython().user_ns,
      tiled_inserter,
      publish_documents_with_kafka=True,
-    redis_url = "info.iss.nsls2.bnl.gov",
-     # redis_url="xf08id1-iss-redis1.nsls2.bnl.gov",
-     # redis_port=6380,
-     # redis_ssl=True,
+     #redis_url = "info.iss.nsls2.bnl.gov",
+     redis_url="xf08id1-iss-redis1.nsls2.bnl.gov",
+     redis_port=6380,
+     redis_ssl=True,
 )
 
-db.v2.context.http_client.headers['tiled-qos'] = 'acquisition'
+db = Broker(tiled_reading_client)  # Keep for backcompatibility with older code that uses databroker
 
+# db.v2.context.http_client.headers['tiled-qos'] = 'acquisition'
 
+print("initial md", RE.md)
 logger_db = logging.getLogger('databroker')
 logger_db.setLevel('WARNING')
 
