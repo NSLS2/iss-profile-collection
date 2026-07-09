@@ -231,8 +231,8 @@ class PilatusHDF5(PilatusBase):
         suffix="HDF1:",
         # root="/",
         # write_path_template=f"{ROOT_PATH}/{RAW_PATH}/pil100k/%Y/%m/%d",
-        root=f'{ROOT_PATH_DS}/{RE.md["cycle"]}/{RE.md["data_session"]}/assets/pilatus100k',
-        write_path_template=f'{ROOT_PATH_DS}/{RE.md["cycle"]}/{RE.md["data_session"]}/assets/pilatus100k/%Y/%m/%d',
+        root=f'{ROOT_PATH_DS}/{RE.md["cycle"]}/{RE.md["data_session"]}/assets/pil100k',
+        write_path_template=f'{ROOT_PATH_DS}/{RE.md["cycle"]}/{RE.md["data_session"]}/assets/pil100k/%Y/%m/%d',
     )  # ,
     # write_path_template=f'/nsls2/xf08id/data/pil100k/%Y/%m/%d')
 
