@@ -3,7 +3,7 @@ print(ttime.ctime() + ' >>>> ' + __file__)
 # hhm feedback
 
 from piezo_feedback.piezo_fb import PiezoFeedback
-from PyQt5.QtCore import QThread
+from qtpy.QtCore import QThread
 
 machine_name = os.uname()[1]
 if 'ws1' in machine_name:

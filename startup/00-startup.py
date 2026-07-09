@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 import xraydb
 from bluesky.utils import PersistentDict
+from tiled.client import from_profile
 
 
 from bluesky import RunEngine
@@ -32,6 +33,7 @@ print(ttime.ctime() + ' >>>> ' + __file__)
 
 ROOT_PATH_SHARED = '/nsls2/data/iss/legacy/xf08id'
 ROOT_PATH = '/nsls2/data/iss/legacy'
+ROOT_PATH_DS = '/nsls2/data/iss/proposals'
 RAW_PATH = 'raw'
 USER_PATH = 'processed'
 
@@ -110,7 +112,7 @@ from ophyd.signal import EpicsSignalBase
 # if not OLD_BLUESKY:
 EpicsSignalBase.set_defaults(timeout=10, connection_timeout=10)
 
-#from databroker import Broker
+from databroker import Broker
 
 # db_archive = Broker.named('iss')
 # db = Broker.named('iss-local')
@@ -120,6 +122,20 @@ EpicsSignalBase.set_defaults(timeout=10, connection_timeout=10)
 #RE = RunEngine()
 #nslsii.configure_base(get_ipython().user_ns, 'iss', pbar=False)
 #nslsii.configure_kafka_publisher(RE, "iss")
+
+# Configure a Tiled reading client
+tiled_reading_client = from_profile("nsls2")["iss"]["raw"]
+# Configure a Tiled writing client
+
+tiled_writing_client = from_profile("nsls2", api_key=os.environ["TILED_BLUESKY_WRITING_API_KEY_ISS"])["iss"]["raw"]
+
+class TiledInserter:
+    name = 'iss'
+
+    def insert(self, name, doc):
+        tiled_writing_client.post_document(name, doc)
+
+tiled_inserter = TiledInserter()
 
 # Data Security - Sync-Experiment
 nslsii.configure_base(
@@ -192,14 +208,18 @@ _create_qApp()
 RE.is_aborted = False
 
 def ensure_proposal_id(md):
-    if 'proposal_id' not in md:
+    if 'proposal' not in md:
         raise ValueError("You forgot the proposal_id.")
 
 # Set up default metadata.
 RE.md['group'] = 'iss'
 RE.md['Facility'] = 'NSLS-II'
 RE.md['beamline_id'] = 'ISS (8-ID)'
-RE.md['proposal_id'] = None
+RE.md['year'] = f'{datetime.strftime(datetime.now(), "%Y")}'
+RE.md['PI'] = RE.md['proposal']['pi_name']
+RE.md['affiliation'] = ''
+RE.md['email'] = ''
+# RE.md['proposal_id'] = None  # Set by sync-experiment
 
 
 

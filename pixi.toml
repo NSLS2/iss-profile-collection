@@ -4,9 +4,6 @@ name = "iss-profile-collection"
 platforms = ["linux-64"]
 version = "2026.2.0"
 
-[system-requirements]
-libc = "2.17"
-
 [feature.profile.dependencies]
 bluesky-base = "==1.15.0"
 bluesky-queueserver = "*"
@@ -21,7 +18,7 @@ nslsii = "==0.11.8"
 opencv = ">=4.12.0,<5"
 # numpy = "*"
 ophyd = ">=1.11.0"
-ophyd-async = ">=0.13.7,<0.14"
+ophyd-async = ">=0.14"
 pyepics = "*"
 python = ">=3.12,<3.14"
 scikit-learn = ">=1.8.0,<2"
@@ -29,10 +26,10 @@ tiled-client = "==0.2.9"
 tiled-server = ">=0.2.3,<0.3"
 semver = ">=3.0.4,<4"
 xraydb = ">=4.5.8,<5"
-pyqt = "<6"
+# pyqt = "<6"
 interpolation = ">=2.2.7,<3"
 periodictable = ">=1.7.1,<2"
-xraylarch = "==0.9.80"
+xraylarch-base = "==0.9.80"
 bluesky-kafka = ">=0.10.0,<0.11"
 larixite = ">=2024.10.0,<2025"
 aiohttp = ">=3.12.15,<4"
@@ -74,16 +71,18 @@ qs-server = "uvicorn --host localhost --port 60610 bluesky_httpserver.server:app
 
 
 [feature.terminal.dependencies]
+nslsii = ">=0.11.9,<0.12"
 ipython = ">=9.5.0"
 #pyside6 = "*"
-#pyqt = ">=5,<6"
-pyqt = "==5.15.11"
+pyqt = ">=5,<6"
 numpy = ">2"
 
 
 [feature.terminal.tasks]
 start = "unset SESSION_MANAGER PYTHONPATH && MPLBACKEND=qtagg ipython --profile-dir=."
 pvs = "ipython --profile-dir=. -c 'get_pv_types(); exit()'"
+sync-experiment = { cmd = "sync-experiment -s -b iss -p {{proposal}}", args = ["proposal"] }
+
 
 [environments]
 terminal = {features=["profile", "terminal"], solve-group="profile"}
