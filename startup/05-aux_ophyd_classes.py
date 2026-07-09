@@ -249,7 +249,7 @@ class ObjectWithSettings:
             self._redis_store['config'] = config
         except Exception:
             pass
-        if self.json_path:
+        if self.json_path and os.environ.get('SAVE_CONFIG_TO_JSON'):
             try:
                 with open(self.json_path, 'w') as f:
                     json.dump(config, f)

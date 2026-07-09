@@ -181,7 +181,7 @@ class ScanManager():
             self._local_store['scan_list'] = self.scan_list_local
         except Exception:
             pass
-        if self.json_file_path_local:
+        if self.json_file_path_local and os.environ.get('SAVE_CONFIG_TO_JSON'):
             try:
                 os.makedirs(os.path.dirname(self.json_file_path_local), exist_ok=True)
                 with open(self.json_file_path_local, 'w') as f:
@@ -276,11 +276,12 @@ class ScanManager():
             self._global_store['scan_dict'] = self.scan_dict
         except Exception:
             pass
-        try:
-            with open(self._global_json_path, 'w') as f:
-                json.dump(self.scan_dict, f)
-        except Exception:
-            pass
+        if os.environ.get('SAVE_CONFIG_TO_JSON'):
+            try:
+                with open(self._global_json_path, 'w') as f:
+                    json.dump(self.scan_dict, f)
+            except Exception:
+                pass
         return new_uid
 
     def trajectory_filename_from_uid(self, scan_uid):

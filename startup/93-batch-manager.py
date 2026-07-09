@@ -207,11 +207,12 @@ class PersistentListInteractingWithGUI:
             _store['items'] = self.items
         except Exception:
             pass
-        try:
-            with open(file, 'w') as f:
-                json.dump(self.items, f, indent=4)
-        except Exception:
-            pass
+        if os.environ.get('SAVE_CONFIG_TO_JSON'):
+            try:
+                with open(file, 'w') as f:
+                    json.dump(self.items, f, indent=4)
+            except Exception:
+                pass
 
     @emit_list_update_signal_decorator
     def reset(self):
@@ -319,11 +320,12 @@ class SampleManager(PersistentListInteractingWithGUI):
             _store['items'] = self.samples_as_dict_list
         except Exception:
             pass
-        try:
-            with open(file, 'w') as f:
-                json.dump(self.samples_as_dict_list, f)
-        except Exception:
-            pass
+        if os.environ.get('SAVE_CONFIG_TO_JSON'):
+            try:
+                with open(file, 'w') as f:
+                    json.dump(self.samples_as_dict_list, f)
+            except Exception:
+                pass
 
     @property
     def samples_as_dict_list(self):

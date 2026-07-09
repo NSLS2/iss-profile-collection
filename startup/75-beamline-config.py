@@ -176,7 +176,8 @@ class BeamlineConfig:
                                       'hhm_fb_line' : hhm_fb_line},
                                       ignore_index=True)
 
-        self.data.to_json(self.filepath)
+        if os.environ.get('SAVE_CONFIG_TO_JSON'):
+            self.data.to_json(self.filepath)
 
 beamline_config = BeamlineConfig()
 

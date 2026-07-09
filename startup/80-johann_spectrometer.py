@@ -153,11 +153,12 @@ class RowlandCircle:
             self._redis_store['config'] = self.config
         except Exception:
             pass
-        try:
-            with open(self.json_path, 'w') as f:
-                json.dump(self.config, f)
-        except Exception:
-            pass
+        if os.environ.get('SAVE_CONFIG_TO_JSON'):
+            try:
+                with open(self.json_path, 'w') as f:
+                    json.dump(self.config, f)
+            except Exception:
+                pass
 
     def save_current_spectrometer_config_to_settings(self):
         self.save_current_spectrometer_config()

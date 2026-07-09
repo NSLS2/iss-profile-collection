@@ -209,11 +209,12 @@ class SamplePositionerBPM(BPM, ObjectWithSettings):
             self._calibration_redis_store['calibration'] = _dict
         except Exception:
             pass
-        try:
-            with open(self._calibration_json_path, 'w') as f:
-                json.dump(_dict, f)
-        except Exception:
-            pass
+        if os.environ.get('SAVE_CONFIG_TO_JSON'):
+            try:
+                with open(self._calibration_json_path, 'w') as f:
+                    json.dump(_dict, f)
+            except Exception:
+                pass
 
     def update_calibration_npoly(self, npoly):
         self.calibration.update_npoly(npoly)
