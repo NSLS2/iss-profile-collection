@@ -22,6 +22,11 @@ class Sample:
         self.add_new_positions_from_coordinates(coordinates)
         self.uid = str(uuid.uuid4())[:20]
         self.archived = archived
+        print("SAMPLE INIT")
+        print("PS", self.position_data.shape)
+        print("PI", self.position_data.index)
+        print("PC", self.position_data.columns)
+        print(self.position_data)
         # self.add_positions(positions)
 
     def validate_coordinates(self, coordinates_dict):
@@ -44,6 +49,7 @@ class Sample:
         else:
             last_index = max(index_list)
         self.position_data = pd.concat([self.position_data, pd.DataFrame(point, index=[last_index+1])])
+        print("add_one_pos", self.position_data)
 
     def make_point_uid(self):
         return str(uuid.uuid4())[:13]
@@ -61,6 +67,10 @@ class Sample:
         sample_dict['comment'] = self.comment
         sample_dict['archived'] = self.archived
         sample_dict['position_data'] = self.position_data.to_dict()
+        print("to_dict", sample_dict)
+        print("PS", self.position_data.shape)
+        print("PI", self.position_data.index)
+        print("PC", self.position_data.columns)
         return sample_dict
 
     def update_position_coordinates(self, index, new_coordinates):
@@ -73,6 +83,7 @@ class Sample:
 
     @property
     def number_of_unexposed_points(self):
+        # return 0
         return int(self.number_of_points - sum(self.position_data['exposed']))
 
     # def index_coordinate_dict(self, index):
@@ -94,6 +105,7 @@ class Sample:
 
     def sort_positions_by(self, keys):
         self.position_data = self.position_data.sort_values(keys)
+        print("sort_positions_by", self.position_data)
 
     # def index_exposed(self, index):
     #     return bool(self.position_data.iloc[index][['exposed']].item())
@@ -104,6 +116,7 @@ class Sample:
     def set_exposed(self, index, exposed=True):
         # self.position_data['exposed'][index] = exposed
         self.position_data['exposed'].iloc[index] = exposed
+        print("set_exposed", self.position_data)
 
     # def index_uid(self, index):
     #     return str(self.position_data.iloc[index][['sample_point_uid']].item())
@@ -133,7 +146,11 @@ class Sample:
         comment = sample_dict['comment']
         archived =  sample_dict['archived']
         result = cls(name, comment=comment, archived=archived)
-        result.position_data = pd.DataFrame.from_dict(sample_dict['position_data'])
+        result.position_data = pd.DataFrame.from_dict(sample_dict['position_data'], orient='index').T
+        print("from_dict", result.position_data, sample_dict)
+        print("PS", result.position_data.shape)
+        print("PI", result.position_data.index)
+        print("PC", result.position_data.columns)
         return result
 
 FOIL_UID = 'foil'
@@ -186,15 +203,33 @@ class PersistentListInteractingWithGUI:
     def item_list_from_file(self, file):
         _key = _redis_key_from_path(file)
         _store = RedisJSONDict(redis_settings_client, prefix=_key)
+        print(f'Key: {_key}')
+        print(f'Store: {_store}')
         try:
             item_list = _store['items']
-        except Exception:
-            with open(file, 'r') as f:
-                item_list = json.loads(f.read())
+            print(f"{item_list=}")
+            if len(item_list) == 0:
+                print("zero length item list")
+                raise KeyError('items')
+        except KeyError:
+            # Redis reachable but key absent or empty — try JSON fallback
             try:
+                with open(file, 'r') as f:
+                    item_list = json.loads(f.read())
                 _store['items'] = item_list
             except Exception:
-                pass
+                item_list = []
+        except Exception:
+            # Redis unreachable — fall back to JSON file
+            try:
+                with open(file, 'r') as f:
+                    item_list = json.loads(f.read())
+                try:
+                    _store['items'] = item_list
+                except Exception:
+                    pass
+            except Exception:
+                item_list = []
         return item_list
 
     def save_to_settings(self):

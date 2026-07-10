@@ -5,6 +5,7 @@ platforms = ["linux-64"]
 version = "2026.2.0"
 
 [feature.profile.dependencies]
+setuptools = "<81.0.0"
 bluesky-base = "==1.15.0"
 bluesky-queueserver = "*"
 bluesky-queueserver-api = ">=0.0.12,<0.0.13"
@@ -14,7 +15,6 @@ epicscorelibs = ">=7.0.7.99.1.1,<8"
 lmfit = ">=1.3.4,<2"
 matplotlib-base= ">=3.10"
 networkx = ">=3.4.2,<4"
-nslsii = "==0.11.8"
 opencv = ">=4.12.0,<5"
 # numpy = "*"
 ophyd = ">=1.11.0"
@@ -49,8 +49,8 @@ xas = {path="/nsls2/data/iss/shared/config/repos/xas/", editable= true}
 # TODO merge PR + get on CF
 #isstools = { git = "https://github.com/nsls-ii-iss/isstools", rev = "eb715eaa6436097cf88cf0a8f875fa1251f64657" }
 #isstools = { git = "https://github.com/NSLS2/isstools", rev = "fe098097d27f926af6f26633ee0ad34a47f61600" }
-#isstools = {path="/nsls2/data/iss/shared/config/repos/isstools/", editable= true}
-isstools = { git = "https://github.com/Kezzsim/isstools", rev = "eb32f45" }
+isstools = {path="/nsls2/data/iss/shared/config/repos/isstools/", editable= true}
+#isstools = { git = "https://github.com/Kezzsim/isstools", rev = "b5f6b8c" }
 isscloudtools = { git = "https://github.com/nsls-ii-iss/isscloudtools" }
 # TODO make importable without I/O and get on CF
 piezo-feedback = { git = "https://github.com/nsls-ii-iss/piezo-feedback" }
@@ -71,7 +71,7 @@ qs-server = "uvicorn --host localhost --port 60610 bluesky_httpserver.server:app
 
 
 [feature.terminal.dependencies]
-nslsii = ">=0.11.9,<0.12"
+nslsii = ">=0.11.9"
 ipython = ">=9.5.0"
 #pyside6 = "*"
 pyqt = ">=5,<6"

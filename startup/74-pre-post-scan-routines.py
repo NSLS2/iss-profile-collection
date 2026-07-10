@@ -321,6 +321,8 @@ def set_attenuator(thickness:int  = 0, **kwargs):
     _attenuator_store = RedisJSONDict(redis_settings_client, prefix='attenuator')
     try:
         attenuators_list = _attenuator_store['attenuator']
+        if len(attenuators_list) == 0:
+            raise
     except Exception:
         with open(f'{ROOT_PATH_SHARED}/settings/json/attenuator.json') as fp:
             attenuators_list = json.load(fp)
