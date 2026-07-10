@@ -101,8 +101,9 @@ class ISSXspress3CDetector(CommunityXspress3_4Channel):
         #         configuration_attrs.append(f'xsx_channel{chn:02d}_mcaroi{roin:02d}_size_x')
 
         super().__init__(prefix, configuration_attrs=configuration_attrs, read_attrs=read_attrs, **kwargs)
-
-        for channel in self.iterate_channels():
+        self.channels = {}
+        for ic, channel in enumerate(self.iterate_channels()):
+            self.channels[ic] = channel
             channel.kind = 7
             for mcaroi in channel.iterate_mcarois():
                 mcaroi.kind = "Hinted"
@@ -118,6 +119,7 @@ class ISSXspress3CDetector(CommunityXspress3_4Channel):
         self.cam.num_images.put(1)
         self.cam.acquire_time.put(1)
         self.cam.erase.put(1)
+        self._acquisition_signal = self.cam.acquire
 
     def stage(self, *args, **kwargs):
         self.cam.acquire.put(0, wait=True)
@@ -134,6 +136,55 @@ class ISSXspress3CDetector(CommunityXspress3_4Channel):
         self.cam.acquire_time.put(1)
         self.cam.erase.put(1, wait=True)
         super().unstage(*args, **kwargs)
+
+    def set_limits_for_roi(self, energy_nom, roi, window='auto'):
+        # In [8]: xsc.channel01.mcaroi01.total_rbv.get()
+        # Out[8]: 0.0
+
+        for ch_index, channel in self.channels.items():
+            if window == 'auto':
+                w = _compute_window_for_xs_roi_energy(energy_nom)
+            else:
+                w = int(window)
+            energy = _convert_xs_energy_nom2act(energy_nom, ch_index)
+            ev_low_new = int(energy - w / 2) // 10
+            ev_high_new = int(energy + w / 2) // 10
+            size_new = ev_high_new - ev_low_new
+
+            roi_obj = getattr(channel, f'mcaroi{roi:02d}')
+            roi_obj.min_x.put(ev_low_new)
+            roi_obj.size_x.put(size_new)
+
+
+            # roi_obj = getattr(channel.rois, roi)
+            # current_high = roi_obj.min_x.get() + roi_obj.size_x.get()
+            # if ev_high_new < current_high:
+            #     # roi_obj.ev_low.put(ev_low_new)
+            #     # roi_obj.ev_high.put(ev_high_new)
+            #     roi_obj.min_x.put(ev_low_new)
+            #     roi_obj.size_x.put(size_new)
+            # else:
+            #     roi_obj.size_x.put(ev_high_new)
+            #     roi_obj.min_x.put(ev_low_new)
+
+    def set_exposure_time(self, new_exp_time):
+        self.cam.acquire_time.set(new_exp_time).wait()
+
+    def read_exposure_time(self):
+        return self.cam.acquire_time.get()
+
+    def test_exposure(self, acq_time=1, num_images=1):
+        _old_acquire_time = self.cam.acquire_time.value
+        _old_num_images = self.cam.num_images.value
+        self.set_exposure_time(acq_time)
+        self.cam.num_images.set(num_images).wait()
+        self.cam.erase.put(1)
+        self._acquisition_signal.put(1, wait=True)
+        # self.settings.acquire_time.set(_old_acquire_time).wait()
+        self.set_exposure_time(_old_acquire_time)
+        self.cam.num_images.set(_old_num_images).wait()
+
+
 
 class ISSXspress3CDetectorStream(ISSXspress3CDetector):
     hints = None
