@@ -189,14 +189,26 @@ class PersistentListInteractingWithGUI:
         try:
             item_list = _store['items']
             if len(item_list) == 0:
-                raise
-        except Exception:
-            with open(file, 'r') as f:
-                item_list = json.loads(f.read())
+                raise KeyError('items')
+        except KeyError:
+            # Redis reachable but key absent or empty — try JSON fallback
             try:
+                with open(file, 'r') as f:
+                    item_list = json.loads(f.read())
                 _store['items'] = item_list
             except Exception:
-                pass
+                item_list = []
+        except Exception:
+            # Redis unreachable — fall back to JSON file
+            try:
+                with open(file, 'r') as f:
+                    item_list = json.loads(f.read())
+                try:
+                    _store['items'] = item_list
+                except Exception:
+                    pass
+            except Exception:
+                item_list = []
         return item_list
 
     def save_to_settings(self):
