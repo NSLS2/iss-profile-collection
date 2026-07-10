@@ -42,6 +42,28 @@ from databroker.assets.handlers import XS3_XRF_DATA_KEY as XRF_DATA_KEY
 #         resource_kwargs,
 #         **kwargs,
 
+_xs_calibration_data_c = {'Cu' : {'true': 8039, 'ch1': 8230, 'ch2': 7980, 'ch3': 8120, 'ch4': 7880},
+                        'Pd': {'true': 21124, 'ch1': 21613, 'ch2': 20990, 'ch3': 21340, 'ch4': 20730}}
+
+def _convert_xs_energy_nom2act_c(energy, ch_index):
+    ch = f'ch{ch_index+1}'
+    e_acts = [0, _xs_calibration_data_c['Cu'][ch],
+                 _xs_calibration_data_c['Pd'][ch],
+                 _xs_calibration_data_c['Pd'][ch] * 2]
+    e_noms = [0, _xs_calibration_data_c['Cu']['true'],
+                 _xs_calibration_data_c['Pd']['true'],
+                 _xs_calibration_data_c['Pd']['true'] * 2]
+    return np.interp(energy, e_noms, e_acts)
+
+def _compute_window_for_xs_roi_energy_c(energy):
+    es = [_xs_calibration_data_c['Cu']['true'], _xs_calibration_data_c['Pd']['true']]
+    ws = [500, 1000]
+    p = np.polyfit(es, ws, 1)
+    w = np.polyval(p, energy)
+    # w = np.interp(energy, es, ws)
+    return w
+
+
 class ISSXspress3HDF5Plugin(Xspress3HDF5Plugin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -143,10 +165,10 @@ class ISSXspress3CDetector(CommunityXspress3_4Channel):
 
         for ch_index, channel in self.channels.items():
             if window == 'auto':
-                w = _compute_window_for_xs_roi_energy(energy_nom)
+                w = _compute_window_for_xs_roi_energy_c(energy_nom)
             else:
                 w = int(window)
-            energy = _convert_xs_energy_nom2act(energy_nom, ch_index)
+            energy = _convert_xs_energy_nom2act_c(energy_nom, ch_index)
             ev_low_new = int(energy - w / 2) // 10
             ev_high_new = int(energy + w / 2) // 10
             size_new = ev_high_new - ev_low_new

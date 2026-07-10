@@ -40,7 +40,7 @@ if not os.environ.get('AZURE_TESTING'):
                                trajectory_manager=trajectory_manager,
                                johann_emission=johann_emission,
                                johann_spectrometer_manager=johann_spectrometer_manager,
-                               sdd=xs,
+                               sdd=xsc,
                                ge_detector=ge_detector,
                                inclinometers = [det_inclinometer1],
                                pil100k=pil100k,
