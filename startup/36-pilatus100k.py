@@ -133,7 +133,7 @@ class PilatusBase(SingleTriggerV33, PilatusDetectorCam):
 
     over1 = Cpt(OverlayPlugin, "Over1:")
 
-    polygon_roi_path = f"{ROOT_PATH_SHARED}/settings/json/pilatus_polygon_roi.json"
+    polygon_roi_redis_key = "pilatus_polygon_roi"
 
     def __init__(self, *args, readout=0.0024, **kwargs):
         super().__init__(*args, **kwargs)
@@ -211,8 +211,18 @@ class PilatusBase(SingleTriggerV33, PilatusDetectorCam):
         md["gain_str"] = self.cam.gain_menu.get(as_string=True)
         md["roi"] = self.roi_metadata
 
-        with open(self.polygon_roi_path, "r") as f:
-            md["roi_polygon"] = json.loads(f.read())
+        from redis_json_dict import RedisJSONDict
+        _polygon_roi_store = RedisJSONDict(redis_settings_client, prefix=self.polygon_roi_redis_key)
+        try:
+            md["roi_polygon"] = _polygon_roi_store['pilatus_polygon_roi']
+        except Exception:
+            _json_path = f'{ROOT_PATH_SHARED}/settings/json/pilatus_polygon_roi.json'
+            with open(_json_path, 'r') as f:
+                md["roi_polygon"] = json.loads(f.read())
+            try:
+                _polygon_roi_store['pilatus_polygon_roi'] = md["roi_polygon"]
+            except Exception:
+                pass
 
         return md
 
@@ -229,9 +239,10 @@ class PilatusHDF5(PilatusBase):
     hdf5 = Cpt(
         HDF5PluginWithFileStore,
         suffix="HDF1:",
-        root="/",
-        write_path_template=f"{ROOT_PATH}/{RAW_PATH}/pil100k/%Y/%m/%d", ###
-        # write_path_template=f"/tmp/pil100k",
+        # root="/",
+        # write_path_template=f"{ROOT_PATH}/{RAW_PATH}/pil100k/%Y/%m/%d",
+        root=f'{ROOT_PATH_DS}/{RE.md["cycle"]}/{RE.md["data_session"]}/assets/pil100k',
+        write_path_template=f'{ROOT_PATH_DS}/{RE.md["cycle"]}/{RE.md["data_session"]}/assets/pil100k/%Y/%m/%d',
     )  # ,
     # write_path_template=f'/nsls2/xf08id/data/pil100k/%Y/%m/%d')
 

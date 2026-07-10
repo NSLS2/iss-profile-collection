@@ -10,7 +10,6 @@ class PlanProcessor(PersistentListInteractingWithGUI):
 
     def __init__(self, json_file_path = f'{ROOT_PATH_SHARED}/settings/json/plan_processor.json'):
         super().__init__(json_file_path, boot_fresh=True)
-        self.settings_path = f'{ROOT_PATH_SHARED}/settings/json/plan_processor_settings.json'
 
         self.logger = self.get_logger()
         self.RE = RE
@@ -41,16 +40,16 @@ class PlanProcessor(PersistentListInteractingWithGUI):
         return logger
 
     def load_settings(self):
+        from redis_json_dict import RedisJSONDict
+        self._settings_store = RedisJSONDict(redis_settings_client, prefix='plan_processor_settings')
         try:
-            with open(self.settings_path, 'r') as f:
-                self.settings_dict = json.loads(f.read())
-        except FileNotFoundError:
+            self.settings_dict = self._settings_store['settings']
+        except KeyError:
             self.settings_dict = {'beamline_readiness': False,
                                   'auto_foil_set': False}
 
     def save_settings(self):
-        with open(self.settings_path, 'w') as f:
-            json.dump(self.settings_dict, f)
+        self._settings_store['settings'] = self.settings_dict
 
     @property
     def beamline_readiness(self):

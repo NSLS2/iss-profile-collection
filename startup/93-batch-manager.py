@@ -1,8 +1,16 @@
 print(ttime.ctime() + ' >>>> ' + __file__)
 # from xas.trajectory import trajectory, trajectory_manager
+import json
+import os
 import pandas as pd
 from bluesky.plan_stubs import mv
 from collections import defaultdict
+from redis_json_dict import RedisJSONDict
+
+
+def _redis_key_from_path(path):
+    """Derive a stable Redis key from a JSON file path."""
+    return os.path.splitext(os.path.basename(path))[0]
 
 class Sample:
     position_data = pd.DataFrame(columns=['x', 'y', 'z', 'th', 'exposure_time', 'exposed', 'uids'])
@@ -14,6 +22,11 @@ class Sample:
         self.add_new_positions_from_coordinates(coordinates)
         self.uid = str(uuid.uuid4())[:20]
         self.archived = archived
+        print("SAMPLE INIT")
+        print("PS", self.position_data.shape)
+        print("PI", self.position_data.index)
+        print("PC", self.position_data.columns)
+        print(self.position_data)
         # self.add_positions(positions)
 
     def validate_coordinates(self, coordinates_dict):
@@ -36,6 +49,7 @@ class Sample:
         else:
             last_index = max(index_list)
         self.position_data = pd.concat([self.position_data, pd.DataFrame(point, index=[last_index+1])])
+        print("add_one_pos", self.position_data)
 
     def make_point_uid(self):
         return str(uuid.uuid4())[:13]
@@ -53,6 +67,10 @@ class Sample:
         sample_dict['comment'] = self.comment
         sample_dict['archived'] = self.archived
         sample_dict['position_data'] = self.position_data.to_dict()
+        print("to_dict", sample_dict)
+        print("PS", self.position_data.shape)
+        print("PI", self.position_data.index)
+        print("PC", self.position_data.columns)
         return sample_dict
 
     def update_position_coordinates(self, index, new_coordinates):
@@ -65,6 +83,7 @@ class Sample:
 
     @property
     def number_of_unexposed_points(self):
+        # return 0
         return int(self.number_of_points - sum(self.position_data['exposed']))
 
     # def index_coordinate_dict(self, index):
@@ -86,6 +105,7 @@ class Sample:
 
     def sort_positions_by(self, keys):
         self.position_data = self.position_data.sort_values(keys)
+        print("sort_positions_by", self.position_data)
 
     # def index_exposed(self, index):
     #     return bool(self.position_data.iloc[index][['exposed']].item())
@@ -96,6 +116,7 @@ class Sample:
     def set_exposed(self, index, exposed=True):
         # self.position_data['exposed'][index] = exposed
         self.position_data['exposed'].iloc[index] = exposed
+        print("set_exposed", self.position_data)
 
     # def index_uid(self, index):
     #     return str(self.position_data.iloc[index][['sample_point_uid']].item())
@@ -125,7 +146,11 @@ class Sample:
         comment = sample_dict['comment']
         archived =  sample_dict['archived']
         result = cls(name, comment=comment, archived=archived)
-        result.position_data = pd.DataFrame.from_dict(sample_dict['position_data'])
+        result.position_data = pd.DataFrame.from_dict(sample_dict['position_data'], orient='index').T
+        print("from_dict", result.position_data, sample_dict)
+        print("PS", result.position_data.shape)
+        print("PI", result.position_data.index)
+        print("PC", result.position_data.columns)
         return result
 
 FOIL_UID = 'foil'
@@ -148,6 +173,8 @@ class PersistentListInteractingWithGUI:
     def __init__(self, json_file_path='', boot_fresh=False):
         self.items = []
         self.json_file_path = json_file_path
+        self._redis_key = _redis_key_from_path(json_file_path) if json_file_path else ''
+        self._redis_store = RedisJSONDict(redis_settings_client, prefix=self._redis_key) if self._redis_key else None
         self.init_from_settings(boot_fresh=boot_fresh)
 
     @property
@@ -158,13 +185,15 @@ class PersistentListInteractingWithGUI:
         if not boot_fresh:
             try:
                 self.add_items_from_file(self.json_file_path)
-            except FileNotFoundError:
+            except (KeyError, Exception):
                 self.save_to_settings()
 
     @emit_list_update_signal_decorator
     def init_from_new_file(self, new_json_file_path):
         self.items = []
         self.json_file_path = new_json_file_path
+        self._redis_key = _redis_key_from_path(new_json_file_path) if new_json_file_path else ''
+        self._redis_store = RedisJSONDict(redis_settings_client, prefix=self._redis_key) if self._redis_key else None
         self.init_from_settings()
 
     @emit_list_update_signal_decorator
@@ -172,16 +201,53 @@ class PersistentListInteractingWithGUI:
         self.items += self.item_list_from_file(file)
 
     def item_list_from_file(self, file):
-        with open(file, 'r') as f:
-            item_list = json.loads(f.read())
+        _key = _redis_key_from_path(file)
+        _store = RedisJSONDict(redis_settings_client, prefix=_key)
+        print(f'Key: {_key}')
+        print(f'Store: {_store}')
+        try:
+            item_list = _store['items']
+            print(f"{item_list=}")
+            if len(item_list) == 0:
+                print("zero length item list")
+                raise KeyError('items')
+        except KeyError:
+            # Redis reachable but key absent or empty — try JSON fallback
+            try:
+                with open(file, 'r') as f:
+                    item_list = json.loads(f.read())
+                _store['items'] = item_list
+            except Exception:
+                item_list = []
+        except Exception:
+            # Redis unreachable — fall back to JSON file
+            try:
+                with open(file, 'r') as f:
+                    item_list = json.loads(f.read())
+                try:
+                    _store['items'] = item_list
+                except Exception:
+                    pass
+            except Exception:
+                item_list = []
         return item_list
 
     def save_to_settings(self):
         self.save_to_file(self.json_file_path)
 
     def save_to_file(self, file):
-        with open(file, 'w') as f:
-            json.dump(self.items, f, indent=4)
+        _key = _redis_key_from_path(file)
+        _store = RedisJSONDict(redis_settings_client, prefix=_key)
+        try:
+            _store['items'] = self.items
+        except Exception:
+            pass
+        if os.environ.get('SAVE_CONFIG_TO_JSON'):
+            try:
+                with open(file, 'w') as f:
+                    json.dump(self.items, f, indent=4)
+            except Exception:
+                pass
 
     @emit_list_update_signal_decorator
     def reset(self):
@@ -283,8 +349,18 @@ class SampleManager(PersistentListInteractingWithGUI):
         return sample_list
 
     def save_to_file(self, file):
-        with open(file, 'w') as f:
-            json.dump(self.samples_as_dict_list, f)
+        _key = _redis_key_from_path(file)
+        _store = RedisJSONDict(redis_settings_client, prefix=_key)
+        try:
+            _store['items'] = self.samples_as_dict_list
+        except Exception:
+            pass
+        if os.environ.get('SAVE_CONFIG_TO_JSON'):
+            try:
+                with open(file, 'w') as f:
+                    json.dump(self.samples_as_dict_list, f)
+            except Exception:
+                pass
 
     @property
     def samples_as_dict_list(self):

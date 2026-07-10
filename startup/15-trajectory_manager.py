@@ -10,7 +10,7 @@ from xas import xray
 import pandas as pd
 # from xas.bin import xas_energy_grid
 
-from PyQt5 import QtCore
+from qtpy import QtCore
 
 class TrajectoryManager():
     def __init__(self, hhm, **kwargs):
@@ -66,10 +66,12 @@ class TrajectoryManager():
         if orig_file_path[-1] != '/':
             fp += '/'
 
-        traj = pd.read_table('{}{}'.format(orig_file_path, orig_file_name), header=None, comment='#')
+        traj = pd.read_table('{}{}'.format(orig_file_path, orig_file_name),
+                              header=None, comment='#').to_numpy().ravel()
         name = orig_file_name
         header = self.read_header('{}{}'.format(orig_file_path, orig_file_name))
         if is_energy:
+            print("TRAJ", traj)
             min_energy = int(np.array(np.round(traj).min()))
             max_energy = int(np.array(np.round(traj).max()))
             enc = np.int64(np.round(xray.energy2encoder(-traj, self.hhm.pulses_per_deg, -offset)))

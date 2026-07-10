@@ -280,8 +280,17 @@ def quick_optimize_gains_plan(n_tries=3, trajectory_filename=None, mono_angle_of
 
 def set_reference_foil(element:str = 'Mn', edge:str = 'K' ):
     # Adding reference foil element list
-    with open(f'{ROOT_PATH_SHARED}/settings/json/foil_wheel.json') as fp:
-        reference_foils = json.load(fp)
+    from redis_json_dict import RedisJSONDict
+    _foil_wheel_store = RedisJSONDict(redis_settings_client, prefix='foil_wheel')
+    try:
+        reference_foils = _foil_wheel_store['foil_wheel']
+    except Exception:
+        with open(f'{ROOT_PATH_SHARED}/settings/json/foil_wheel.json') as fp:
+            reference_foils = json.load(fp)
+        try:
+            _foil_wheel_store['foil_wheel'] = reference_foils
+        except Exception:
+            pass
     elems = [item['element'] for item in reference_foils]
 
 
@@ -308,8 +317,19 @@ def set_reference_foil(element:str = 'Mn', edge:str = 'K' ):
 
 def set_attenuator(thickness:int  = 0, **kwargs):
     # Adding reference foil element list
-    with open(f'{ROOT_PATH_SHARED}/settings/json/attenuator.json') as fp:
-        attenuators_list = json.load(fp)
+    from redis_json_dict import RedisJSONDict
+    _attenuator_store = RedisJSONDict(redis_settings_client, prefix='attenuator')
+    try:
+        attenuators_list = _attenuator_store['attenuator']
+        if len(attenuators_list) == 0:
+            raise
+    except Exception:
+        with open(f'{ROOT_PATH_SHARED}/settings/json/attenuator.json') as fp:
+            attenuators_list = json.load(fp)
+        try:
+            _attenuator_store['attenuator'] = attenuators_list
+        except Exception:
+            pass
     thickness_str_list = [item['attenuator'] for item in attenuators_list]
     thickness_str = str(thickness)
     if thickness_str in thickness_str_list:

@@ -7,7 +7,7 @@ import time as ttime
 from collections import deque
 
 import numpy as np
-import paramiko
+# import paramiko
 from ophyd import Component as Cpt, Device, EpicsSignal, Kind
 from ophyd.sim import NullStatus
 from ophyd.status import SubscriptionStatus
@@ -75,8 +75,14 @@ class AnalogPizzaBox(Device):
     filetxt_status = Cpt(EpicsSignal, "FA:Stream:Txt:File:Status-I")
 
     def __init__(self, *args, **kwargs):
+        md = None
+        if 'md' in kwargs:
+            md = kwargs.pop('md')
         super().__init__(*args, **kwargs)
         self._IP = "10.66.59.42"
+        print("MD", md)
+        self._md = md
+
 
     def read_exposure_time(self):
         pass
@@ -196,14 +202,19 @@ class AnalogPizzaBoxStream(AnalogPizzaBoxAverage):
         # self.filename_target = f'{ROOT_PATH}/data/apb/{dt.datetime.strftime(dt.datetime.now(), "%Y/%m/%d")}/{file_uid}'
         # Note: temporary static file name in GPFS, due to the limitation of 40 symbols in the filename field.
         # self.filename = f'{ROOT_PATH}/data/apb/{file_uid[:8]}'
-        self.filename = f'{ROOT_PATH}/{RAW_PATH}/apb/{dt.datetime.strftime(dt.datetime.now(), "%Y/%m/%d")}/{file_uid}'
+        md = self._md
+        if self._md is None:
+            raise("No metadata for APB")
+        self.filename = f'{ROOT_PATH_DS}/{md["cycle"]}/{md["data_session"]}/assets/apb/{dt.datetime.strftime(dt.datetime.now(), "%Y/%m/%d")}/{file_uid}'
+        #self.filename = f'{ROOT_PATH}/{RAW_PATH}/apb/{dt.datetime.strftime(dt.datetime.now(), "%Y/%m/%d")}/{file_uid}'
+        # print("APB filename", self.filename)
         self.filename_bin.put(f"{self.filename}.bin")
         self.filename_txt.put(f"{self.filename}.txt")
 
         self._resource_uid = new_uid()
         resource = {
             "spec": "APB",
-            "root": ROOT_PATH,  # from 00-startup.py (added by mrakitin for future generations :D)
+            "root": f'{ROOT_PATH_DS}/{md["cycle"]}/{md["data_session"]}/assets/apb/{dt.datetime.strftime(dt.datetime.now(), "%Y/%m/%d")}',  # from 00-startup.py (added by mrakitin for future generations :D)
             "resource_path": f"{self.filename}.bin",
             "resource_kwargs": {},
             "path_semantics": os.name,
@@ -331,7 +342,7 @@ class AnalogPizzaBoxStream(AnalogPizzaBoxAverage):
     #     trajectory_manager.current_trajectory_duration
 
 
-apb_stream = AnalogPizzaBoxStream(prefix="XF:08IDB-CT{PBA:1}:", name="apb_stream")
+apb_stream = AnalogPizzaBoxStream(prefix="XF:08IDB-CT{PBA:1}:", name="apb_stream", md=RE.md)
 apb_stream.wait_for_connection(timeout=10)
 _ = apb_stream.read()
 _ = apb_stream.streaming.read()
