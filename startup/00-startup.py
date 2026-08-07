@@ -214,13 +214,13 @@ def ensure_proposal_id(md):
         raise ValueError("You forgot the proposal_id.")
 
 # Set up default metadata.
-RE.md['group'] = 'iss'
-RE.md['Facility'] = 'NSLS-II'
-RE.md['beamline_id'] = 'ISS (8-ID)'
-RE.md['year'] = f'{datetime.strftime(datetime.now(), "%Y")}'
-RE.md['PI'] = RE.md['proposal']['pi_name']
-RE.md['affiliation'] = ''
-RE.md['email'] = ''
+# RE.md['group'] = 'iss'
+# RE.md['Facility'] = 'NSLS-II'
+# RE.md['beamline_id'] = 'ISS (8-ID)'
+# RE.md['year'] = f'{datetime.strftime(datetime.now(), "%Y")}'
+# RE.md['PI'] = RE.md['proposal']['pi_name']
+# RE.md['affiliation'] = ''
+# RE.md['email'] = ''
 # RE.md['proposal_id'] = None  # Set by sync-experiment
 
 

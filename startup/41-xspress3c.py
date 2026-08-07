@@ -169,6 +169,7 @@ class ISSXspress3CDetector(CommunityXspress3_4Channel):
             else:
                 w = int(window)
             energy = _convert_xs_energy_nom2act_c(energy_nom, ch_index)
+            # print("energy, w", energy, w)
             ev_low_new = int(energy - w / 2) // 10
             ev_high_new = int(energy + w / 2) // 10
             size_new = ev_high_new - ev_low_new
