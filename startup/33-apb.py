@@ -322,8 +322,11 @@ class AnalogPizzaBoxStream(AnalogPizzaBoxAverage):
     def describe(self):
         # Add better detector metadata to avoid Tiled server side conversion.
         res = super().describe()
-        res["apb_ave_filename_bin"].setdefault("dtype_numpy", "<i8")
-        res["apb_ave_filename_txt"].setdefault("dtype_numpy", "<i8")
+        # for field in res:
+        #     print(field, res[field])
+        for field in ["apb_stream_filename_bin", "apb_stream_filename_txt"]:
+            if field in res:
+                res[field].setdefault("dtype_numpy", "<i8")
         return res
 
     def collect_asset_docs(self):

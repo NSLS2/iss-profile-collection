@@ -77,10 +77,10 @@ detector_dictionary =   {
                     #             'channels': [f'xia_channel{ch:1d}_roi01_value'
                     #                            for ch in range(1, 33)]+
                     #                            ['xia_settings_acquire_time']},
-                    'Xspress3': {'device' : xs, 'flying_device' : xs_stream,
-                                'channels': [f'xs_channel{ch:1d}_rois_roi{rnum:02d}_value'
-                                               for ch, rnum in product(range(1, 5), range(1, 5))]+
-                                               ['xs_settings_acquire_time']},
+                    # 'Xspress3': {'device' : xs, 'flying_device' : xs_stream,
+                    #             'channels': [f'xs_channel{ch:1d}_rois_roi{rnum:02d}_value'
+                    #                            for ch, rnum in product(range(1, 5), range(1, 5))]+
+                    #                            ['xs_settings_acquire_time']},
                                 #  'channels' : [     'xs_channel1_rois_roi01_value',
                                 #                     'xs_channel1_rois_roi02_value',
                                 #                     'xs_channel1_rois_roi03_value',
@@ -99,7 +99,7 @@ detector_dictionary =   {
                                 #                     'xs_channel4_rois_roi04_value',
                                 #                     'xs_settings_acquire_time'
                                 #                     ]},
-                    'Xspress3 Community': {'device' : xsc, 'flying_device' : xsc_stream,
+                    'Xspress3': {'device' : xsc, 'flying_device' : xsc_stream,
                                 'channels': [f'xsc_channel{ch:02d}_mcaroi{rnum:02d}_total_rbv'
                                                for ch, rnum in product(range(1, 5), range(1, 5))]+
                                                ['xsc_cam_acquire_time']},

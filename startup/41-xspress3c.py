@@ -207,18 +207,25 @@ class ISSXspress3CDetector(CommunityXspress3_4Channel):
         self.set_exposure_time(_old_acquire_time)
         self.cam.num_images.set(_old_num_images).wait()
 
-
-
 class ISSXspress3CDetectorStream(ISSXspress3CDetector):
     hints = None
 
-    def stage(self, acq_rate, traj_time, *args, **kwargs):
+    def __init__(self, *args, ext_trigger_device=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ext_trigger_device = ext_trigger_device
+        self._datum_counter = None
+        print(self.ext_trigger_device)
+
+    def stage(self, *args, **kwargs):
 
         self.hdf5.file_write_mode.put(2)  # put it to Stream |||| IS ALREADY STREAMING
         self.external_trig.put(True)
-        self.set_expected_number_of_points(acq_rate, traj_time)
+        # self.set_expected_number_of_points(acq_rate, traj_time)
+        self.total_points.put(self.num_points)
         self.spectra_per_point.put(1)
         super().stage(*args, **kwargs)
+        staged_list = []
+        # print("staged_list", staged_list)
 
         self.cam.trigger_mode.put(3)  # put the trigger mode to TTL in
         # self.cam.erase.put(1)
@@ -226,8 +233,17 @@ class ISSXspress3CDetectorStream(ISSXspress3CDetector):
         self.hdf5._resource['spec'] = "XSP3X"
         self._datum_counter = itertools.count()
         # note, hdf5 is already capturing at this point
-        self.cam.num_images.put(self._num_points)
+        self.cam.num_images.put(self.num_points)
         self.cam.acquire.put(1)  # start recording data
+        # staged_list = super().stage()
+        etd_stage_status = self.ext_trigger_device.stage()
+        print("etd", etd_stage_status)
+        staged_list += etd_stage_status
+        return staged_list
+
+    def kickoff(self):
+        self.cam.acquire.set(1).wait()
+        return self.ext_trigger_device.kickoff()
 
     def unstage(self):
         self.hdf5.capture.put(0)
@@ -237,11 +253,17 @@ class ISSXspress3CDetectorStream(ISSXspress3CDetector):
         # self.cam.acquire_time.put(1)
         # self.cam.erase.put(1)
         super().unstage()
+        unstaged_list = []
         self._datum_counter = None
+        self.external_trig.put(False)
+        self.cam.trigger_mode.put(1)
+        self.total_points.put(1)
+        unstaged_list += self.ext_trigger_device.unstage()
+        return unstaged_list
 
-    def set_expected_number_of_points(self, acq_rate, traj_time):
-        self._num_points = int(acq_rate * (traj_time + 1))
-        self.total_points.put(self._num_points)
+    # def set_expected_number_of_points(self, acq_rate, traj_time):
+    #     self._num_points = int(acq_rate * (traj_time + 1))
+    #     self.total_points.put(self._num_points)
 
     def describe_collect(self):
         return_dict = {self.name:
@@ -253,12 +275,17 @@ class ISSXspress3CDetectorStream(ISSXspress3CDetector):
                                                        self.hdf5.array_size.width.get()],
                                              'filename': f'{self.hdf5.full_file_name.get()}',
                                              'external': 'FILESTORE:'}}}
-        return return_dict
+
+        return_dict_trig = self.ext_trigger_device.describe_collect()
+
+        return {**return_dict, **return_dict_trig}
 
     def collect(self):
         # num_frames = len(self._datum_ids)
         num_frames = self.hdf5.num_captured.get()
         # break num_frames up and yield in sections?
+
+
 
         for frame_num in range(num_frames):
             datum_id = self._datum_ids[frame_num]
@@ -271,22 +298,39 @@ class ISSXspress3CDetectorStream(ISSXspress3CDetector):
                    'filled': {key: False for key in data}}
             # print(f"-------------------{ts}-------------------------------------")
 
+        yield from self.ext_trigger_device.collect()
+
     def collect_asset_docs(self):
+        print('collect_asset_docs XSPRESS3')
         items = list(self._asset_docs_cache)
         self._asset_docs_cache.clear()
         for item in items:
             yield item
 
     def complete(self, *args, **kwargs):
+        print("complete 1")
         for resource in self.hdf5._asset_docs_cache:
             res_dict = resource[1]
             self._asset_docs_cache.append(('resource', res_dict))
+        print("complete 2")
 
         self._datum_ids = []
 
+        acquire_status = self.cam.acquire.set(0)
+        print("complete 3")
+        capture_status = self.hdf5.capture.set(0)
+        print("complete 4")
+        (acquire_status and capture_status).wait()
+
         num_frames = self.hdf5.num_captured.get()
+        print(num_frames)
+        ext_trigger_status = self.ext_trigger_device.complete()
+
+        print("ext_trigger_complete_status", ext_trigger_status)
 
         for frame_num in range(num_frames):
+            print(frame_num)
+            print(self.hdf5._resource['uid'])
             # for channel in self.iterate_channels():
             datum_id = '{}/{}'.format(self.hdf5._resource['uid'], next(self._datum_counter))
             datum = {'resource': self.hdf5._resource['uid'],
@@ -294,12 +338,19 @@ class ISSXspress3CDetectorStream(ISSXspress3CDetector):
                      'datum_id': datum_id}
             self._asset_docs_cache.append(('datum', datum))
             self._datum_ids.append(datum_id)
+        print("")
 
-        return NullStatus()
+        complete_status = NullStatus() and ext_trigger_status
+        print(f"{complete_status=}")
+        return complete_status
 
+    def prepare_to_fly(self, traj_duration):
+        acq_rate = self.ext_trigger_device.freq.get()
+        self.num_points = int(acq_rate * (traj_duration + 2))
+        self.ext_trigger_device.prepare_to_fly(traj_duration)
 
 xsc = ISSXspress3CDetector('XF:08IDB-ES{Xsp:3}:', name='xsc')
-xsc_stream = ISSXspress3CDetectorStream('XF:08IDB-ES{Xsp:3}:', name='xsc_stream')
+xsc_stream = ISSXspress3CDetectorStream('XF:08IDB-ES{Xsp:3}:', name='xsc_stream', ext_trigger_device=apb_trigger_xs)
 
 
 xsc_stream.hints = {'fields': []}

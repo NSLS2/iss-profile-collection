@@ -112,12 +112,15 @@ class FlyerWithMotors(Device):
         self.complete_status.set_finished()
 
     def complete(self):
-        # print(f'{ttime.ctime()} >>> COMPLETE: begin')
+        print(f'{ttime.ctime()} >>> COMPLETE: begin')
         if self.complete_status is None:
             raise RuntimeError("No collection in progress")
         return self.complete_status
 
     def describe_collect(self):
+        print("Describe collection")
+        for det in self.dets:
+            det.describe()
         return_dict = {}
         for det in self.dets:
             return_dict = {**return_dict, **det.describe_collect()}
