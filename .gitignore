@@ -11,3 +11,6 @@ db/*
 # pixi environments
 .pixi/*
 !.pixi/config.toml
+tests/.pixi/
+__pycache__/
+.pytest_cache/

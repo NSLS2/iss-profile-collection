@@ -11,7 +11,6 @@ import os
 from xas.xray import e2k
 import logging
 import logging.handlers
-from collections import Counter
 
 # def emit_list_update_signal_decorator(method):
 #     def wrapper(obj, *args, emit_signal=True, **kwargs):
@@ -198,23 +197,16 @@ class ScanManager():
 
 
     def check_if_brand_new(self, new_scan):
+        new_scan_parameters = new_scan['scan_parameters']
         for uid, scan in self.scan_dict.items():
-            if scan['scan_type'] == scan['scan_type']:
-                scan_parameters = scan['scan_parameters']
-                new_scan_parameters = new_scan['scan_parameters']
-                keys =  scan_parameters.keys()
-                new_keys = new_scan_parameters.keys()
-                # if all([(new_k in keys) for new_k in new_keys]):
-                if Counter(new_keys) == Counter(keys):
-                    parameters_match = True
-                    for k in keys:
-                        if k != 'filename':
-                            if scan_parameters[k] != new_scan_parameters[k]:
-                                parameters_match = False
-                                break
-                    if parameters_match:
-                        #print_to_gui('SCAN IS OLD')
-                        return uid
+            if scan['scan_type'] != new_scan['scan_type']:
+                continue
+            scan_parameters = scan['scan_parameters']
+            if scan_parameters.keys() == new_scan_parameters.keys() and all(
+                scan_parameters[key] == new_scan_parameters[key]
+                for key in scan_parameters if key != 'filename'
+            ):
+                return uid
 
         new_uid = self.make_scan_uid()
         #print_to_gui('SCAN IS NEW')
@@ -732,4 +724,3 @@ scan_manager = ScanManager()
 
 def get_scan_group_uid():
     return str(uuid.uuid4())
-

@@ -12,8 +12,6 @@ import appdirs
 import bluesky
 import nslsii
 from bluesky.simulators import summarize_plan
-# Check version of bluesky and act accordingly
-from distutils.version import LooseVersion
 from datetime import datetime
 #from xview.spectra_db.db_io import get_spectrum_catalog, get_spectrum_catalog_new
 import json

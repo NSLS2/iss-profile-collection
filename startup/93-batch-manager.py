@@ -5,44 +5,47 @@ from bluesky.plan_stubs import mv
 from collections import defaultdict
 
 class Sample:
-    position_data = pd.DataFrame(columns=['x', 'y', 'z', 'th', 'exposure_time', 'exposed', 'uids'])
+    coordinate_columns = ('x', 'y', 'z', 'th')
 
-    def __init__(self, name, comment='', coordinates=[], max_exposure=None, archived=False):
+    def __init__(self, name, comment='', coordinates=None, max_exposure=None, archived=False):
         self.name = name
         self.comment = comment
         self.max_exposure = max_exposure
-        self.add_new_positions_from_coordinates(coordinates)
+        self.position_data = pd.DataFrame(columns=[*self.coordinate_columns, 'exposure_time', 'exposed', 'uids'])
+        if coordinates is not None:
+            self.add_new_positions_from_coordinates(coordinates)
         self.uid = str(uuid.uuid4())[:20]
         self.archived = archived
         # self.add_positions(positions)
 
     def validate_coordinates(self, coordinates_dict):
-        ok_flag = (type(coordinates_dict) == dict) or (len(coordinates_dict) != 4)
-        assert ok_flag, 'Unacceptable position format. Coordinates must be a dict with 4 elements corresponding to x, y, z, th coordinates.'
+        if not isinstance(coordinates_dict, dict) or coordinates_dict.keys() != set(self.coordinate_columns):
+            raise ValueError('Coordinates must be a dict with exactly x, y, z, th keys.')
 
     def add_new_positions_from_coordinates(self, coordinates):
+        points = []
         for coordinates_dict in coordinates:
-            self.add_new_position(coordinates_dict)
+            self.validate_coordinates(coordinates_dict)
+            points.append({**coordinates_dict, 'exposure_time': 0, 'exposed': False,
+                           'sample_point_uid': self.make_point_uid()})
+        self.add_positions(points)
 
     def add_new_position(self, coordinates_dict):
-        self.validate_coordinates(coordinates_dict)
-        point = {**coordinates_dict, **{'exposure_time': 0, 'exposed': False, 'sample_point_uid': self.make_point_uid()}}
-        self.add_one_position(point)
+        self.add_new_positions_from_coordinates([coordinates_dict])
 
     def add_one_position(self, point):
-        index_list = [int(i) for i in self.position_data.index]
-        if len(index_list) == 0:
-            last_index = -1
-        else:
-            last_index = max(index_list)
-        self.position_data = pd.concat([self.position_data, pd.DataFrame(point, index=[last_index+1])])
+        self.add_positions([point])
 
     def make_point_uid(self):
         return str(uuid.uuid4())[:13]
 
     def add_positions(self, positions):
-        for position in positions:
-            self.add_one_position(position)
+        positions = list(positions)
+        if not positions:
+            return
+        first_index = max((int(i) for i in self.position_data.index), default=-1) + 1
+        new_positions = pd.DataFrame(positions, index=range(first_index, first_index + len(positions)))
+        self.position_data = pd.concat([self.position_data, new_positions])
 
     def remove_positions(self, index_list):
         self.position_data.drop(self.position_data.index[index_list], inplace=True)
@@ -57,7 +60,7 @@ class Sample:
 
     def update_position_coordinates(self, index, new_coordinates):
         for axis, coordinate in new_coordinates.items():
-            self.position_data[axis][index] = coordinate
+            self.position_data.loc[index, axis] = coordinate
 
     @property
     def number_of_points(self):
@@ -94,8 +97,7 @@ class Sample:
         return self.position_data.iloc[index]['exposed']
 
     def set_exposed(self, index, exposed=True):
-        # self.position_data['exposed'][index] = exposed
-        self.position_data['exposed'].iloc[index] = exposed
+        self.position_data.iloc[index, self.position_data.columns.get_loc('exposed')] = exposed
 
     # def index_uid(self, index):
     #     return str(self.position_data.iloc[index][['sample_point_uid']].item())
@@ -126,6 +128,8 @@ class Sample:
         archived =  sample_dict['archived']
         result = cls(name, comment=comment, archived=archived)
         result.position_data = pd.DataFrame.from_dict(sample_dict['position_data'])
+        # JSON object keys are strings; restore the integer point IDs used by the GUI.
+        result.position_data.index = result.position_data.index.astype(int)
         return result
 
 FOIL_UID = 'foil'

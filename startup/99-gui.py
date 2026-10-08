@@ -18,6 +18,9 @@ processing_ioc_uid = None
 
 
 if not os.environ.get('AZURE_TESTING'):
+    from PyQt5.QtWidgets import QApplication
+
+    app = QApplication.instance() or QApplication(sys.argv)
     from isstools import xlive
 
     xlive_gui = xlive.XliveGui(data_collection_plan_funcs=data_collection_plan_funcs,
