@@ -2776,3 +2776,319 @@
 #
 #
 #
+
+# 'energy_start': 4500,
+# 'energy_end': 5700,
+# 'He_flow': 4.6,  # 5 old value 2024-09-06
+# 'N2_flow': 0.4,
+# 'IC_voltage': 1000,
+# 'HHRM': 10,
+# 'CM1': 0,  # 0,
+# 'Filterbox': 1,
+# 'ES BPM exposure': 0.11,
+# 'ES BPM Position': 50,
+# 'i0_gain': 6,
+# 'it_gain': 6,
+# 'ir_gain': 6,
+# 'hhm_pitch': 501.00,
+# 'hhm_roll': 474.50,
+# },
+# {
+# 'energy_start': 5701,
+# 'energy_end': 7300,
+# 'He_flow': 4.25,  # 5 old value 2024-09-06
+# 'N2_flow': 0.75,
+# 'IC_voltage': 1650,
+# 'HHRM': 10,
+# 'CM1': 0,  # 0,
+# 'Filterbox': -69,
+# 'ES BPM exposure': 0.12,  # 0.05, # Denis 2024-06-02: changed to a higher value because of the beamline state
+# 'ES BPM Position': 50,
+# 'i0_gain': 5,
+# 'it_gain': 5,
+# 'ir_gain': 5,
+# 'hhm_pitch': 500.00,
+# 'hhm_roll': 475.50,
+# },
+# {
+# 'energy_start': 7301,
+# 'energy_end': 10000,
+# 'He_flow': 3.65,  # 5 old value 2024-09-06
+# 'N2_flow': 1.35,
+# 'IC_voltage': 1650,
+# 'HHRM': 10,
+# 'CM1': 0,  # 0,
+# 'Filterbox': -69,
+# 'ES BPM exposure': 0.16,  # 0.05, # Denis 2024-06-02: changed to a higher value because of the beamline state
+# 'ES BPM Position': 50,
+# 'i0_gain': 5,
+# 'it_gain': 5,
+# 'ir_gain': 5,
+# 'hhm_pitch': 498.24,
+# 'hhm_roll': 478.00,
+# },
+# {
+# 'energy_start': 10000,
+# 'energy_end': 13000,
+# 'He_flow': 1.8,  # 5 old value 2024-09-06
+# 'N2_flow': 3.2,
+# 'IC_voltage': 1650,
+# 'HHRM': 70,  # IS THIS SUPPOSED TO BE 80?
+# 'CM1': 0,  # 0,
+# 'Filterbox': -139,
+# 'ES BPM exposure': 0.25,
+# 'ES BPM Position': 50,
+# 'i0_gain': 5,
+# 'it_gain': 5,
+# 'ir_gain': 5,
+# 'hhm_pitch': 497.51,
+# 'hhm_roll': 480.5,
+# },
+# {
+# 'energy_start': 13000,
+# 'energy_end': 17000,
+# 'He_flow': 0,  # 5 old value 2024-09-06
+# 'N2_flow': 5,
+# 'IC_voltage': 1650,
+# 'HHRM': 70,
+# 'CM1': 40,  # 0,
+# 'Filterbox': -139,
+# 'ES BPM exposure': 0.25,
+# 'ES BPM Position': 50,
+# 'i0_gain': 5,
+# 'it_gain': 5,
+# 'ir_gain': 5,
+# 'hhm_pitch': 495.2,
+# 'hhm_roll': 481,
+# },
+# {
+# 'energy_start': 17000,
+# 'energy_end': 25000,
+# 'He_flow': 0,  # 2 old value 2024-09-06
+# 'N2_flow': 5,
+# 'IC_voltage': 1650,
+# 'HHRM': 70,
+# 'CM1': 40,  # 0,
+# 'Filterbox': -209,
+# 'ES BPM exposure': 0.25,  # old value 1
+# 'ES BPM Position': 40,
+# 'i0_gain': 5,
+# 'it_gain': 6,
+# 'ir_gain': 6,
+# 'hhm_pitch': 495.00,
+# 'hhm_roll': 485.00,
+#
+# },
+# {
+# 'energy_start': 25000,
+# 'energy_end': 35000,
+# 'He_flow': 0,
+# 'N2_flow': 5,
+# 'IC_voltage': 1650,
+# 'HHRM': 70,
+# 'CM1': 40,  # 0,
+# 'Filterbox': -209,
+# 'ES BPM exposure': 0.5,
+# 'ES BPM Position': 40,
+# 'i0_gain': 6,
+# 'it_gain': 6,
+# 'ir_gain': 6,
+# 'hhm_pitch': 495.00,
+# 'hhm_roll': 485.00,
+
+
+# Beamline flux recorded at 2026-3 cycle
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
+import matplotlib.lines as mlines
+from matplotlib.patches import FancyBboxPatch
+
+# ---------------------------------------------------------------------------
+# Data
+# ---------------------------------------------------------------------------
+edges = [
+    "Ti-K", "V-K", "Cr-K", "Mn-K", "Fe-K", "Co-K", "Ni-K", "Cu-K", "Zn-K",
+    "Ta-L3", "W-L3", "Re-L3", "Ir-L3", "Pt-L3", "Au-L3", "Se-K", "Pb-L3",
+    "Zr-K", "Nb-K", "Mo-K", "Ru-K", "Rh-K", "Pd-K", "Ag-K", "Cd-K", "In-K",
+    "Sn-K", "Sb-K", "Te-K",
+]
+
+energy = np.array([
+    4950, 5465, 5989, 6539, 7112, 7709, 8333, 8979, 9659, 9881, 10207,
+    10535, 11215, 11564, 11919, 12658, 13035, 17988, 18986, 20000, 22117,
+    23220, 24350, 25514, 26711, 27940, 29200, 30491, 31814,
+], dtype=float)
+
+flux = np.array([
+    3.68e11, 7.95e11, 2.49e12, 4.02e12, 7.13e12, 1.02e13, 1.35e13, 1.73e13,
+    2.01e13, 2.08e13, 5.23e12, 5.58e12, 6.97e12, 7.18e12, 7.52e12, 8.52e12,
+    8.76e12, 6.21e12, 5.67e12, 5.26e12, 4.22e12, 2.78e12, 2.05e12, 1.67e12,
+    1.28e12, 8.87e11, 4.50e11, 7.28e10, 9.72e9,
+], dtype=float)
+
+# ---------------------------------------------------------------------------
+# Style
+# ---------------------------------------------------------------------------
+NSLS_BLUE = "#0B3C74"
+NSLS_LIGHT = "#1F7A8C"
+ACCENT = "#E3572A"
+GRID_GRAY = "#D6DCE3"
+TEXT_GRAY = "#3B3F45"
+
+plt.rcParams.update({
+    "font.family": "DejaVu Sans",
+    "text.color": TEXT_GRAY,
+    "axes.edgecolor": "#9AA5B1",
+    "axes.labelcolor": TEXT_GRAY,
+    "xtick.color": TEXT_GRAY,
+    "ytick.color": TEXT_GRAY,
+})
+
+fig, ax = plt.subplots(figsize=(13, 8), dpi=200)
+fig.patch.set_facecolor("white")
+ax.set_facecolor("#FBFCFD")
+
+# --- main curve --------------------------------------------------------
+ax.plot(
+    energy, flux,
+    color=NSLS_BLUE, linewidth=2.0, zorder=3,
+    solid_capstyle="round",
+)
+ax.fill_between(energy, flux, 1e9, color=NSLS_BLUE, alpha=0.06, zorder=1)
+
+ax.scatter(
+    energy, flux,
+    s=46, facecolor="white", edgecolor=NSLS_BLUE, linewidth=1.6,
+    zorder=4,
+)
+
+# highlight the K-edge (hard-XAS transition metal) cluster vs L3 vs K (heavy)
+# with subtle marker color coding by absorption-edge type
+edge_type_color = {"K": NSLS_BLUE, "L3": ACCENT}
+for x, y, name in zip(energy, flux, edges):
+    etype = "L3" if "L3" in name else "K"
+    ax.scatter(x, y, s=46, facecolor=edge_type_color[etype],
+               edgecolor="white", linewidth=1.0, zorder=5)
+
+# --- log y-axis ---------------------------------------------------------
+ax.set_yscale("log")
+ax.set_ylim(5e9, 6e13)
+ax.set_xlim(3500, 33500)
+
+ax.yaxis.set_major_locator(mticker.LogLocator(base=10.0, numticks=6))
+ax.yaxis.set_minor_locator(mticker.LogLocator(base=10.0, subs=np.arange(2, 10) * 0.1, numticks=60))
+ax.yaxis.set_minor_formatter(mticker.NullFormatter())
+
+ax.grid(True, which="major", axis="both", color=GRID_GRAY, linewidth=0.9, zorder=0)
+ax.grid(True, which="minor", axis="y", color=GRID_GRAY, linewidth=0.4, alpha=0.6, zorder=0)
+
+# --- element / edge labels: "stem" chips dropped to a fixed shelf -------
+# Every label lives on one of a few fixed horizontal shelves below the
+# x-axis (axes-fraction y, independent of the point's own flux value), so
+# labels never collide just because two points sit at very different
+# heights on the log scale. A thin dashed stem ties each chip back to its
+# point. Only x-proximity determines which shelf a label lands on, which
+# keeps the whole thing tidy even in the crowded 5-13 keV region.
+import matplotlib.transforms as mtransforms
+
+blended = mtransforms.blended_transform_factory(ax.transData, ax.transAxes)
+
+n_rows = 3
+row_y = [-0.13, -0.235, -0.34]     # axes-fraction shelves beneath the axis
+min_sep_ev = 470                      # min energy gap to share a shelf
+row_last = [-1e9] * n_rows
+
+chip_style = {
+    "K":  dict(fc="#E9F1FA", ec=NSLS_BLUE, tc=NSLS_BLUE),
+    "L3": dict(fc="#FDEDE6", ec=ACCENT,    tc=ACCENT),
+}
+
+order = np.argsort(energy)
+ymin_data = ax.get_ylim()[0]
+
+for i in order:
+    x, y, name = energy[i], flux[i], edges[i]
+    etype = "L3" if "L3" in name else "K"
+    style = chip_style[etype]
+
+    row = n_rows - 1
+    for r in range(n_rows):
+        if x - row_last[r] >= min_sep_ev:
+            row = r
+            break
+    row_last[row] = x
+
+    # dashed stem: marker down to the axis bottom (data space)
+    ax.plot([x, x], [y, ymin_data], color=style["ec"], lw=0.6,
+             linestyle=(0, (2, 2)), alpha=0.55, zorder=2, clip_on=True)
+    # stub continuing from the axis bottom down to the label shelf
+    stem = mlines.Line2D([x, x], [0.0, row_y[row] + 0.02],
+                          transform=blended, color=style["ec"], lw=0.6,
+                          linestyle=(0, (2, 2)), alpha=0.55,
+                          clip_on=False, zorder=2)
+    ax.add_line(stem)
+
+    ax.text(
+        x, row_y[row], name,
+        transform=blended,
+        ha="center", va="top",
+        rotation=90,
+        fontsize=7.6,
+        fontweight="medium",
+        color=style["tc"],
+        clip_on=False,
+        zorder=6,
+        bbox=dict(
+            boxstyle="round,pad=0.22",
+            fc=style["fc"], ec=style["ec"], lw=0.7, alpha=0.95,
+        ),
+    )
+
+# --- labels / title -------------------------------------------------------
+ax.set_ylabel("Flux (photons / s / 500 mA)", fontsize=13, labelpad=10, fontweight="medium")
+fig.text(0.53, 0.065, "Photon Energy (eV)  —  labeled at each measured absorption edge",
+         fontsize=12, ha="center", fontweight="medium", color=TEXT_GRAY)
+fig.text(0.53, 0.02,
+         "Data: 8-ID (ISS) beamline flux measurements  |  National Synchrotron Light Source II, Brookhaven National Laboratory",
+         fontsize=8.5, color="#8A93A0", ha="center")
+
+ax.set_title(
+    "Photon Flux vs. Energy",
+    fontsize=19, fontweight="bold", color=NSLS_BLUE, pad=34, loc="left",
+)
+ax.text(
+    0.0, 1.055,
+    "NSLS-II  •  8-ID (ISS) Beamline — flux measured at selected absorption edges",
+    transform=ax.transAxes,
+    fontsize=11.5, color=TEXT_GRAY, ha="left",
+)
+
+# --- legend for edge-type color coding ----------------------------------
+from matplotlib.lines import Line2D
+legend_elems = [
+    Line2D([0], [0], marker="o", color="none", markerfacecolor=NSLS_BLUE,
+           markeredgecolor="white", markersize=8, label="K-edge"),
+    Line2D([0], [0], marker="o", color="none", markerfacecolor=ACCENT,
+           markeredgecolor="white", markersize=8, label="L3-edge"),
+]
+leg = ax.legend(
+    handles=legend_elems, loc="upper right", frameon=True, fontsize=10.5,
+    handletextpad=0.6, borderpad=0.7, facecolor="white", edgecolor="#D6DCE3",
+)
+leg.get_frame().set_linewidth(0.8)
+
+# --- cosmetic spines -----------------------------------------------------
+for spine in ["top", "right"]:
+    ax.spines[spine].set_visible(False)
+for spine in ["left", "bottom"]:
+    ax.spines[spine].set_linewidth(0.9)
+
+ax.tick_params(axis="both", which="major", labelsize=10.5, length=4)
+ax.tick_params(axis="y", which="minor", length=2)
+
+fig.subplots_adjust(left=0.08, right=0.97, top=0.80, bottom=0.30)
+
+
+fig.savefig("/home/xf08id/Documents/iss_flux_vs_energy.png", dpi=200, facecolor="white")
+print("saved")
