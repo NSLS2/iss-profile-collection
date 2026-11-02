@@ -148,7 +148,7 @@ nslsii.configure_base(
      redis_ssl=True,
 )
 
-db.v2.context.http_client.headers['tiled-qos'] = 'acquisition'
+tiled_writing_client.context.http_client.headers['tiled-qos'] = 'acquisition'
 
 
 logger_db = logging.getLogger('databroker')

@@ -601,4 +601,4 @@ from databroker.assets.handlers import (
 
 from xas.handlers import ISSPilatusHDF5Handler
 
-db.reg.register_handler("PIL100k_HDF5", ISSPilatusHDF5Handler, overwrite=True)
+# db.reg.register_handler("PIL100k_HDF5", ISSPilatusHDF5Handler, overwrite=True)

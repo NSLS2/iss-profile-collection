@@ -260,5 +260,5 @@ pb9.wait_for_connection(timeout=10)
 
 from xas.handlers import PizzaBoxEncHandlerTxtPD
 
-db.reg.register_handler('PIZZABOX_ENC_FILE_TXT_PD',
-                        PizzaBoxEncHandlerTxtPD, overwrite=True)
+#db.reg.register_handler('PIZZABOX_ENC_FILE_TXT_PD',
+#                        PizzaBoxEncHandlerTxtPD, overwrite=True)

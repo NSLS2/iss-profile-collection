@@ -163,7 +163,7 @@ class APBTriggerFileHandler(HandlerBase):
 
 
 
-db.reg.register_handler('APB_TRIGGER',
-                        APBTriggerFileHandler, overwrite=True)
+# db.reg.register_handler('APB_TRIGGER',
+#                         APBTriggerFileHandler, overwrite=True)
 
 
