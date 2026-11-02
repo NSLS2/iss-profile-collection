@@ -58,8 +58,35 @@ def _compute_hhmy_value(energy):
     # energy_tab = np.array([ 4900,  5100,  5500,  6000,  7000,  8000,  9000, 10000, 11000, 12000, 13000, 15000, 17500, 20000, 26000]) # before the repair of CM 2025-1
     # energy_tab = np.array([4950, 5100, 5500, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 15000, 17500, 20000, 26000, 31000]) # 2025-10-31
     # hhmy_tab = np.array([8.657, 8.606, 8.457, 8.36, 8.243, 8.143, 8.097, 8.044, 8.046, 7.995, 7.937, 7.930, 7.922, 7.940, 7.920]) #2025-10-31
-    energy_tab = np.array([4950, 4966, 5100, 5465, 5989, 6539, 7112, 7709, 8333, 8979, 9659, 9881, 10535, 11215, 11564, 11919, 12658, 13035, 17998, 20000, 22117, 23220, 24350, 25514, 26711, 27940, 29000, 30000, 31000])  # 2026-05-21
-    hhmy_tab = np.array([8.769, 8.749, 8.692, 8.616, 8.515, 8.399, 8.332, 8.270, 8.222, 8.199, 8.174, 8.175, 8.171, 8.142, 8.139, 8.116, 8.117, 8.107, 8.031, 8.038, 8.021, 8.029, 8.029, 8.034, 8.014, 8.041, 8.041, 8.041, 8.041])  # 2026-05-21
+    # energy_tab = np.array([4950, 4966, 5100, 5465, 5989, 6539, 7112, 7709, 8333, 8979, 9659, 9881, 10535, 11215, 11564, 11919, 12658, 13035, 17998, 20000, 22117, 23220, 24350, 25514, 26711, 27940, 29000, 30000, 31000])  # 2026-05-21
+    # hhmy_tab = np.array([8.769, 8.749, 8.692, 8.616, 8.515, 8.399, 8.332, 8.270, 8.222, 8.199, 8.174, 8.175, 8.171, 8.142, 8.139, 8.116, 8.117, 8.107, 8.031, 8.038, 8.021, 8.029, 8.029, 8.034, 8.014, 8.041, 8.041, 8.041, 8.041])  # 2026-05-21
+    # energy_tab = np.array(
+    #     [4950, 5465, 5989, 6539, 7112, 7709, 8333, 8979, 9659, 9881, 10207, 10535, 11215, 11564, 11919, 12658,
+    #      13035, 17998, 18986, 20000, 22117, 23220, 24350, 25514, 26711, 27940, 29200, 30491, 31814, 32500])  # 2026-09-18
+    # hhmy_tab = np.array(
+    #     [8.646, 8.517, 8.414, 8.298, 8.233, 8.166, 8.159, 8.144, 8.092, 8.073, 8.074, 8.068, 8.064, 8.058, 8.002, 7.999,
+    #      7.949, 7.848, 7.991, 7.935, 7.939, 7.936, 7.934, 7.932, 7.932, 7.931, 7.930, 7.928, 7.927, 7.927])  # 2026-09-18
+    energy_tab = np.array(
+        [4950, 5465, 5989, 6539, 7112, 7709, 8333, 8979, 9659, 10207, 11215, 11919, 15200,
+         17988, 18986, 20000, 22117, 23220, 24350, 25514, 26711, 27940, 29200, 30491, 31814]) # 2026-10-12. hhm.energy
+
+    hhmy_tab = np.array(
+        [8.949, 8.793, 8.704, 8.610, 8.566, 8.499, 8.453, 8.403, 8.407, 8.358, 8.357, 8.334, 8.230,
+         8.194, 8.239, 8.193, 8.222, 8.234, 8.233, 8.223, 8.245, 8.200, 8.239, 8.255, 8.249]) # 2026-10-12. hhm.y_precise
+
+    hhmp_tab = np.array(
+        [504.80, 504.21, 503.67, 503.12, 502.68, 502.55, 502.10, 501.77, 501.48, 501.30, 500.98, 501.03, 499.87,
+         499.67, 499.65, 499.63, 499.42, 499.10, 499.08, 499.05, 499.05, 499.04, 499.20, 499.25, 499.31]) # 2026-10-12. hhm.pitch
+
+    hhmr_tab = np.array(
+        [473.50, 473.50, 474.00, 474.00, 474.50, 473.00, 473.00, 473.00, 473.00, 473.50, 473.50, 472.50, 473.00,
+         474.00, 474.00, 474.00, 475.00, 476.00, 482.00, 482.00, 482.00, 482.00, 484.00, 484.00, 482.00]) # 2026-10-12. hhm.roll
+
+    hhmr_tab = np.array(
+        [473.50, 473.50, 474.00, 474.00, 474.50, 473.00, 473.00, 473.00, 473.00, 473.50, 473.50, 472.50, 473.00,
+         474.00, 474.00, 474.00, 475.00, 476.00, 482.00, 482.00, 482.00, 482.00, 484.00, 484.00, 482.00])  # 2026-10-12.
+
+
 
     # hhmy_tab = np.array([9, 9, 9, 9, 9, 7.9, 8.1])
     # hhmy_tab = np.array([9.937850000000001,
@@ -109,70 +136,70 @@ bl_prepare_energy_ranges = [
         {
             'energy_start': 4500,
             'energy_end': 5700,
-            'He_flow': 4,  #5 old value 2024-09-06
-            'N2_flow': 1,
+            'He_flow': 4.6,  #5 old value 2024-09-06
+            'N2_flow': 0.4,
             'IC_voltage': 1000,
-            'HHRM': 4,
+            'HHRM': 10,
             'CM1':0,# 0,
             'Filterbox': 1,
-            'ES BPM exposure': 0.11,
+            'ES BPM exposure': 0.085,
             'ES BPM Position': 50,
             'i0_gain': 5,
-            'it_gain': 5,
-            'ir_gain': 5,
-            'hhm_pitch': 501.48,
-            'hhm_roll': 476,
+            'it_gain': 6,
+            'ir_gain': 7,
+            'hhm_pitch': 504.5,
+            'hhm_roll': 473.50,
         },
         {
             'energy_start': 5701,
             'energy_end': 7300,
-            'He_flow': 3.5, #5 old value 2024-09-06
-            'N2_flow': 1.5,
+            'He_flow': 4.25, #5 old value 2024-09-06
+            'N2_flow': 0.75,
             'IC_voltage': 1650,
-            'HHRM': 5,
+            'HHRM': 10,
             'CM1':0,# 0,
             'Filterbox': -69,
-            'ES BPM exposure': 0.12, #0.05, # Denis 2024-06-02: changed to a higher value because of the beamline state
+            'ES BPM exposure': 0.14, #0.05, # Denis 2024-06-02: changed to a higher value because of the beamline state
             'ES BPM Position': 50,
             'i0_gain': 5,
             'it_gain': 5,
-            'ir_gain': 5,
-            'hhm_pitch': 500.43,
-            'hhm_roll': 477,
+            'ir_gain': 6,
+            'hhm_pitch': 503.10,
+            'hhm_roll': 474.00,
         },
         {
             'energy_start': 7301,
             'energy_end': 10000,
-            'He_flow': 1.5,  # 5 old value 2024-09-06
-            'N2_flow': 3.5,
+            'He_flow': 3.65,  # 5 old value 2024-09-06
+            'N2_flow': 1.35,
             'IC_voltage': 1650,
-            'HHRM': 5,
+            'HHRM': 10,
             'CM1': 0,  # 0,
             'Filterbox': -69,
-            'ES BPM exposure': 0.16,  # 0.05, # Denis 2024-06-02: changed to a higher value because of the beamline state
+            'ES BPM exposure': 0.14,  # 0.05, # Denis 2024-06-02: changed to a higher value because of the beamline state
             'ES BPM Position': 50,
             'i0_gain': 5,
             'it_gain': 5,
             'ir_gain': 5,
-            'hhm_pitch': 499.13,
-            'hhm_roll': 479,
+            'hhm_pitch': 501.8,
+            'hhm_roll': 473.00,
         },
         {
             'energy_start': 10000,
             'energy_end': 13000,
-            'He_flow': 0, #5 old value 2024-09-06
-            'N2_flow': 5,
+            'He_flow': 1.8, #5 old value 2024-09-06
+            'N2_flow': 3.2,
             'IC_voltage': 1650,
-            'HHRM': 75, # IS THIS SUPPOSED TO BE 80?
+            'HHRM': 70, # IS THIS SUPPOSED TO BE 80?
             'CM1':0,# 0,
             'Filterbox': -139,
-            'ES BPM exposure': 0.25,
+            'ES BPM exposure': 0.175,
             'ES BPM Position': 50,
             'i0_gain': 5,
             'it_gain': 5,
             'ir_gain': 5,
-            'hhm_pitch': 498.37,
-            'hhm_roll': 483.5,
+            'hhm_pitch': 501.00,
+            'hhm_roll': 473.00,
         },
         {
             'energy_start': 13000,
@@ -180,16 +207,16 @@ bl_prepare_energy_ranges = [
             'He_flow': 0, #5 old value 2024-09-06
             'N2_flow': 5,
             'IC_voltage': 1650,
-            'HHRM': 75,
+            'HHRM': 70,
             'CM1': 40,# 0,
             'Filterbox': -139,
-            'ES BPM exposure': 0.25,
+            'ES BPM exposure': 0.235,
             'ES BPM Position': 50,
             'i0_gain': 5,
             'it_gain': 5,
             'ir_gain': 5,
-            'hhm_pitch': 498.34,
-            'hhm_roll': 489,
+            'hhm_pitch': 500.00,
+            'hhm_roll': 473.00,
         },
         {
             'energy_start': 17000,
@@ -197,34 +224,34 @@ bl_prepare_energy_ranges = [
             'He_flow': 0, #2 old value 2024-09-06
             'N2_flow': 5,
             'IC_voltage': 1650,
-            'HHRM': 75,
+            'HHRM': 70,
             'CM1': 40,# 0,
             'Filterbox': -209,
             'ES BPM exposure': 0.25, #old value 1
             'ES BPM Position': 40,
-            'i0_gain': 6,
-            'it_gain': 6,
-            'ir_gain': 6,
-            'hhm_pitch': 498.04,
-            'hhm_roll': 488.5,
+            'i0_gain': 5,
+            'it_gain': 5,
+            'ir_gain': 5,
+            'hhm_pitch': 499.40,
+            'hhm_roll': 476.00,
 
         },
         {
             'energy_start': 25000,
             'energy_end': 35000,
-            'He_flow': 2,
+            'He_flow': 0,
             'N2_flow': 5,
             'IC_voltage': 1650,
-            'HHRM': 75,
+            'HHRM': 70,
             'CM1': 40,# 0,
             'Filterbox': -209,
-            'ES BPM exposure': 0.35,
+            'ES BPM exposure': 0.23,
             'ES BPM Position': 40,
             'i0_gain': 6,
             'it_gain': 6,
             'ir_gain': 6,
-            'hhm_pitch': 497.93,
-            'hhm_roll': 492,
+            'hhm_pitch': 499.00,
+            'hhm_roll': 482.00,
 
         },
     ]
@@ -255,19 +282,20 @@ def prepare_beamline_plan(energy: int = -1, move_cm_mirror = False, move_hhm_y=T
         return
 
 
-    current_filterbox_position = filterbox.y.read()[filterbox.y.name]['value']
-    if (abs(energy_range['Filterbox'] - current_filterbox_position)) < 0.1:
-        move_filter = False
-    else:
-        move_filter = True
-
-
     print_to_gui(f'[Prepare Beamline] Starting setting up the beamline to {energy} eV...')
     if move_cm_mirror == True:
         start_cm_position = cm_setter.position
         end_cm_position = energy_range['CM1']
         cm_motion_range = abs(end_cm_position-start_cm_position)
         moving_cm = cm_setter.set(end_cm_position)
+
+
+    current_filterbox_position = filterbox.y.read()[filterbox.y.name]['value']
+    if (abs(energy_range['Filterbox'] - current_filterbox_position)) < 0.1:
+        move_filter = False
+    else:
+        move_filter = True
+
     #
     start_hhrm_position = hhrm_setter.position
     end_hhrm_position = energy_range['HHRM']
@@ -365,6 +393,8 @@ def prepare_beamline_plan(energy: int = -1, move_cm_mirror = False, move_hhm_y=T
 
     print_to_gui('[Prepare Beamline] Mono pitch position set')
 
+
+
     while not moving_hhm_roll.done:
         motion_so_far_roll = hhm_roll_setter.position
         percent_complete = int(abs(motion_so_far_roll - start_hhm_roll_position) / hhm_roll_motion_range * 100)
@@ -375,12 +405,29 @@ def prepare_beamline_plan(energy: int = -1, move_cm_mirror = False, move_hhm_y=T
 
 #
     if move_cm_mirror == True:
+        reopen_shutter = False
+        if shutter_fe_2b.status.get() != 'Not Open':
+            reopen_shutter = True
+            try:
+                yield from bps.mv(shutter_fe_2b, 'Close')
+            except FailedStatus:
+                raise CannotActuateShutter(f'Error: Photon shutter failed to close.')
         while not moving_cm.done:
             motion_so_far = cm_setter.position
             percent_complete = int(abs(motion_so_far - start_cm_position) / cm_motion_range * 100)
             print_to_gui(f'[Prepare Beamline] CM1 motion is {percent_complete} % set')
             yield from bps.sleep(10)
         print_to_gui('[Prepare Beamline] CM1 mirror position set')
+
+        if reopen_shutter:
+            try:
+                yield from bps.mv(shutter_fe_2b, 'Open')
+                print_to_gui('[Prepare Beamline] Opening frontend shutter after moving correct filter')
+            except FailedStatus:
+                print_to_gui(f'Error: Photon shutter failed to open.')
+
+
+
 
     print_to_gui('[Prepare Beamline] Moving to the target energy')
     yield from bps.mv(hhm.energy, energy)
@@ -389,6 +436,7 @@ def prepare_beamline_plan(energy: int = -1, move_cm_mirror = False, move_hhm_y=T
     yield from i0_amp.set_gain_plan(energy_range['i0_gain'], True)
     yield from it_amp.set_gain_plan(energy_range['it_gain'], True)
     yield from ir_amp.set_gain_plan(energy_range['ir_gain'], True)
+    yield from get_offsets_plan()
     # Additon to account for higher flows
 
     yield from bps.mv(

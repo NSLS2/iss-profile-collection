@@ -169,7 +169,7 @@ motor_dictionary = {
     'hhrm_yu':                  {'name': hhrm.yu.name,              'description': 'B1 HHR Mirror Y Upstream',              'keyword': 'B1 HHR Mirror Y Upstream',            'object': hhrm.yu},
     'hhrm_yd':                  {'name': hhrm.yd1.name,             'description': 'B1 HHR Mirror Y Downstream',            'keyword': 'B1 HHR Mirror Y Downstream',          'object': hhrm.yd1},
     'slits_v_gap':              {'name': slits.v_gap.name,          'description': 'B1 Slit Vertical Gap',                  'keyword': 'B1 Slit Vertical Gap',                'object': slits.v_gap},
-    'slits_v_pos':              {'name': slits.v_pos.name,          'description': 'B1 Slit Vertical Position',             'keyword': 'B1 Slit Vertical Position',           'object': slits.v_pos},
+    'slits_v_pos':              {'name': slits.v_pos.name,          'description': 'B1 Slit Vertical Position',             'keyword': 'B1 Slit Vertical Position',           'object': slits.v_pos, 'user': True},
     'slits_hor_in':             {'name': slits.hor_in.name,         'description': 'B1 Slit Horisontal Inboard Position',   'keyword': 'B1 Slit Horisontal Inboard Position', 'object': slits.hor_in},
     'slits_hor_out':            {'name': slits.hor_out.name,        'description': 'B1 Slit Horisontal Outboard Position',  'keyword': 'B1 Slit Horisontal Outboard Position','object': slits.hor_out},
     'sample_shutter_angle':     {'name': usermotor3.name,           'description': 'B1 User shutter angle ',                'keyword': 'B1 User shutter angle ',              'object': usermotor3.pos},
@@ -184,7 +184,7 @@ motor_dictionary = {
     'foil_wheel_wheel1' :       {'name': foil_wheel.wheel1.name,    'description': 'B1 Reference foil wheel 1',             'keyword': 'B1 Reference foil wheel 1',           'object' : foil_wheel.wheel1},
     'foil_wheel_wheel2' :       {'name': foil_wheel.wheel2.name,    'description': 'B1 Reference foil wheel 2',             'keyword': 'B1 Reference foil wheel 2',           'object' : foil_wheel.wheel2},
 
-    'attenuator_wheel' :        {'name': attenuator_motor.name,      'description': 'B1 Attenuator wheel',                     'keyword': 'B1 Attenuator wheel',           'object' : attenuator_motor, 'user':False},
+    'attenuator_wheel' :        {'name': attenuator_motor.pos.name,      'description': 'B1 Attenuator wheel',                     'keyword': 'B1 Attenuator wheel',           'object' : attenuator_motor.pos, 'user':False},
 
 
     'det1_stage_x':             {'name': det1_stage_x.pos.name,     'description': 'B1 Detector stage 1 X',                 'keyword': 'B1 Detector stage 1 X',               'object': det1_stage_x.pos,     'user':True},
