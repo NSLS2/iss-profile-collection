@@ -3,7 +3,6 @@ import os
 
 from bluesky_tiled_plugins import TiledWriter
 from bluesky.callbacks.buffer import BufferingWrapper
-from tiled.client import from_uri
 
 
 import bson
@@ -389,10 +388,8 @@ class PizzaBoxConsolidator(ConsolidatorBase):
 CONSOLIDATOR_REGISTRY["application/x-pizzabox-binary"] = PizzaBoxConsolidator
 
 
-# Initialize the Tiled client and the TiledWriter
-api_key = os.environ.get("TILED_BLUESKY_WRITING_API_KEY_ISS")
-tiled_writing_client_sql = from_uri("https://tiled.nsls2.bnl.gov", api_key=api_key)['iss/migration']
-tw = TiledWriter(client = tiled_writing_client_sql,
+# Use the authenticated migration client configured in 00-startup.py.
+tw = TiledWriter(client = tiled_writing_client,
                  backup_directory="/tmp/tiled_backup",
                  patches = {"descriptor": patch_descriptor,
                             "resource": patch_resource,

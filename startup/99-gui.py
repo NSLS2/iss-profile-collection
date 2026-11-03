@@ -7,6 +7,7 @@ import sys
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 import time as ttime
+from tiled.client import from_uri
 
 # sample_stages = [{'x': giantxy.x.name, 'y': giantxy.y.name},
 #                  {'x': samplexy.x.name, 'y': samplexy.y.name},
@@ -20,7 +21,7 @@ processing_ioc_uid = None
 if not os.environ.get('AZURE_TESTING'):
     from isstools import xlive
     print("Authenticating XliveGUI Tiled Client:")
-    xlive_tiled_client = from_uri("https://tiled.nsls2.bnl.gov", username=None, remember_me=False)
+    xlive_tiled_client = from_uri("https://tiled.nsls2.bnl.gov", username=None, remember_me=False)["iss"]["migration"]
 
     xlive_gui = xlive.XliveGui(data_collection_plan_funcs=data_collection_plan_funcs,
                                service_plan_funcs=service_plan_funcs,

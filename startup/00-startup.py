@@ -124,32 +124,21 @@ from databroker import Broker
 #nslsii.configure_kafka_publisher(RE, "iss")
 
 # Configure a Tiled reading client
-tiled_reading_client = from_profile("nsls2")["iss"]["raw"]
+tiled_reading_client = from_profile("nsls2")["iss"]["migration"]
 # Configure a Tiled writing client
 
-tiled_writing_client = from_profile("nsls2", api_key=os.environ["TILED_BLUESKY_WRITING_API_KEY_ISS"])["iss"]["raw"]
-
-class TiledInserter:
-    name = 'iss'
-
-    def insert(self, name, doc):
-        tiled_writing_client.post_document(name, doc)
-
-tiled_inserter = TiledInserter()
+tiled_writing_client = from_profile("nsls2", api_key=os.environ["TILED_BLUESKY_WRITING_API_KEY_ISS"])["iss"]["migration"]
+tiled_writing_client.context.http_client.headers['tiled-qos'] = 'acquisition'
 
 # Data Security - Sync-Experiment
 nslsii.configure_base(
      get_ipython().user_ns,
-     tiled_inserter,
-     publish_documents_with_kafka=True,
+     publish_documents_with_kafka='iss',
     # redis_url = "info.iss.nsls2.bnl.gov",
      redis_url="xf08id1-iss-redis1.nsls2.bnl.gov",
      redis_port=6380,
      redis_ssl=True,
 )
-
-tiled_writing_client.context.http_client.headers['tiled-qos'] = 'acquisition'
-
 
 logger_db = logging.getLogger('databroker')
 logger_db.setLevel('WARNING')
