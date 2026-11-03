@@ -22,10 +22,12 @@ import numpy as np
 import pandas as pd
 import xraydb
 from bluesky.utils import PersistentDict
-
+from bluesky_tiled_plugins import BufferingWrapper, TiledInserter
+from tiled.client import from_uri
 
 from bluesky import RunEngine
 
+TILED_BACKUP_ROOT = "/nsls2/data/iss/shared/config/bluesky/tiled_backup"
 
 print(ttime.ctime() + ' >>>> ' + __file__)
 
@@ -133,6 +135,13 @@ nslsii.configure_base(
      redis_ssl=True,
 )
 
+tiled_writing_client = from_uri(
+    "https://tiled.nsls2.bnl.gov",
+    api_key=os.environ.get("TILED_BLUESKY_WRITING_API_KEY_ISS", ""),
+)["iss"]["raw"]
+tiled_writing_client.context.http_client.headers['tiled-qos'] = 'acquisition'
+tw = BufferingWrapper(TiledInserter(tiled_writing_client, "iss", backup_directory=f"{TILED_BACKUP_ROOT}/raw"))
+RE.subscribe(tw)
 db.v2.context.http_client.headers['tiled-qos'] = 'acquisition'
 
 
