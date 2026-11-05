@@ -362,8 +362,8 @@ def johann_reset_fly_caibration_data_plan():
     yield from bps.null()
 
 def johann_add_scan_to_fly_calibration_data_plan(_uid=-1):
-    start = db[_uid].start
-    uid = start.uid
+    start = dict(db[_uid].start)  # snapshot once — avoids repeated HTTP round-trips on Tiled
+    uid = start['uid']
     rowland_circle.fly_calibration_dict['data'].append({
         'mono_energy': start['hhm_energy'],
         'scan_scope': start['scan_scope'],
