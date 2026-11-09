@@ -436,7 +436,7 @@ def prepare_beamline_plan(energy: int = -1, move_cm_mirror = False, move_hhm_y=T
     yield from i0_amp.set_gain_plan(energy_range['i0_gain'], True)
     yield from it_amp.set_gain_plan(energy_range['it_gain'], True)
     yield from ir_amp.set_gain_plan(energy_range['ir_gain'], True)
-    yield from get_offsets_plan()
+    # yield from get_offsets_plan()
     # Additon to account for higher flows
 
     yield from bps.mv(
