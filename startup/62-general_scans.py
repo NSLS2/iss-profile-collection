@@ -85,11 +85,12 @@ def tuning_scan(motor=None, detector=None, scan_range=None, scan_step=None, n_tr
         uid = (yield from plan)
         if uid:
             hdr = db[uid]
+            t = hdr.table()  # fetch once — avoids two redundant round-trips on Tiled
             if detector_device.polarity == 'pos':
-                idx = getattr(hdr.table()[channel], 'idxmax')()
+                idx = getattr(t[channel], 'idxmax')()
             elif detector_device.polarity == 'neg':
-                idx = getattr(hdr.table()[channel], 'idxmin')()
-            motor_pos = hdr.table()[motor.name][idx]
+                idx = getattr(t[channel], 'idxmin')()
+            motor_pos = t[motor.name][idx]
             print_to_gui(f'New motor position {motor_pos}')
 
             if motor_pos < min_threshold:

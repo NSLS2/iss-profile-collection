@@ -20,8 +20,6 @@ processing_ioc_uid = None
 
 if not os.environ.get('AZURE_TESTING'):
     from isstools import xlive
-    print("Authenticating XliveGUI Tiled Client:")
-    xlive_tiled_client = from_uri("https://tiled.nsls2.bnl.gov", username=None, remember_me=False)["iss"]["migration"]
 
     xlive_gui = xlive.XliveGui(data_collection_plan_funcs=data_collection_plan_funcs,
                                service_plan_funcs=service_plan_funcs,
@@ -60,7 +58,7 @@ if not os.environ.get('AZURE_TESTING'):
                                ic_amplifiers=ic_amplifiers,
                                print_to_gui=print_to_gui,
                                redis_settings_client=redis_settings_client,
-                               tiled_client=xlive_tiled_client,
+                               tiled_client=tiled_reading_client,
                                window_title="XLive @ISS/08-ID NSLS-II")
 
 

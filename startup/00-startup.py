@@ -21,13 +21,14 @@ import numpy as np
 import pandas as pd
 import xraydb
 from bluesky.utils import PersistentDict
-from tiled.client import from_profile
+from tiled.client import from_uri, from_profile, show_logs
 
 
 from bluesky import RunEngine
 
 
 print(ttime.ctime() + ' >>>> ' + __file__)
+
 
 # the file paths for acquitision and analysis
 
@@ -124,11 +125,14 @@ from databroker import Broker
 #nslsii.configure_kafka_publisher(RE, "iss")
 
 # Configure a Tiled reading client
-tiled_reading_client = from_profile("nsls2")["iss"]["migration"]
+tiled_reading_client = from_uri("https://tiled.nsls2.bnl.gov", username=None, remember_me=False)["iss"]["migration"]
+
 # Configure a Tiled writing client
 
 tiled_writing_client = from_profile("nsls2", api_key=os.environ["TILED_BLUESKY_WRITING_API_KEY_ISS"])["iss"]["migration"]
 tiled_writing_client.context.http_client.headers['tiled-qos'] = 'acquisition'
+
+show_logs()
 
 # Data Security - Sync-Experiment
 nslsii.configure_base(

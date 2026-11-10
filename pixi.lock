@@ -483,7 +483,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/darkdetect-0.8.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dask-2026.1.2-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dask-core-2026.1.2-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/databroker-2.0.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/databroker-2.0.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/decorator-5.2.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/defusedxml-0.7.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/deprecated-1.3.1-pyhd8ed1ab_1.conda
@@ -1290,7 +1290,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/darkdetect-0.8.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dask-2026.1.2-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dask-core-2026.1.2-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/databroker-2.0.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/databroker-2.0.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/decorator-5.2.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/defusedxml-0.7.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/deprecated-1.3.1-pyhd8ed1ab_1.conda
@@ -8755,9 +8755,9 @@ packages:
   - pkg:pypi/dask?source=hash-mapping
   size: 1063599
   timestamp: 1769829714443
-- conda: https://conda.anaconda.org/conda-forge/noarch/databroker-2.0.0-pyhd8ed1ab_0.conda
-  sha256: 82d22ca12001cfbe18d1643f5fb6000a93c63e057249ba7f2620d5835ea620db
-  md5: ae6ace6405d2f03bb9c2b3f144732c08
+- conda: https://conda.anaconda.org/conda-forge/noarch/databroker-2.0.2-pyhd8ed1ab_0.conda
+  sha256: 9b963cedd352ecc68216cdbb9c648bbbaa6f9c2bed50140cab1e2e91865647a2
+  md5: 4847967dc19dbd01ed76526df19d81c5
   depends:
   - area-detector-handlers
   - bluesky-tiled-plugins
@@ -8778,7 +8778,7 @@ packages:
   - pims
   - pydantic
   - pymongo
-  - python >=3.10
+  - python >=3.11
   - pytz
   - requests
   - starlette
@@ -8792,8 +8792,9 @@ packages:
   license_family: BSD
   purls:
   - pkg:pypi/databroker?source=hash-mapping
-  size: 141191
-  timestamp: 1763687269409
+  run_exports: {}
+  size: 142450
+  timestamp: 1793830059745
 - conda: https://conda.anaconda.org/conda-forge/noarch/decorator-5.2.1-pyhd8ed1ab_0.conda
   sha256: c17c6b9937c08ad63cb20a26f403a3234088e57d4455600974a0ce865cb14017
   md5: 9ce473d1d1be1cc3810856a48b3fab32
@@ -13239,6 +13240,8 @@ packages:
   - numexpr
   - pyzbar
   - slackclient
+  - tiled
+  - bluesky-tiled-plugins
 - pypi: /nsls2/auto-storage/iss/shared/config/repos/xas
   name: xas
 - pypi: git+https://github.com/nsls-ii-iss/isscloudtools#4b9da00380a3c56aa80b4772ac48dda363a11d7d

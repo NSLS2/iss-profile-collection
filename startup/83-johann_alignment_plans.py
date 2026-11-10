@@ -171,8 +171,8 @@ def johann_alignment_scan_plan_bundle(alignment_plan=None, rois=None,  alignment
 
 def johann_add_scan_to_alignment_data_plan(alignment_data=None, alignment_plan='', _uid=-1, rois=None):
     if alignment_data is not None:
-        start = db[_uid].start
-        uid = start.uid
+        start = dict(db[_uid].start)  # snapshot once — avoids repeated HTTP round-trips on Tiled
+        uid = start['uid']
         alignment_data.append({
             'crystal': start['alignment_crystal'],
             'tweak_motor_description': start['tweak_motor_description'],
