@@ -306,6 +306,9 @@ class ISSXspress3CDetectorStream(ISSXspress3CDetector):
         self._asset_docs_cache.clear()
         for item in items:
             yield item
+        # The trigger's Event documents reference its own resource/datum IDs.
+        # Forward them so Tiled receives those foreign keys before the Events.
+        yield from self.ext_trigger_device.collect_asset_docs()
 
     def complete(self, *args, **kwargs):
         print("complete 1")
@@ -390,4 +393,3 @@ class ISSXspress3CHDF5Handler(Xspress3HDF5Handler):
         # arr_data = np.asarray(self._file[self.XRF_DATA_KEY])
         # print(arr_data.shape)
         return self._array_data[frame_number, :, :]
-
